@@ -5,7 +5,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="411"/>
+        <location filename="../mainwindow.cpp" line="405"/>
         <source>MX Tools</source>
         <translation type="unfinished">MX Tools</translation>
     </message>
@@ -45,57 +45,57 @@
         <translation type="unfinished">Užívateľský manuál</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="263"/>
+        <location filename="../mainwindow.ui" line="265"/>
         <source>These MX applications save time and effort with important tasks.</source>
         <translation type="unfinished">Tieto aplikácie zkracujú čas a zmenšujú námahu s dôležitými úlohami. </translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="279"/>
+        <location filename="../mainwindow.ui" line="281"/>
         <source>Hide individual tools from the menu</source>
         <translation type="unfinished">Schovať individuálne položky v hlavnej ponuke</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="298"/>
+        <location filename="../mainwindow.ui" line="300"/>
         <source>search</source>
         <translation type="unfinished">hľadať</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="410"/>
+        <location filename="../mainwindow.cpp" line="404"/>
         <source>About MX Tools</source>
         <translation type="unfinished">O programe MX Tools</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="411"/>
+        <location filename="../mainwindow.cpp" line="405"/>
         <source>Version: </source>
         <translation type="unfinished">Verzia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="413"/>
+        <location filename="../mainwindow.cpp" line="406"/>
         <source>Configuration Tools for MX Linux</source>
         <translation type="unfinished">Konfiguračné nástroje MX Linux</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="414"/>
+        <location filename="../mainwindow.cpp" line="408"/>
         <source>Copyright (c) MX Linux</source>
         <translation type="unfinished">Copyright (c) MX Linux</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="415"/>
+        <location filename="../mainwindow.cpp" line="409"/>
         <source>License</source>
         <translation type="unfinished">Licencia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="416"/>
+        <location filename="../mainwindow.cpp" line="410"/>
         <source>Changelog</source>
         <translation type="unfinished">História zmien</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="417"/>
+        <location filename="../mainwindow.cpp" line="411"/>
         <source>Cancel</source>
         <translation type="unfinished">Zrušiť</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="432"/>
+        <location filename="../mainwindow.cpp" line="427"/>
         <source>&amp;Close</source>
         <translation type="unfinished">&amp;Zatvoriť</translation>
     </message>

@@ -5,7 +5,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="411"/>
+        <location filename="../mainwindow.cpp" line="405"/>
         <source>MX Tools</source>
         <translation type="unfinished">MX साधन</translation>
     </message>
@@ -45,57 +45,57 @@
         <translation type="unfinished">सहायता गाइड</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="263"/>
+        <location filename="../mainwindow.ui" line="265"/>
         <source>These MX applications save time and effort with important tasks.</source>
         <translation type="unfinished">ये MX अनुप्रयोग महत्वपूर्ण कार्यों के दौरान समय व प्रयास की बचत करते हैं।</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="279"/>
+        <location filename="../mainwindow.ui" line="281"/>
         <source>Hide individual tools from the menu</source>
         <translation type="unfinished">मेन्यू में इकलौते साधनों को प्रदर्शित न करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="298"/>
+        <location filename="../mainwindow.ui" line="300"/>
         <source>search</source>
         <translation type="unfinished">ढूँढ़ें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="410"/>
+        <location filename="../mainwindow.cpp" line="404"/>
         <source>About MX Tools</source>
         <translation type="unfinished">MX साधनों के बारे में</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="411"/>
+        <location filename="../mainwindow.cpp" line="405"/>
         <source>Version: </source>
         <translation type="unfinished">संस्करण :</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="413"/>
+        <location filename="../mainwindow.cpp" line="406"/>
         <source>Configuration Tools for MX Linux</source>
         <translation type="unfinished">MX लिनक्स हेतु विन्यास साधन</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="414"/>
+        <location filename="../mainwindow.cpp" line="408"/>
         <source>Copyright (c) MX Linux</source>
         <translation type="unfinished">प्रतिलिप्याधिकार (c) MX Linux</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="415"/>
+        <location filename="../mainwindow.cpp" line="409"/>
         <source>License</source>
         <translation type="unfinished">लाइसेंस</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="416"/>
+        <location filename="../mainwindow.cpp" line="410"/>
         <source>Changelog</source>
         <translation type="unfinished">परिवर्तन सूची</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="417"/>
+        <location filename="../mainwindow.cpp" line="411"/>
         <source>Cancel</source>
         <translation type="unfinished">रद्द करें</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="432"/>
+        <location filename="../mainwindow.cpp" line="427"/>
         <source>&amp;Close</source>
         <translation type="unfinished">&amp;बंद करें</translation>
     </message>
