@@ -1,0 +1,25 @@
+Format: 1.8
+Date: Thu, 30 Jun 2022 19:20:17 -0400
+Source: mx-tools
+Binary: mx-tools
+Architecture: i386
+Version: 22.6
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Adrian <adrian@mxlinux.org>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (22.6) mx; urgency=medium
+ .
+   * Fix: launching apps in terminal
+Checksums-Sha1:
+ f887cb2ada688fd092fbf6d7cd0802395e7cb178 10012 mx-tools_22.6_i386.buildinfo
+ c345e8323b570df5c31854e39aeea8d2e9eacf57 61252 mx-tools_22.6_i386.deb
+Checksums-Sha256:
+ 753ead5176f968cf587f4640c23a41a011d1cfcac99606dba80aab2f86e62b12 10012 mx-tools_22.6_i386.buildinfo
+ 8f553efa82dc7790bfeb91e2bed30689940f34e2dc38d76b0620d0204136c4ee 61252 mx-tools_22.6_i386.deb
+Files:
+ 3b77be1a7f5e7d326653c80279183ee8 10012 admin optional mx-tools_22.6_i386.buildinfo
+ 2dcc96b8af67fb27315f9a142da93bc1 61252 admin optional mx-tools_22.6_i386.deb

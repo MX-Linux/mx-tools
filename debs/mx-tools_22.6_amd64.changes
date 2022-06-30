@@ -1,0 +1,46 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Format: 1.8
+Date: Thu, 30 Jun 2022 19:20:17 -0400
+Source: mx-tools
+Binary: mx-tools
+Architecture: source amd64
+Version: 22.6
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Adrian <adrian@mxlinux.org>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (22.6) mx; urgency=medium
+ .
+   * Fix: launching apps in terminal
+Checksums-Sha1:
+ 6e3bebb671f7f9c87d7adc05dcb0d1b7d88f431d 1140 mx-tools_22.6.dsc
+ c704e7cfebffdeb4ff5cd31bb2de810cb20344f4 44788 mx-tools_22.6.tar.xz
+ 4982304f54f6e538459c7376f34809378fc3ab5f 10701 mx-tools_22.6_amd64.buildinfo
+ bafbfc88c994f1ec350b7eee21da4f6e65ddd855 58512 mx-tools_22.6_amd64.deb
+Checksums-Sha256:
+ 652364be31f686d0d8279560cf1dcb4506f50b4d6d73a748700c7c8ccb69b24d 1140 mx-tools_22.6.dsc
+ d7c0d32ea37080e31d7f7cea82c3c4bc233e58551ce333ba7f9c961d8fd85e50 44788 mx-tools_22.6.tar.xz
+ ca5774f96c74b42146ade6e81d2d4ac21c5781d5a53dae0562edd29f310fb61f 10701 mx-tools_22.6_amd64.buildinfo
+ 80b081f991263598c52f5c2f656c3e03aa59e4b7bf577012429fe01f6bfa2228 58512 mx-tools_22.6_amd64.deb
+Files:
+ a4314d75ef8abf01c31979e61db5bd52 1140 admin optional mx-tools_22.6.dsc
+ 115fc2309562bf966cbbcf93814e629f 44788 admin optional mx-tools_22.6.tar.xz
+ e791231ee9320a7d2974e9ef57c63723 10701 admin optional mx-tools_22.6_amd64.buildinfo
+ 352a3b3d391e2063f07fc3dc735115b7 58512 admin optional mx-tools_22.6_amd64.deb
+
+-----BEGIN PGP SIGNATURE-----
+
+iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmK+MAUTHGFkcmlhbkBt
+eGxpbnV4Lm9yZwAKCRBwk4x4BnnumLH1B/97vR4MGlx3DrN70smYD1viGC4+56mQ
+Rr3yJxNJq8okOzgsBbr2a9Vet2BUKDpp/kfNXg2wkr7LYxrU+DcWUH4isVJISm6z
+oH69+Dt6IsctAepvKcNZHKQCMiemtQTg5usQk+Fg7y2/kaV+/NmpTksMEiLGJSdI
+RbZT/ohl8W59E05WXNvhitF2w7Yr9OeZSxY837OV1afMS2ratmmQ7oW1aJ6VVruD
+eqXD12dwjhPUcNL7rHS6LSoL/bpTwO/k6Kl+enYDjhOTB8+frZqdbL7dBVckzAc1
+6cWUsLx7unNcWx8ldftWNTbcC0Z9kwVpJI5utdTi/mLSmvMMtnAIn80/
+=UGob
+-----END PGP SIGNATURE-----
