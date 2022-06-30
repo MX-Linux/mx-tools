@@ -45,7 +45,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    enum Info {Name, Comment, IconName, Exec, Terminal};
+    enum Info {Name, Comment, IconName, Exec, Category, Terminal};
     FlatButton *btn{};
     QMultiMap<QString, QStringList> category_map;
     QMultiMap<QString, QMultiMap<QString, QStringList>> info_map;
