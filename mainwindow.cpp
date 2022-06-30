@@ -173,39 +173,39 @@ void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
             comment.clear();
             if (lang != QLatin1String("en")) {
                 re.setPattern(QStringLiteral("^Name\\[") + lang_region + QStringLiteral("\\]=(.*)$"));
-                name = re.match(text).captured(1);
+                name = re.match(text).captured(1).trimmed();
                 if (name.isEmpty()) { // check lang
                     re.setPattern(QStringLiteral("^Name\\[") + lang + QStringLiteral("\\]=(.*)$"));
-                    name = re.match(text).captured(1);
+                    name = re.match(text).captured(1).trimmed();
                 }
                 re.setPattern(QStringLiteral("^Comment\\[") + lang_region + QStringLiteral("\\]=(.*)$"));
-                comment = re.match(text).captured(1);
+                comment = re.match(text).captured(1).trimmed();
                 if (comment.isEmpty()) { // check lang
                     re.setPattern(QStringLiteral("^Comment\\[") + lang + QStringLiteral("\\]=(.*)$"));
-                    comment = re.match(text).captured(1);
+                    comment = re.match(text).captured(1).trimmed();
                 }
             }
             if (lang_region == QLatin1String("pt_BR")) { // not using Portuguese [pt] for Brazilian Portuguese [pt_BR]
                 re.setPattern(QStringLiteral("^Name\\[") + lang_region + QStringLiteral("\\]=(.*)$"));
-                name = re.match(text).captured(1);
+                name = re.match(text).captured(1).trimmed();
                 re.setPattern(QStringLiteral("^Comment\\[") + lang_region + QStringLiteral("\\]=(.*)$"));
-                comment = re.match(text).captured(1);
+                comment = re.match(text).captured(1).trimmed();
             }
             if (name.isEmpty()) { // backup if Name is not translated
                 re.setPattern(QStringLiteral("^Name=(.*)$"));
-                name = re.match(text).captured(1);
+                name = re.match(text).captured(1).trimmed();
                 name = name.remove(QRegularExpression(QStringLiteral("^MX "))).replace(QLatin1Char('&'), QLatin1String("&&"));
             }
             if (comment.isEmpty()) { // backup if Comment is not translated
                 re.setPattern(QStringLiteral("^Comment=(.*)$"));
-                comment = re.match(text).captured(1);
+                comment = re.match(text).captured(1).trimmed();
             }
             re.setPattern(QStringLiteral("^Exec=(.*)$"));
-            exec = re.match(text).captured(1);
+            exec = re.match(text).captured(1).trimmed();
             re.setPattern(QStringLiteral("^Icon=(.*)$"));
-            icon_name = re.match(text).captured(1);
+            icon_name = re.match(text).captured(1).trimmed();
             re.setPattern(QStringLiteral("^Terminal=(.*)$"));
-            terminal_switch = re.match(text).captured(1);
+            terminal_switch = re.match(text).captured(1).trimmed();
             QStringList info;
             map.insert(file_name, info << name << comment << icon_name << exec << category << terminal_switch);
         }
