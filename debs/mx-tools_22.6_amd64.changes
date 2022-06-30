@@ -18,29 +18,29 @@ Changes:
  .
    * Fix: launching apps in terminal
 Checksums-Sha1:
- 6e3bebb671f7f9c87d7adc05dcb0d1b7d88f431d 1140 mx-tools_22.6.dsc
- c704e7cfebffdeb4ff5cd31bb2de810cb20344f4 44788 mx-tools_22.6.tar.xz
- 4982304f54f6e538459c7376f34809378fc3ab5f 10701 mx-tools_22.6_amd64.buildinfo
- bafbfc88c994f1ec350b7eee21da4f6e65ddd855 58512 mx-tools_22.6_amd64.deb
+ 06603e1de492d920920c2b2f801d42e4ae12884c 1140 mx-tools_22.6.dsc
+ a8098220dce094e47631080500e9228ffe6b2d2a 44784 mx-tools_22.6.tar.xz
+ 338d8c2b3b3c7c3564d05fb2a10315d03362b541 10701 mx-tools_22.6_amd64.buildinfo
+ 38d111f85856ecbc22f15efc2530ab517a1292ad 58544 mx-tools_22.6_amd64.deb
 Checksums-Sha256:
- 652364be31f686d0d8279560cf1dcb4506f50b4d6d73a748700c7c8ccb69b24d 1140 mx-tools_22.6.dsc
- d7c0d32ea37080e31d7f7cea82c3c4bc233e58551ce333ba7f9c961d8fd85e50 44788 mx-tools_22.6.tar.xz
- ca5774f96c74b42146ade6e81d2d4ac21c5781d5a53dae0562edd29f310fb61f 10701 mx-tools_22.6_amd64.buildinfo
- 80b081f991263598c52f5c2f656c3e03aa59e4b7bf577012429fe01f6bfa2228 58512 mx-tools_22.6_amd64.deb
+ 8d22d298bc4c45cc4ca10a51a7fc699697593a6e657ef1606dcd00bd29432505 1140 mx-tools_22.6.dsc
+ 0fd72eca36ee490bfed798a903bd7cd4c7a384d1a4d6842dee47430da85aea59 44784 mx-tools_22.6.tar.xz
+ 424fdf797da6c632d517d649c6e65568b605190e5e6097c34a92e8f328bff76b 10701 mx-tools_22.6_amd64.buildinfo
+ bb508718211ac75657d7029ac5fb1346639929795ac14200eda375f9544d44a7 58544 mx-tools_22.6_amd64.deb
 Files:
- a4314d75ef8abf01c31979e61db5bd52 1140 admin optional mx-tools_22.6.dsc
- 115fc2309562bf966cbbcf93814e629f 44788 admin optional mx-tools_22.6.tar.xz
- e791231ee9320a7d2974e9ef57c63723 10701 admin optional mx-tools_22.6_amd64.buildinfo
- 352a3b3d391e2063f07fc3dc735115b7 58512 admin optional mx-tools_22.6_amd64.deb
+ 17755c8248d2a7080c521a20d9fb7ec8 1140 admin optional mx-tools_22.6.dsc
+ dbe99355b49e85ea8f9013c005e42a16 44784 admin optional mx-tools_22.6.tar.xz
+ 2638a78a2c4a125670ff123157286380 10701 admin optional mx-tools_22.6_amd64.buildinfo
+ 0598870d001f5cb511199dcbe33df623 58544 admin optional mx-tools_22.6_amd64.deb
 
 -----BEGIN PGP SIGNATURE-----
 
-iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmK+MAUTHGFkcmlhbkBt
-eGxpbnV4Lm9yZwAKCRBwk4x4BnnumLH1B/97vR4MGlx3DrN70smYD1viGC4+56mQ
-Rr3yJxNJq8okOzgsBbr2a9Vet2BUKDpp/kfNXg2wkr7LYxrU+DcWUH4isVJISm6z
-oH69+Dt6IsctAepvKcNZHKQCMiemtQTg5usQk+Fg7y2/kaV+/NmpTksMEiLGJSdI
-RbZT/ohl8W59E05WXNvhitF2w7Yr9OeZSxY837OV1afMS2ratmmQ7oW1aJ6VVruD
-eqXD12dwjhPUcNL7rHS6LSoL/bpTwO/k6Kl+enYDjhOTB8+frZqdbL7dBVckzAc1
-6cWUsLx7unNcWx8ldftWNTbcC0Z9kwVpJI5utdTi/mLSmvMMtnAIn80/
-=UGob
+iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmK+MjITHGFkcmlhbkBt
+eGxpbnV4Lm9yZwAKCRBwk4x4BnnumN/vCACEx0RvOaPXEp6zw43qwoQCBeCAxdJP
+LjSsPCPn+8sm19lQ7Awd3tjXwlh30q4dPzpmLEmJ3CiFYMqMOmMIqkoUrvtnrlxL
+7SdU2t/yTMudDBVLR4OV+//qai5xPhtYxO8skKliZnyJLFGO0BHEgfhCx4Oa6BD5
+UtA5FlYH+XKT7W3NZV4D7rBpTH5PTFe9HISl3lC0BEtDeFX4kNYygBE+uiarpEMo
+5uQkc5A5n8CFTRKibdQbVOKTPnKgZFDWIRtskq7yw7wzkQrbxcjeBLuEEvIuKxpg
+HudGEO/tKDMxoa/VhjLlXJZ6Euvi65DpKvr5gp1OC055sdor92YDh/0S
+=9CaE
 -----END PGP SIGNATURE-----

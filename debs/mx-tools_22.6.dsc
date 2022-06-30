@@ -13,20 +13,20 @@ Build-Depends: debhelper (>= 10), qtbase5-dev, qttools5-dev-tools
 Package-List:
  mx-tools deb admin optional arch=any
 Checksums-Sha1:
- c704e7cfebffdeb4ff5cd31bb2de810cb20344f4 44788 mx-tools_22.6.tar.xz
+ a8098220dce094e47631080500e9228ffe6b2d2a 44784 mx-tools_22.6.tar.xz
 Checksums-Sha256:
- d7c0d32ea37080e31d7f7cea82c3c4bc233e58551ce333ba7f9c961d8fd85e50 44788 mx-tools_22.6.tar.xz
+ 0fd72eca36ee490bfed798a903bd7cd4c7a384d1a4d6842dee47430da85aea59 44784 mx-tools_22.6.tar.xz
 Files:
- 115fc2309562bf966cbbcf93814e629f 44788 mx-tools_22.6.tar.xz
+ dbe99355b49e85ea8f9013c005e42a16 44784 mx-tools_22.6.tar.xz
 
 -----BEGIN PGP SIGNATURE-----
 
-iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmK+MAUTHGFkcmlhbkBt
-eGxpbnV4Lm9yZwAKCRBwk4x4BnnumLNFB/9rL5uGNbKIIexHW1cyOhbDKIt1LKof
-rciLqb1vqcQ0QSfajFAt50fzh1BpLuagl+sS21eMz+diMq4rZlPYzVjupMk/XA/o
-qxsrlPGMklbAhpytbbSpqqaijiiA6iWC/aQtRyAKcWiT34aspRA8ia+dpUDBJCvI
-O8PCrSixd1Q5uwYyW6zsOVvPuA2fIIxLRQeUGWjfpre6km4I5iiUu9KiXvyFihGH
-kcP8g2ChWfsd52FqLA7Vl8Z14Ud8hoaVCz6vGiZrcEYlpNZXu6/5IAOKQoS6lWnA
-AbWZwibmKED6j8Ea9XOCWC2pb21WFgsfPvabKdPDd+XIlUBqPo3lEtDM
-=B5DZ
+iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmK+MjITHGFkcmlhbkBt
+eGxpbnV4Lm9yZwAKCRBwk4x4BnnumGKJCADLukI3qtQAuVMaZl2wqFaIJMoUNUEF
+BYePMPvTAsAJSVoAGppam0zy61S+XPLu6nhxw+4KRwNyS26iFi75wyCq/bUXvVCl
+5+8NNM6Em2YkNedfkZwjMAVwkcmB3+i7HX9T1ykdQE3fRWnExS8kluX0W26Z/Y/e
+iD8IEDrRbwSByv8fafoBPQU0ix2DTQ0gC3QSoSsGPgzNqbEFHpISIuqi5CrwWphX
+fiH/PuBxapTqe3nGJsJ6Azm7Xg79LX+SlDYUe5jbBzZScXkakSdR8oTzqFKEAqG6
+vnJ+tN4+qxFN5WpBT3Y+DmvVOSHX4BGtYIZKswcLFG3yN9Qk5oehb94w
+=Om2t
 -----END PGP SIGNATURE-----

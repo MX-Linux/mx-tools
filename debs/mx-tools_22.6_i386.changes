@@ -15,11 +15,11 @@ Changes:
  .
    * Fix: launching apps in terminal
 Checksums-Sha1:
- f887cb2ada688fd092fbf6d7cd0802395e7cb178 10012 mx-tools_22.6_i386.buildinfo
- c345e8323b570df5c31854e39aeea8d2e9eacf57 61252 mx-tools_22.6_i386.deb
+ ba251770ffdb3ac16f3a763fe9c944232ba3522d 10012 mx-tools_22.6_i386.buildinfo
+ b204bc0997d1592c434c95c77347f89ae41d3c6f 61148 mx-tools_22.6_i386.deb
 Checksums-Sha256:
- 753ead5176f968cf587f4640c23a41a011d1cfcac99606dba80aab2f86e62b12 10012 mx-tools_22.6_i386.buildinfo
- 8f553efa82dc7790bfeb91e2bed30689940f34e2dc38d76b0620d0204136c4ee 61252 mx-tools_22.6_i386.deb
+ bee62d2290e600e03a208a8aa71d9ed92e77f6773cf1676b1e992d78c565ef36 10012 mx-tools_22.6_i386.buildinfo
+ c555bef94cba7fbafb24c7c5862caea86581e5a6238b9bea41552988feead7bd 61148 mx-tools_22.6_i386.deb
 Files:
- 3b77be1a7f5e7d326653c80279183ee8 10012 admin optional mx-tools_22.6_i386.buildinfo
- 2dcc96b8af67fb27315f9a142da93bc1 61252 admin optional mx-tools_22.6_i386.deb
+ 11f3b92b28fae41c55f194e698d65bc6 10012 admin optional mx-tools_22.6_i386.buildinfo
+ 686976b05a9bdc690aaf51cf5f63da6d 61148 admin optional mx-tools_22.6_i386.deb
