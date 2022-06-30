@@ -33,10 +33,10 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon::fromTheme(app.applicationName()));
-    app.setOrganizationName("MX-Linux");
+    app.setOrganizationName(QStringLiteral("MX-Linux"));
 
     QTranslator qtTran;
-    if (qtTran.load(QLocale::system(), "qt", "_", QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+    if (qtTran.load(QLocale::system(), QStringLiteral("qt"), QStringLiteral("_"), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
         app.installTranslator(&qtTran);
 
     QTranslator qtBaseTran;
