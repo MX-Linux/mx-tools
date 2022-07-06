@@ -58,6 +58,7 @@ TRANSLATIONS += translations/mx-tools_am.ts \
                 translations/mx-tools_da.ts \
                 translations/mx-tools_de.ts \
                 translations/mx-tools_el.ts \
+                translations/mx-tools_en.ts \
                 translations/mx-tools_es.ts \
                 translations/mx-tools_et.ts \
                 translations/mx-tools_eu.ts \
