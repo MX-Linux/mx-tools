@@ -1,3 +1,9 @@
+mx-tools (22.7) mx; urgency=medium
+
+  * translation refresh 
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Sat, 23 Jul 2022 12:31:21 -0400
+
 mx-tools (22.6) mx; urgency=medium
 
   * Fix: launching apps in terminal
