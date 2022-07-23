@@ -1,0 +1,220 @@
+ dpkg-buildpackage -us -uc -ui -B
+dpkg-buildpackage: info: source package mx-tools
+dpkg-buildpackage: info: source version 22.7
+dpkg-buildpackage: info: source distribution mx
+dpkg-buildpackage: info: source changed by Dolphin Oracle <dolphinoracle@gmail.com>
+ dpkg-source --before-build .
+dpkg-buildpackage: info: host architecture i386
+ fakeroot debian/rules clean
+dh clean --no-automatic-dbgsym --parallel 
+   debian/rules override_dh_auto_clean
+make[1]: Entering directory '/media/demo/dataext/development/working/mx-tools/32'
+dh_auto_clean
+rm -f src/translations/*.qm
+make[1]: Leaving directory '/media/demo/dataext/development/working/mx-tools/32'
+   dh_autoreconf_clean -O--no-automatic-dbgsym -O--parallel
+   dh_clean -O--no-automatic-dbgsym -O--parallel
+ debian/rules build-arch
+dh build-arch --no-automatic-dbgsym --parallel 
+   dh_update_autotools_config -a -O--no-automatic-dbgsym -O--parallel
+   dh_autoreconf -a -O--no-automatic-dbgsym -O--parallel
+   dh_auto_configure -a -O--no-automatic-dbgsym -O--parallel
+	qmake -makefile "QMAKE_CFLAGS_RELEASE=-g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2" "QMAKE_CFLAGS_DEBUG=-g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2" "QMAKE_CXXFLAGS_RELEASE=-g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2" "QMAKE_CXXFLAGS_DEBUG=-g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2" QMAKE_LFLAGS_RELEASE=-Wl,-z,relro QMAKE_LFLAGS_DEBUG=-Wl,-z,relro QMAKE_STRIP=: PREFIX=/usr
+Info: creating stash file /media/demo/dataext/development/working/mx-tools/32/.qmake.stash
+   debian/rules override_dh_auto_build
+make[1]: Entering directory '/media/demo/dataext/development/working/mx-tools/32'
+lrelease *.pro
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_am.qm'...
+    Generated 18 translation(s) (0 finished and 18 unfinished)
+    Ignored 1 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_ar.qm'...
+    Generated 3 translation(s) (0 finished and 3 unfinished)
+    Ignored 16 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_bg.qm'...
+    Generated 2 translation(s) (0 finished and 2 unfinished)
+    Ignored 17 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_ca.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_cs.qm'...
+    Generated 18 translation(s) (0 finished and 18 unfinished)
+    Ignored 1 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_da.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_de.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_el.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_en.qm'...
+    Generated 0 translation(s) (0 finished and 0 unfinished)
+    Ignored 19 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_es.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_et.qm'...
+    Generated 2 translation(s) (0 finished and 2 unfinished)
+    Ignored 17 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_eu.qm'...
+    Generated 1 translation(s) (0 finished and 1 unfinished)
+    Ignored 18 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_fa.qm'...
+    Generated 1 translation(s) (0 finished and 1 unfinished)
+    Ignored 18 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_fi.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_fr.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_he_IL.qm'...
+    Generated 8 translation(s) (0 finished and 8 unfinished)
+    Ignored 11 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_hi.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_hr.qm'...
+    Generated 10 translation(s) (0 finished and 10 unfinished)
+    Ignored 9 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_hu.qm'...
+    Generated 12 translation(s) (0 finished and 12 unfinished)
+    Ignored 7 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_id.qm'...
+    Generated 11 translation(s) (0 finished and 11 unfinished)
+    Ignored 8 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_is.qm'...
+    Generated 11 translation(s) (0 finished and 11 unfinished)
+    Ignored 8 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_it.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_ja.qm'...
+    Generated 17 translation(s) (0 finished and 17 unfinished)
+    Ignored 2 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_kk.qm'...
+    Generated 16 translation(s) (0 finished and 16 unfinished)
+    Ignored 3 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_ko.qm'...
+    Generated 3 translation(s) (0 finished and 3 unfinished)
+    Ignored 16 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_lt.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_mk.qm'...
+    Generated 1 translation(s) (0 finished and 1 unfinished)
+    Ignored 18 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_mr.qm'...
+    Generated 10 translation(s) (0 finished and 10 unfinished)
+    Ignored 9 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_nb.qm'...
+    Generated 12 translation(s) (0 finished and 12 unfinished)
+    Ignored 7 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_nl.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_pl.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_pt.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_pt_BR.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_ro.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_ru.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_sk.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_sl.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_sq.qm'...
+    Generated 11 translation(s) (0 finished and 11 unfinished)
+    Ignored 8 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_sr.qm'...
+    Generated 2 translation(s) (0 finished and 2 unfinished)
+    Ignored 17 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_sv.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_tr.qm'...
+    Generated 19 translation(s) (0 finished and 19 unfinished)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_uk.qm'...
+    Generated 13 translation(s) (0 finished and 13 unfinished)
+    Ignored 6 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_zh_CN.qm'...
+    Generated 3 translation(s) (0 finished and 3 unfinished)
+    Ignored 16 untranslated source text(s)
+Updating '/media/demo/dataext/development/working/mx-tools/32/translations/mx-tools_zh_TW.qm'...
+    Generated 18 translation(s) (0 finished and 18 unfinished)
+    Ignored 1 untranslated source text(s)
+dh_auto_build -- QMAKE=qmake-qt5 LRELEASE=lrelease-qt5 QMAKE_OPTS="DEFINES+=NO_DEBUG_ON_CONSOLE"
+	make -j4 QMAKE=qmake-qt5 LRELEASE=lrelease-qt5 QMAKE_OPTS=DEFINES\+=NO_DEBUG_ON_CONSOLE
+make[2]: Entering directory '/media/demo/dataext/development/working/mx-tools/32'
+/usr/lib/qt5/bin/uic mainwindow.ui -o ui_mainwindow.h
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/i386-linux-gnu/qt5 -isystem /usr/include/i386-linux-gnu/qt5/QtWidgets -isystem /usr/include/i386-linux-gnu/qt5/QtGui -isystem /usr/include/i386-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I. -I/usr/lib/i386-linux-gnu/qt5/mkspecs/linux-g++ -o main.o main.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/i386-linux-gnu/qt5 -isystem /usr/include/i386-linux-gnu/qt5/QtWidgets -isystem /usr/include/i386-linux-gnu/qt5/QtGui -isystem /usr/include/i386-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I. -I/usr/lib/i386-linux-gnu/qt5/mkspecs/linux-g++ -o flatbutton.o flatbutton.cpp
+/usr/lib/qt5/bin/rcc -name images images.qrc -o qrc_images.cpp
+g++ -pipe -g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -dM -E -o moc_predefs.h /usr/lib/i386-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/i386-linux-gnu/qt5 -isystem /usr/include/i386-linux-gnu/qt5/QtWidgets -isystem /usr/include/i386-linux-gnu/qt5/QtGui -isystem /usr/include/i386-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I. -I/usr/lib/i386-linux-gnu/qt5/mkspecs/linux-g++ -o mainwindow.o mainwindow.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/i386-linux-gnu/qt5 -isystem /usr/include/i386-linux-gnu/qt5/QtWidgets -isystem /usr/include/i386-linux-gnu/qt5/QtGui -isystem /usr/include/i386-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I. -I/usr/lib/i386-linux-gnu/qt5/mkspecs/linux-g++ -o qrc_images.o qrc_images.cpp
+/usr/lib/qt5/bin/moc -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --include /media/demo/dataext/development/working/mx-tools/32/moc_predefs.h -I/usr/lib/i386-linux-gnu/qt5/mkspecs/linux-g++ -I/media/demo/dataext/development/working/mx-tools/32 -I/usr/include/i386-linux-gnu/qt5 -I/usr/include/i386-linux-gnu/qt5/QtWidgets -I/usr/include/i386-linux-gnu/qt5/QtGui -I/usr/include/i386-linux-gnu/qt5/QtCore -I/usr/include/c++/8 -I/usr/include/i386-linux-gnu/c++/8 -I/usr/include/c++/8/backward -I/usr/lib/gcc/i686-linux-gnu/8/include -I/usr/local/include -I/usr/lib/gcc/i686-linux-gnu/8/include-fixed -I/usr/include/i386-linux-gnu -I/usr/include flatbutton.h -o moc_flatbutton.cpp
+/usr/lib/qt5/bin/moc -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --include /media/demo/dataext/development/working/mx-tools/32/moc_predefs.h -I/usr/lib/i386-linux-gnu/qt5/mkspecs/linux-g++ -I/media/demo/dataext/development/working/mx-tools/32 -I/usr/include/i386-linux-gnu/qt5 -I/usr/include/i386-linux-gnu/qt5/QtWidgets -I/usr/include/i386-linux-gnu/qt5/QtGui -I/usr/include/i386-linux-gnu/qt5/QtCore -I/usr/include/c++/8 -I/usr/include/i386-linux-gnu/c++/8 -I/usr/include/c++/8/backward -I/usr/lib/gcc/i686-linux-gnu/8/include -I/usr/local/include -I/usr/lib/gcc/i686-linux-gnu/8/include-fixed -I/usr/include/i386-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/i386-linux-gnu/qt5 -isystem /usr/include/i386-linux-gnu/qt5/QtWidgets -isystem /usr/include/i386-linux-gnu/qt5/QtGui -isystem /usr/include/i386-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I. -I/usr/lib/i386-linux-gnu/qt5/mkspecs/linux-g++ -o moc_flatbutton.o moc_flatbutton.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/media/demo/dataext/development/working/mx-tools/32=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/i386-linux-gnu/qt5 -isystem /usr/include/i386-linux-gnu/qt5/QtWidgets -isystem /usr/include/i386-linux-gnu/qt5/QtGui -isystem /usr/include/i386-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I. -I/usr/lib/i386-linux-gnu/qt5/mkspecs/linux-g++ -o moc_mainwindow.o moc_mainwindow.cpp
+mainwindow.cpp: In member function ‘void MainWindow::btn_clicked()’:
+mainwindow.cpp:345:11: warning: ignoring return value of ‘int system(const char*)’, declared with attribute warn_unused_result [-Wunused-result]
+     system(sender()->objectName().toUtf8());
+     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mainwindow.cpp: In member function ‘void MainWindow::checkHide_clicked(bool)’:
+mainwindow.cpp:381:11: warning: ignoring return value of ‘int system(const char*)’, declared with attribute warn_unused_result [-Wunused-result]
+     system("sh -c 'which xfce4-panel >/dev/null 2>/dev/null && xfce4-panel --restart'");
+     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mainwindow.cpp: In member function ‘void MainWindow::hideShowIcon(const QString&, bool)’:
+mainwindow.cpp:396:15: warning: ignoring return value of ‘int system(const char*)’, declared with attribute warn_unused_result [-Wunused-result]
+         system(cmd.toUtf8());
+         ~~~~~~^~~~~~~~~~~~~~
+mainwindow.cpp: In member function ‘void MainWindow::pushAbout_clicked()’:
+mainwindow.cpp:417:15: warning: ignoring return value of ‘int system(const char*)’, declared with attribute warn_unused_result [-Wunused-result]
+         system("mx-viewer file:///usr/share/doc/mx-tools/license.html 'MX Tools License'");
+         ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mainwindow.cpp: In member function ‘void MainWindow::pushHelp_clicked()’:
+mainwindow.cpp:449:11: warning: ignoring return value of ‘int system(const char*)’, declared with attribute warn_unused_result [-Wunused-result]
+     system(cmd.toUtf8());
+     ~~~~~~^~~~~~~~~~~~~~
+g++ -Wl,-z,relro -o mx-tools main.o flatbutton.o mainwindow.o qrc_images.o moc_flatbutton.o moc_mainwindow.o   -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+make[2]: Leaving directory '/media/demo/dataext/development/working/mx-tools/32'
+make[1]: Leaving directory '/media/demo/dataext/development/working/mx-tools/32'
+   dh_auto_test -a -O--no-automatic-dbgsym -O--parallel
+   create-stamp debian/debhelper-build-stamp
+ fakeroot debian/rules binary-arch
+dh binary-arch --no-automatic-dbgsym --parallel 
+   dh_testroot -a -O--no-automatic-dbgsym -O--parallel
+   dh_prep -a -O--no-automatic-dbgsym -O--parallel
+   debian/rules override_dh_auto_install
+make[1]: Entering directory '/media/demo/dataext/development/working/mx-tools/32'
+dh_auto_install -- QMAKE=qmake-qt5 LRELEASE=lrelease-qt5 QMAKE_OPTS="DEFINES+=NO_DEBUG_ON_CONSOLE"
+make[1]: Leaving directory '/media/demo/dataext/development/working/mx-tools/32'
+   dh_install -a -O--no-automatic-dbgsym -O--parallel
+   dh_installdocs -a -O--no-automatic-dbgsym -O--parallel
+   dh_installchangelogs -a -O--no-automatic-dbgsym -O--parallel
+   dh_systemd_enable -a -O--no-automatic-dbgsym -O--parallel
+   dh_installinit -a -O--no-automatic-dbgsym -O--parallel
+   dh_systemd_start -a -O--no-automatic-dbgsym -O--parallel
+   dh_icons -a -O--no-automatic-dbgsym -O--parallel
+   dh_perl -a -O--no-automatic-dbgsym -O--parallel
+   dh_link -a -O--no-automatic-dbgsym -O--parallel
+   dh_strip_nondeterminism -a -O--no-automatic-dbgsym -O--parallel
+   dh_compress -a -O--no-automatic-dbgsym -O--parallel
+   dh_fixperms -a -O--no-automatic-dbgsym -O--parallel
+   dh_missing -a -O--no-automatic-dbgsym -O--parallel
+   dh_strip -a -O--no-automatic-dbgsym -O--parallel
+   dh_makeshlibs -a -O--no-automatic-dbgsym -O--parallel
+   debian/rules override_dh_shlibdeps
+make[1]: Entering directory '/media/demo/dataext/development/working/mx-tools/32'
+dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+dpkg-shlibdeps: warning: package could avoid a useless dependency if debian/mx-tools/usr/bin/mx-tools was not linked against libGL.so.1 (it uses none of the library's symbols)
+make[1]: Leaving directory '/media/demo/dataext/development/working/mx-tools/32'
+   dh_installdeb -a -O--no-automatic-dbgsym -O--parallel
+   dh_gencontrol -a -O--no-automatic-dbgsym -O--parallel
+   dh_md5sums -a -O--no-automatic-dbgsym -O--parallel
+   dh_builddeb -a -O--no-automatic-dbgsym -O--parallel
+dpkg-deb: building package 'mx-tools' in '../mx-tools_22.7_i386.deb'.
+ dpkg-genbuildinfo --build=any
+ dpkg-genchanges --build=any >../mx-tools_22.7_i386.changes
+dpkg-genchanges: info: binary-only arch-specific upload (source code and arch-indep packages not included)
+ dpkg-source --after-build .
+dpkg-buildpackage: info: binary-only upload (no source included)
+Now signing dsc file...
+ signfile dsc mx-tools_22.7.dsc Adrian <adrian@mxlinux.org>
+gpg: skipped "Adrian <adrian@mxlinux.org>": No secret key
+gpg: /tmp/debsign.VNeghO5f/mx-tools_22.7.dsc: clear-sign failed: No secret key
+debsign: gpg error occurred!  Aborting....
