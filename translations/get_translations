@@ -1,0 +1,29 @@
+#!/bin/bash
+
+APPNAME="mx-tools"
+
+echodo() {
+  echo "${@}"
+  ${@}
+}
+
+# prepare transifex 
+if [ ! -s  .tx/config ]; then
+   mkdir -p .tx
+   cat <<EOF > .tx/config
+[main]
+host = https://www.transifex.com
+
+[antix-development.$APPNAME]
+file_filter = ./${APPNAME}_<lang>.ts
+source_file = ${APPNAME}_en.ts
+source_lang = en
+type = ts
+EOF
+fi    
+
+# get all translations
+if command -v tx >/dev/null; then
+   echodo tx pull -r antix-development.$APPNAME  --all
+fi
+
