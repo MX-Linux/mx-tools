@@ -29,6 +29,7 @@
 #include <QScreen>
 #include <QTextEdit>
 
+#include "about.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "flatbutton.h"
@@ -346,7 +347,7 @@ void MainWindow::btn_clicked()
     this->show();
 }
 
-void MainWindow::closeEvent(QCloseEvent *)
+void MainWindow::closeEvent(QCloseEvent * /*unused*/)
 {
     settings.setValue(QStringLiteral("geometry"), saveGeometry());
 }
@@ -400,53 +401,22 @@ void MainWindow::hideShowIcon(const QString &file_name, bool hide)
 void MainWindow::pushAbout_clicked()
 {
     this->hide();
-    QMessageBox msgBox(QMessageBox::NoIcon,
-                       tr("About MX Tools"), "<p align=\"center\"><b><h2>" +
-                       tr("MX Tools") + "</h2></b></p><p align=\"center\">" + tr("Version: ") +
-                       VERSION + "</p><p align=\"center\"><h3>" + tr("Configuration Tools for MX Linux") +
-                       R"(</h3></p><p align="center"><a href="http://mxlinux.org">http://mxlinux.org</a><br /></p><p align="center">)" +
-                       tr("Copyright (c) MX Linux") + "<br /><br /></p>");
-    QPushButton *btnLicense = msgBox.addButton(tr("License"), QMessageBox::HelpRole);
-    QPushButton *btnChangelog = msgBox.addButton(tr("Changelog"), QMessageBox::HelpRole);
-    QPushButton *btnCancel = msgBox.addButton(tr("Cancel"), QMessageBox::NoRole);
-    btnCancel->setIcon(QIcon::fromTheme(QStringLiteral("window-close")));
-
-    msgBox.exec();
-
-    if (msgBox.clickedButton() == btnLicense) {
-        system("mx-viewer file:///usr/share/doc/mx-tools/license.html 'MX Tools License'");
-    } else if (msgBox.clickedButton() == btnChangelog) {
-        auto *changelog = new QDialog(this);
-        changelog->resize(600, 500);
-
-        auto *text = new QTextEdit;
-        text->setReadOnly(true);
-        text->setText(getCmdOut("zless /usr/share/doc/" +
-                                QFileInfo(QCoreApplication::applicationFilePath()).fileName()  + "/changelog.gz"));
-
-        auto *btnClose = new QPushButton(tr("&Close"));
-        btnClose->setIcon(QIcon::fromTheme(QStringLiteral("window-close")));
-        connect(btnClose, &QPushButton::clicked, changelog, &QDialog::close);
-
-        auto *layout = new QVBoxLayout;
-        layout->addWidget(text);
-        layout->addWidget(btnClose);
-        changelog->setLayout(layout);
-        changelog->exec();
-    }
+    displayAboutMsgBox(tr("About MX Tools"),
+                       "<p align=\"center\"><b><h2>" + tr("MX Tools") + "</h2></b></p><p align=\"center\">" +
+                       tr("Version: ") + VERSION + "</p><p align=\"center\"><h3>" +
+                       tr("Configuration Tools for MX Linux") +
+                       "</h3></p><p align=\"center\"><a href=\"http://mxlinux.org\">http://mxlinux.org</a><br /></p>"
+                       "<p align=\"center\">" + tr("Copyright (c) MX Linux") + "<br /><br /></p>",
+                       QStringLiteral("/usr/share/doc/mx-tools/license.html"), tr("%1 License").arg(this->windowTitle()));
     this->show();
 }
 
 void MainWindow::pushHelp_clicked()
 {
-    QString cmd;
-
     if (QFile::exists(QStringLiteral("/usr/bin/mx-manual")))
-        cmd = QStringLiteral("mx-manual");
-    else
-        cmd = QStringLiteral("mx-viewer file:///usr/local/share/doc/mxum.html#toc-Subsection-3.2");
-
-    system(cmd.toUtf8());
+        system("mx-manual");
+    else // for MX19?
+        system("xdg-open file:///usr/local/share/doc/mxum.html#toc-Subsection-3.2");
 }
 
 void MainWindow::textSearch_textChanged(const QString &arg1)
@@ -520,7 +490,7 @@ void MainWindow::removeFLUXBOXonly(QStringList &list)
 // When running live remove programs meant only for installed environments and the other way round
 void MainWindow::removeEnvExclusive(QStringList &list, bool live)
 {
-    const QString term = live ? "MX-OnlyInstalled" : "MX-OnlyLive";
+    const QString term = live ? QStringLiteral("MX-OnlyInstalled") : QStringLiteral("MX-OnlyLive");
     const QStringList list_copy = list;
     for (const QString &file_name : list_copy) {
         QFile file(file_name);

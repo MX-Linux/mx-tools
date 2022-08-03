@@ -56,7 +56,7 @@ public:
     QStringList utilities_list;
 
     void addButtons(const QMultiMap<QString, QMultiMap<QString, QStringList>> &info_map);
-    void hideShowIcon(const QString &file_name, bool hide);
+    static void hideShowIcon(const QString &file_name, bool hide);
     void readInfo(const QMultiMap<QString, QStringList> &category_map);
     void setConnections();
 
@@ -69,7 +69,7 @@ private slots:
     void closeEvent(QCloseEvent*);
     void resizeEvent(QResizeEvent *event);
     void pushAbout_clicked();
-    void pushHelp_clicked();
+    static void pushHelp_clicked();
     void checkHide_clicked(bool checked);
     void textSearch_textChanged(const QString &arg1);
 
@@ -80,9 +80,9 @@ private:
     int icon_size = 32;
     int max_col = 0;
     int max_elements = 0;
-    void removeEnvExclusive(QStringList &list, bool live);
-    void removeFLUXBOXonly(QStringList &list);
-    void removeXfceOnly(QStringList &list);
+    static void removeEnvExclusive(QStringList &list, bool live);
+    static void removeFLUXBOXonly(QStringList &list);
+    static void removeXfceOnly(QStringList &list);
 };
 
 #endif // MAINWINDOW_H

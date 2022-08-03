@@ -39,10 +39,12 @@ TEMPLATE = app
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
+    about.cpp \
     flatbutton.cpp \
     mainwindow.cpp
 
 HEADERS  += \
+    about.h \
     flatbutton.h \
     mainwindow.h \
     version.h

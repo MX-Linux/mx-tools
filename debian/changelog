@@ -1,3 +1,9 @@
+mx-tools (22.8) mx; urgency=medium
+
+  * Remove mx-viewer dependency
+
+ -- Adrian <adrian@mxlinux.org>  Wed, 03 Aug 2022 01:13:40 -0400
+
 mx-tools (22.7) mx; urgency=medium
 
   * translation refresh 

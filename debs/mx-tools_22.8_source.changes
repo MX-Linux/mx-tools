@@ -1,0 +1,40 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Format: 1.8
+Date: Wed, 03 Aug 2022 01:13:40 -0400
+Source: mx-tools
+Architecture: source
+Version: 22.8
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Adrian <adrian@mxlinux.org>
+Changes:
+ mx-tools (22.8) mx; urgency=medium
+ .
+   * Remove mx-viewer dependency
+Checksums-Sha1:
+ bcbda80899cbfc36f4123d5b180e2cd95ce6eebb 1140 mx-tools_22.8.dsc
+ 7e52713d748a11e2637e178468ce3bceabe3ef25 47996 mx-tools_22.8.tar.xz
+ 91fb964d61e35c75fd33f96bb68489dc7b1909f0 10701 mx-tools_22.8_amd64.buildinfo
+Checksums-Sha256:
+ 31039f6a0272f8642bbdae148f1d1ece9e46d1babcd1b819ee04a968d9217fa2 1140 mx-tools_22.8.dsc
+ 9184eff2e40f635bae26c33d6f624ec39d9cd687467de420dca3fa6a5f1b7690 47996 mx-tools_22.8.tar.xz
+ f5edec552d4db794e0753b637ab5cab0866f54ce12355a4682e8d5dcfcb4fbbc 10701 mx-tools_22.8_amd64.buildinfo
+Files:
+ e38dd826457cb3b08c01fd8866414894 1140 admin optional mx-tools_22.8.dsc
+ ea52c62bd8b22d6186976807a1815088 47996 admin optional mx-tools_22.8.tar.xz
+ 4abbe63661ba0115e7541a5263ce8d80 10701 admin optional mx-tools_22.8_amd64.buildinfo
+
+-----BEGIN PGP SIGNATURE-----
+
+iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmLqBHkTHGFkcmlhbkBt
+eGxpbnV4Lm9yZwAKCRBwk4x4BnnumNCKB/4xpqMA9pBDERQUWEw91E9jDrzAh1RW
+zQcgtfvJaYkjdFixhD1v2sZSH080dyPjZV1Tj2LbHwpaWSEuC/mtmEjbYHQlmnRA
+QpsWT2iCfrzbEUWRXUsoYkUgfnt5/CdtC7zt68ozBU6ExLlwMTzLiMwi90dl/Msu
+o3S816ginPznIkn6XpwXBDeIms+mDXM2hB7lowC8hhXbwtPAHWLuUFS+JwE9lPKy
+FY11RX2LGvo2vhlA1sNZPwHanaZfTqlDVBbfsjopRMRFCDU7zKgTOajARNR453L7
+2xCMq1z9NCk40PEA8PGJTuUAPEcAUOTEBKLV+kFZsyrrM/sP54rRLHlT
+=y+aO
+-----END PGP SIGNATURE-----

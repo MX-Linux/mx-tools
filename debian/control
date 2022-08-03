@@ -8,7 +8,10 @@ Vcs-Git: git://github.com/AdrianTM/mx-tools
 
 Package: mx-tools
 Architecture: any
-Depends: libqt5svg5, mx-viewer, ${misc:Depends}, ${shlibs:Depends}
+Depends: libqt5svg5,
+        mx-viewer | xdg-utils,
+        ${misc:Depends},
+        ${shlibs:Depends}
 Recommends: apt-notifier,
             checkaptgpg,
             menu,
