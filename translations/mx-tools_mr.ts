@@ -65,37 +65,62 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="405"/>
+        <location filename="../mainwindow.cpp" line="406"/>
         <source>Version: </source>
         <translation type="unfinished">आवृत्ती</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="406"/>
+        <location filename="../mainwindow.cpp" line="407"/>
         <source>Configuration Tools for MX Linux</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="408"/>
+        <location filename="../mainwindow.cpp" line="409"/>
         <source>Copyright (c) MX Linux</source>
         <translation type="unfinished">कॉपीराइट (c) एमएक्स लिनक्स</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="409"/>
+        <location filename="../mainwindow.cpp" line="410"/>
+        <source>%1 License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation type="obsolete">परवाना</translation>
+    </message>
+    <message>
+        <source>Changelog</source>
+        <translation type="obsolete">बदल सूची</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="obsolete">रद्द करा</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="obsolete">बंद</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <location filename="../about.cpp" line="40"/>
         <source>License</source>
         <translation type="unfinished">परवाना</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="410"/>
+        <location filename="../about.cpp" line="41"/>
+        <location filename="../about.cpp" line="51"/>
         <source>Changelog</source>
         <translation type="unfinished">बदल सूची</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="411"/>
+        <location filename="../about.cpp" line="42"/>
         <source>Cancel</source>
         <translation type="unfinished">रद्द करा</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="427"/>
+        <location filename="../about.cpp" line="63"/>
         <source>&amp;Close</source>
         <translation type="unfinished">बंद</translation>
     </message>
