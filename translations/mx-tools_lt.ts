@@ -1,207 +1,101 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="lt">
-<context>
-    <name>MainWindow</name>
-    <message>
-        <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="405"/>
-        <source>MX Tools</source>
-        <translation type="unfinished">MX įrankiai</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="53"/>
-        <source>About this application</source>
-        <translation type="unfinished">Apie šią programą</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="56"/>
-        <source>About...</source>
-        <translation type="unfinished">Apie...</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="63"/>
-        <source>Alt+B</source>
-        <translation type="unfinished">Alt+B</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="127"/>
-        <source>Close application</source>
-        <translation type="unfinished">Užverti programą</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="130"/>
-        <source>Close</source>
-        <translation type="unfinished">Užverti</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="137"/>
-        <source>Alt+N</source>
-        <translation type="unfinished">Alt+N</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="165"/>
-        <source>Manual</source>
-        <translation type="unfinished">Vadovas</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="265"/>
-        <source>These MX applications save time and effort with important tasks.</source>
-        <translation type="unfinished">Šios MX programos sutaupo laiko ir pastangų, atliekant svarbias užduotis.</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="281"/>
-        <source>Hide individual tools from the menu</source>
-        <translation type="unfinished">Slėpti atskirus įrankius iš meniu</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.ui" line="300"/>
-        <source>search</source>
-        <translation type="unfinished">ieškoti</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="404"/>
-        <source>About MX Tools</source>
-        <translation type="unfinished">Apie MX įrankiai</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="406"/>
-        <source>Version: </source>
-        <translation type="unfinished">Versija: </translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="407"/>
-        <source>Configuration Tools for MX Linux</source>
-        <translation type="unfinished">Konfigūravimo įrankiai, skirti MX Linux</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="409"/>
-        <source>Copyright (c) MX Linux</source>
-        <translation type="unfinished">Autorių teisės (c) MX Linux</translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="410"/>
-        <source>%1 License</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>License</source>
-        <translation type="obsolete">Licencija</translation>
-    </message>
-    <message>
-        <source>Changelog</source>
-        <translation type="obsolete">Keitinių žurnalas</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Atsisakyti</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation type="obsolete">&amp;Užverti</translation>
-    </message>
-</context>
-<context>
-    <name>QObject</name>
-    <message>
-        <location filename="../about.cpp" line="40"/>
-        <source>License</source>
-        <translation type="unfinished">Licencija</translation>
-    </message>
-    <message>
-        <location filename="../about.cpp" line="41"/>
-        <location filename="../about.cpp" line="51"/>
-        <source>Changelog</source>
-        <translation type="unfinished">Keitinių žurnalas</translation>
-    </message>
-    <message>
-        <location filename="../about.cpp" line="42"/>
-        <source>Cancel</source>
-        <translation type="unfinished">Atsisakyti</translation>
-    </message>
-    <message>
-        <location filename="../about.cpp" line="63"/>
-        <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Užverti</translation>
-    </message>
-</context>
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="lt">
 <context>
     <name>mxtools</name>
     <message>
+        <location filename="mxtools.ui" line="14"/>
+        <location filename="mxtools.cpp" line="334"/>
         <source>MX Tools</source>
-        <translation type="vanished">MX įrankiai</translation>
+        <translation>MX įrankiai</translation>
     </message>
     <message>
+        <location filename="mxtools.ui" line="47"/>
         <source>About this application</source>
-        <translation type="vanished">Apie šią programą</translation>
+        <translation>Apie šią programą</translation>
     </message>
     <message>
+        <location filename="mxtools.ui" line="50"/>
         <source>About...</source>
-        <translation type="vanished">Apie...</translation>
+        <translation>Apie...</translation>
     </message>
     <message>
+        <location filename="mxtools.ui" line="58"/>
         <source>Alt+B</source>
-        <translation type="vanished">Alt+B</translation>
+        <translation>Alt+B</translation>
     </message>
     <message>
+        <location filename="mxtools.ui" line="116"/>
         <source>Close application</source>
-        <translation type="vanished">Užverti programą</translation>
+        <translation>Užverti programą</translation>
     </message>
     <message>
+        <location filename="mxtools.ui" line="119"/>
         <source>Close</source>
-        <translation type="vanished">Užverti</translation>
+        <translation>Užverti</translation>
     </message>
     <message>
+        <location filename="mxtools.ui" line="127"/>
         <source>Alt+N</source>
-        <translation type="vanished">Alt+N</translation>
+        <translation>Alt+N</translation>
     </message>
     <message>
+        <location filename="mxtools.ui" line="149"/>
         <source>Manual</source>
-        <translation type="vanished">Vadovas</translation>
+        <translation>Vadovas</translation>
     </message>
     <message>
+        <location filename="mxtools.ui" line="248"/>
         <source>These MX applications save time and effort with important tasks.</source>
-        <translation type="vanished">Šios MX programos sutaupo laiko ir pastangų, atliekant svarbias užduotis.</translation>
+        <translation>Šios MX programos sutaupo laiko ir pastangų, atliekant svarbias užduotis.</translation>
     </message>
     <message>
+        <location filename="mxtools.ui" line="264"/>
         <source>Hide individual tools from the menu</source>
-        <translation type="vanished">Slėpti atskirus įrankius iš meniu</translation>
+        <translation>Slėpti atskirus įrankius iš meniu</translation>
     </message>
     <message>
+        <location filename="mxtools.ui" line="283"/>
         <source>search</source>
-        <translation type="vanished">ieškoti</translation>
+        <translation>ieškoti</translation>
     </message>
     <message>
+        <location filename="mxtools.cpp" line="333"/>
         <source>About MX Tools</source>
-        <translation type="vanished">Apie MX įrankiai</translation>
+        <translation>Apie MX įrankiai</translation>
     </message>
     <message>
+        <location filename="mxtools.cpp" line="334"/>
         <source>Version: </source>
-        <translation type="vanished">Versija: </translation>
+        <translation>Versija: </translation>
     </message>
     <message>
+        <location filename="mxtools.cpp" line="336"/>
         <source>Configuration Tools for MX Linux</source>
-        <translation type="vanished">Konfigūravimo įrankiai, skirti MX Linux</translation>
+        <translation>Konfigūravimo įrankiai, skirti MX Linux</translation>
     </message>
     <message>
+        <location filename="mxtools.cpp" line="337"/>
         <source>Copyright (c) MX Linux</source>
-        <translation type="vanished">Autorių teisės (c) MX Linux</translation>
+        <translation>Autorių teisės (c) MX Linux</translation>
     </message>
     <message>
+        <location filename="mxtools.cpp" line="338"/>
         <source>License</source>
-        <translation type="vanished">Licencija</translation>
+        <translation>Licencija</translation>
     </message>
     <message>
+        <location filename="mxtools.cpp" line="339"/>
         <source>Changelog</source>
-        <translation type="vanished">Keitinių žurnalas</translation>
+        <translation>Keitinių žurnalas</translation>
     </message>
     <message>
+        <location filename="mxtools.cpp" line="340"/>
         <source>Cancel</source>
-        <translation type="vanished">Atsisakyti</translation>
+        <translation>Atsisakyti</translation>
     </message>
     <message>
+        <location filename="mxtools.cpp" line="355"/>
         <source>&amp;Close</source>
-        <translation type="vanished">&amp;Užverti</translation>
+        <translation>&amp;Užverti</translation>
     </message>
 </context>
 </TS>
