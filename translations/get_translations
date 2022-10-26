@@ -22,6 +22,12 @@ type = ts
 EOF
 fi    
 
+#remove existing translations
+backdir="ts_$(date '+%Y-%m-%d_%H%M%S')"
+mkdir "$backdir"
+mv *.ts "$backdir/"
+mv "$backdir/${APPNAME}_en.ts" ./
+
 # get all translations
 if command -v tx >/dev/null; then
    echodo tx pull -r antix-development.$APPNAME  --all
