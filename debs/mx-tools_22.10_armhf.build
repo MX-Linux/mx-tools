@@ -1,0 +1,220 @@
+ dpkg-buildpackage -us -uc -ui -B
+dpkg-buildpackage: info: source package mx-tools
+dpkg-buildpackage: info: source version 22.10
+dpkg-buildpackage: info: source distribution mx
+dpkg-buildpackage: info: source changed by Dolphin Oracle <dolphinoracle@gmail.com>
+ dpkg-source --before-build .
+dpkg-buildpackage: info: host architecture armhf
+ fakeroot debian/rules clean
+dh clean --no-automatic-dbgsym --parallel 
+   debian/rules override_dh_auto_clean
+make[1]: Entering directory '/home/dolphin/build/armhf'
+dh_auto_clean
+rm -f src/translations/*.qm
+make[1]: Leaving directory '/home/dolphin/build/armhf'
+   dh_autoreconf_clean -O--no-automatic-dbgsym -O--parallel
+   dh_clean -O--no-automatic-dbgsym -O--parallel
+ debian/rules build-arch
+dh build-arch --no-automatic-dbgsym --parallel 
+   dh_update_autotools_config -a -O--no-automatic-dbgsym -O--parallel
+   dh_autoreconf -a -O--no-automatic-dbgsym -O--parallel
+   dh_auto_configure -a -O--no-automatic-dbgsym -O--parallel
+	qmake -makefile "QMAKE_CFLAGS_RELEASE=-g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2" "QMAKE_CFLAGS_DEBUG=-g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2" "QMAKE_CXXFLAGS_RELEASE=-g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2" "QMAKE_CXXFLAGS_DEBUG=-g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2" QMAKE_LFLAGS_RELEASE=-Wl,-z,relro QMAKE_LFLAGS_DEBUG=-Wl,-z,relro QMAKE_STRIP=: PREFIX=/usr
+Info: creating stash file /home/dolphin/build/armhf/.qmake.stash
+   debian/rules override_dh_auto_build
+make[1]: Entering directory '/home/dolphin/build/armhf'
+lrelease *.pro
+Updating '/home/dolphin/build/armhf/translations/mx-tools_am.qm'...
+    Generated 18 translation(s) (18 finished and 0 unfinished)
+    Ignored 1 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_ar.qm'...
+    Generated 12 translation(s) (12 finished and 0 unfinished)
+    Ignored 7 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_bg.qm'...
+    Generated 11 translation(s) (11 finished and 0 unfinished)
+    Ignored 8 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_ca.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_cs.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_da.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_de.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_el.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_en.qm'...
+    Generated 0 translation(s) (0 finished and 0 unfinished)
+    Ignored 20 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_es.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_et.qm'...
+    Generated 2 translation(s) (2 finished and 0 unfinished)
+    Ignored 17 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_eu.qm'...
+    Generated 1 translation(s) (1 finished and 0 unfinished)
+    Ignored 18 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_fa.qm'...
+    Generated 11 translation(s) (11 finished and 0 unfinished)
+    Ignored 8 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_fi.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_fr.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_fr_BE.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_he_IL.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_hi.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_hr.qm'...
+    Generated 11 translation(s) (11 finished and 0 unfinished)
+    Ignored 8 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_hu.qm'...
+    Generated 12 translation(s) (12 finished and 0 unfinished)
+    Ignored 7 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_id.qm'...
+    Generated 11 translation(s) (11 finished and 0 unfinished)
+    Ignored 8 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_is.qm'...
+    Generated 11 translation(s) (11 finished and 0 unfinished)
+    Ignored 8 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_it.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_ja.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_kk.qm'...
+    Generated 16 translation(s) (16 finished and 0 unfinished)
+    Ignored 3 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_ko.qm'...
+    Generated 3 translation(s) (3 finished and 0 unfinished)
+    Ignored 16 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_lt.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_mk.qm'...
+    Generated 1 translation(s) (1 finished and 0 unfinished)
+    Ignored 18 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_mr.qm'...
+    Generated 10 translation(s) (10 finished and 0 unfinished)
+    Ignored 9 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_nb.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_nl.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_pl.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_pt.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_pt_BR.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_ro.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_ru.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_sk.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_sl.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_sq.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_sr.qm'...
+    Generated 2 translation(s) (2 finished and 0 unfinished)
+    Ignored 17 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_sv.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_tr.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_uk.qm'...
+    Generated 13 translation(s) (13 finished and 0 unfinished)
+    Ignored 6 untranslated source text(s)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_zh_CN.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+Updating '/home/dolphin/build/armhf/translations/mx-tools_zh_TW.qm'...
+    Generated 19 translation(s) (19 finished and 0 unfinished)
+dh_auto_build -- QMAKE=qmake-qt5 LRELEASE=lrelease-qt5 QMAKE_OPTS="DEFINES+=NO_DEBUG_ON_CONSOLE"
+	make -j4 QMAKE=qmake-qt5 LRELEASE=lrelease-qt5 QMAKE_OPTS=DEFINES\+=NO_DEBUG_ON_CONSOLE
+make[2]: Entering directory '/home/dolphin/build/armhf'
+/usr/lib/qt5/bin/uic mainwindow.ui -o ui_mainwindow.h
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -I. -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -o main.o main.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -I. -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -o about.o about.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -I. -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -o flatbutton.o flatbutton.cpp
+/usr/lib/qt5/bin/rcc -name images images.qrc -o qrc_images.cpp
+g++ -pipe -g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -dM -E -o moc_predefs.h /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/data/dummy.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -I. -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -o mainwindow.o mainwindow.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -I. -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -o qrc_images.o qrc_images.cpp
+/usr/lib/qt5/bin/moc -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --include /home/dolphin/build/armhf/moc_predefs.h -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I/home/dolphin/build/armhf -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtWidgets -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I/usr/include/c++/8 -I/usr/include/arm-linux-gnueabihf/c++/8 -I/usr/include/c++/8/backward -I/usr/lib/gcc/arm-linux-gnueabihf/8/include -I/usr/local/include -I/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed -I/usr/include/arm-linux-gnueabihf -I/usr/include flatbutton.h -o moc_flatbutton.cpp
+/usr/lib/qt5/bin/moc -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB --include /home/dolphin/build/armhf/moc_predefs.h -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I/home/dolphin/build/armhf -I/usr/include/arm-linux-gnueabihf/qt5 -I/usr/include/arm-linux-gnueabihf/qt5/QtWidgets -I/usr/include/arm-linux-gnueabihf/qt5/QtGui -I/usr/include/arm-linux-gnueabihf/qt5/QtCore -I/usr/include/c++/8 -I/usr/include/arm-linux-gnueabihf/c++/8 -I/usr/include/c++/8/backward -I/usr/lib/gcc/arm-linux-gnueabihf/8/include -I/usr/local/include -I/usr/lib/gcc/arm-linux-gnueabihf/8/include-fixed -I/usr/include/arm-linux-gnueabihf -I/usr/include mainwindow.h -o moc_mainwindow.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -I. -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -o moc_flatbutton.o moc_flatbutton.cpp
+g++ -c -pipe -g -O2 -fdebug-prefix-map=/home/dolphin/build/armhf=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -std=gnu++1z -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -I. -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -o moc_mainwindow.o moc_mainwindow.cpp
+mainwindow.cpp: In member function ‘void MainWindow::btn_clicked()’:
+mainwindow.cpp:346:11: warning: ignoring return value of ‘int system(const char*)’, declared with attribute warn_unused_result [-Wunused-result]
+     system(sender()->objectName().toUtf8());
+     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mainwindow.cpp: In member function ‘void MainWindow::checkHide_clicked(bool)’:
+mainwindow.cpp:382:11: warning: ignoring return value of ‘int system(const char*)’, declared with attribute warn_unused_result [-Wunused-result]
+     system("sh -c 'which xfce4-panel >/dev/null 2>/dev/null && xfce4-panel --restart'");
+     ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mainwindow.cpp: In static member function ‘static void MainWindow::hideShowIcon(const QString&, bool)’:
+mainwindow.cpp:397:15: warning: ignoring return value of ‘int system(const char*)’, declared with attribute warn_unused_result [-Wunused-result]
+         system(cmd.toUtf8());
+         ~~~~~~^~~~~~~~~~~~~~
+mainwindow.cpp: In static member function ‘static void MainWindow::pushHelp_clicked()’:
+mainwindow.cpp:417:15: warning: ignoring return value of ‘int system(const char*)’, declared with attribute warn_unused_result [-Wunused-result]
+         system("mx-manual");
+         ~~~~~~^~~~~~~~~~~~~
+mainwindow.cpp:419:15: warning: ignoring return value of ‘int system(const char*)’, declared with attribute warn_unused_result [-Wunused-result]
+         system("xdg-open file:///usr/local/share/doc/mxum.html#toc-Subsection-3.2");
+         ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+g++ -Wl,-z,relro -o mx-tools main.o about.o flatbutton.o mainwindow.o qrc_images.o moc_flatbutton.o moc_mainwindow.o   -lQt5Widgets -lQt5Gui -lQt5Core -lGLESv2 -lpthread -latomic 
+make[2]: Leaving directory '/home/dolphin/build/armhf'
+make[1]: Leaving directory '/home/dolphin/build/armhf'
+   dh_auto_test -a -O--no-automatic-dbgsym -O--parallel
+   create-stamp debian/debhelper-build-stamp
+ fakeroot debian/rules binary-arch
+dh binary-arch --no-automatic-dbgsym --parallel 
+   dh_testroot -a -O--no-automatic-dbgsym -O--parallel
+   dh_prep -a -O--no-automatic-dbgsym -O--parallel
+   debian/rules override_dh_auto_install
+make[1]: Entering directory '/home/dolphin/build/armhf'
+dh_auto_install -- QMAKE=qmake-qt5 LRELEASE=lrelease-qt5 QMAKE_OPTS="DEFINES+=NO_DEBUG_ON_CONSOLE"
+make[1]: Leaving directory '/home/dolphin/build/armhf'
+   dh_install -a -O--no-automatic-dbgsym -O--parallel
+   dh_installdocs -a -O--no-automatic-dbgsym -O--parallel
+   dh_installchangelogs -a -O--no-automatic-dbgsym -O--parallel
+   dh_systemd_enable -a -O--no-automatic-dbgsym -O--parallel
+   dh_installinit -a -O--no-automatic-dbgsym -O--parallel
+   dh_systemd_start -a -O--no-automatic-dbgsym -O--parallel
+   dh_icons -a -O--no-automatic-dbgsym -O--parallel
+   dh_perl -a -O--no-automatic-dbgsym -O--parallel
+   dh_link -a -O--no-automatic-dbgsym -O--parallel
+   dh_strip_nondeterminism -a -O--no-automatic-dbgsym -O--parallel
+   dh_compress -a -O--no-automatic-dbgsym -O--parallel
+   dh_fixperms -a -O--no-automatic-dbgsym -O--parallel
+   dh_missing -a -O--no-automatic-dbgsym -O--parallel
+   dh_strip -a -O--no-automatic-dbgsym -O--parallel
+   dh_makeshlibs -a -O--no-automatic-dbgsym -O--parallel
+   debian/rules override_dh_shlibdeps
+make[1]: Entering directory '/home/dolphin/build/armhf'
+dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+dpkg-shlibdeps: warning: debian/mx-tools/usr/bin/mx-tools contains an unresolvable reference to symbol __aeabi_atexit@CXXABI_ARM_1.3.3: it's probably a plugin
+dpkg-shlibdeps: warning: package could avoid a useless dependency if debian/mx-tools/usr/bin/mx-tools was not linked against libatomic.so.1 (it uses none of the library's symbols)
+dpkg-shlibdeps: warning: package could avoid a useless dependency if debian/mx-tools/usr/bin/mx-tools was not linked against libGLESv2.so.2 (it uses none of the library's symbols)
+make[1]: Leaving directory '/home/dolphin/build/armhf'
+   dh_installdeb -a -O--no-automatic-dbgsym -O--parallel
+   dh_gencontrol -a -O--no-automatic-dbgsym -O--parallel
+   dh_md5sums -a -O--no-automatic-dbgsym -O--parallel
+   dh_builddeb -a -O--no-automatic-dbgsym -O--parallel
+dpkg-deb: building package 'mx-tools' in '../mx-tools_22.10_armhf.deb'.
+ dpkg-genbuildinfo --build=any
+ dpkg-genchanges --build=any >../mx-tools_22.10_armhf.changes
+dpkg-genchanges: info: binary-only arch-specific upload (source code and arch-indep packages not included)
+ dpkg-source --after-build .
+dpkg-buildpackage: info: binary-only upload (no source included)
+Now running lintian mx-tools_22.10_armhf.changes ...
+E: mx-tools changes: bad-distribution-in-changes-file mx
+W: mx-tools: hardening-no-pie usr/bin/mx-tools
+E: mx-tools: copyright-should-refer-to-common-license-file-for-gpl
+W: mx-tools: binary-without-manpage usr/bin/mx-tools
+Finished running lintian.
+Now signing dsc file...
+debsign: Can't find or can't read dsc file mx-tools_22.10.dsc!

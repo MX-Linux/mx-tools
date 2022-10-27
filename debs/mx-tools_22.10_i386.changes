@@ -1,0 +1,25 @@
+Format: 1.8
+Date: Wed, 26 Oct 2022 20:08:01 -0400
+Source: mx-tools
+Binary: mx-tools
+Architecture: i386
+Version: 22.10
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Dolphin Oracle <dolphinoracle@gmail.com>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (22.10) mx; urgency=medium
+ .
+   * translation refresh
+Checksums-Sha1:
+ ebbd8745450dd3283902a25d811cf5b6e50589fb 10172 mx-tools_22.10_i386.buildinfo
+ 622c5ccf0c9404cf71d4838ff9328421ea09189d 64836 mx-tools_22.10_i386.deb
+Checksums-Sha256:
+ 90b65a0a5cd8c1858d91bc38077525567ca1346807af716974d53102f1ec852b 10172 mx-tools_22.10_i386.buildinfo
+ 700c845b094aac2bfd4cfd46fdbb395c337b21038f411225d5f4d3a26bb4b25a 64836 mx-tools_22.10_i386.deb
+Files:
+ 53f5bc74cc4d148bc770ee867ed352c9 10172 admin optional mx-tools_22.10_i386.buildinfo
+ b5991aeac806ccf790a53ae0c795f30b 64836 admin optional mx-tools_22.10_i386.deb
