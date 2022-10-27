@@ -1,3 +1,9 @@
+mx-tools (22.10) mx; urgency=medium
+
+  * translation refresh 
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Wed, 26 Oct 2022 20:08:01 -0400
+
 mx-tools (22.8) mx; urgency=medium
 
   * Remove mx-viewer dependency
