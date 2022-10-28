@@ -1,99 +1,108 @@
 <?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="zh_TW">
 <context>
-    <name>mxtools</name>
+    <name>MainWindow</name>
     <message>
-        <location filename="mxtools.ui" line="14"/>
-        <location filename="mxtools.cpp" line="334"/>
+        <location filename="../mainwindow.ui" line="14"/>
+        <location filename="../mainwindow.cpp" line="405"/>
         <source>MX Tools</source>
         <translation>MX 工具組</translation>
     </message>
     <message>
-        <location filename="mxtools.ui" line="47"/>
+        <location filename="../mainwindow.ui" line="53"/>
         <source>About this application</source>
         <translation>關於本程式</translation>
     </message>
     <message>
-        <location filename="mxtools.ui" line="50"/>
+        <location filename="../mainwindow.ui" line="56"/>
         <source>About...</source>
         <translation>關於……</translation>
     </message>
     <message>
-        <location filename="mxtools.ui" line="58"/>
+        <location filename="../mainwindow.ui" line="63"/>
         <source>Alt+B</source>
         <translation>Alt+B</translation>
     </message>
     <message>
-        <location filename="mxtools.ui" line="116"/>
+        <location filename="../mainwindow.ui" line="127"/>
         <source>Close application</source>
         <translation>關閉程式</translation>
     </message>
     <message>
-        <location filename="mxtools.ui" line="119"/>
+        <location filename="../mainwindow.ui" line="130"/>
         <source>Close</source>
         <translation>關閉</translation>
     </message>
     <message>
-        <location filename="mxtools.ui" line="127"/>
+        <location filename="../mainwindow.ui" line="137"/>
         <source>Alt+N</source>
         <translation>Alt+N</translation>
     </message>
     <message>
-        <location filename="mxtools.ui" line="149"/>
+        <location filename="../mainwindow.ui" line="165"/>
         <source>Manual</source>
-        <translation>使用手冊</translation>
+        <translation>手動</translation>
     </message>
     <message>
-        <location filename="mxtools.ui" line="248"/>
+        <location filename="../mainwindow.ui" line="265"/>
         <source>These MX applications save time and effort with important tasks.</source>
         <translation>這些 MX 程式可以為你完成重要事項，節省時間與心力。</translation>
     </message>
     <message>
-        <location filename="mxtools.ui" line="264"/>
+        <location filename="../mainwindow.ui" line="281"/>
         <source>Hide individual tools from the menu</source>
         <translation>在主選單中隱藏個別工具</translation>
     </message>
     <message>
-        <location filename="mxtools.ui" line="283"/>
+        <location filename="../mainwindow.ui" line="300"/>
         <source>search</source>
         <translation>搜尋</translation>
     </message>
     <message>
-        <location filename="mxtools.cpp" line="333"/>
+        <location filename="../mainwindow.cpp" line="404"/>
         <source>About MX Tools</source>
         <translation>關於 MX 工具組</translation>
     </message>
     <message>
-        <location filename="mxtools.cpp" line="334"/>
+        <location filename="../mainwindow.cpp" line="406"/>
         <source>Version: </source>
         <translation>版本：</translation>
     </message>
     <message>
-        <location filename="mxtools.cpp" line="336"/>
+        <location filename="../mainwindow.cpp" line="407"/>
         <source>Configuration Tools for MX Linux</source>
         <translation>MX Linux 的設定工具</translation>
     </message>
     <message>
-        <location filename="mxtools.cpp" line="337"/>
+        <location filename="../mainwindow.cpp" line="409"/>
         <source>Copyright (c) MX Linux</source>
-        <translation>版權所有 (c) MX Linux</translation>
+        <translation>MX Linux 版權所有 (c)</translation>
     </message>
     <message>
-        <location filename="mxtools.cpp" line="338"/>
+        <location filename="../mainwindow.cpp" line="410"/>
+        <source>%1 License</source>
+        <translation>%1 許可</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <location filename="../about.cpp" line="40"/>
         <source>License</source>
         <translation>授權條款</translation>
     </message>
     <message>
-        <location filename="mxtools.cpp" line="339"/>
+        <location filename="../about.cpp" line="41"/>
+        <location filename="../about.cpp" line="51"/>
         <source>Changelog</source>
         <translation>變更紀錄</translation>
     </message>
     <message>
-        <location filename="mxtools.cpp" line="340"/>
+        <location filename="../about.cpp" line="42"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="mxtools.cpp" line="355"/>
+        <location filename="../about.cpp" line="63"/>
         <source>&amp;Close</source>
         <translation>關閉（&amp;C）</translation>
     </message>
