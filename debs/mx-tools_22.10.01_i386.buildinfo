@@ -2,16 +2,16 @@ Format: 1.0
 Source: mx-tools
 Binary: mx-tools
 Architecture: i386
-Version: 22.10
+Version: 22.10.01
 Checksums-Md5:
- b5991aeac806ccf790a53ae0c795f30b 64836 mx-tools_22.10_i386.deb
+ 984146303d0f82d28ebdad5ffdea15cd 65120 mx-tools_22.10.01_i386.deb
 Checksums-Sha1:
- 622c5ccf0c9404cf71d4838ff9328421ea09189d 64836 mx-tools_22.10_i386.deb
+ 4d36228736eb0c1f5edc9cd412acd4224f5bc9ad 65120 mx-tools_22.10.01_i386.deb
 Checksums-Sha256:
- 700c845b094aac2bfd4cfd46fdbb395c337b21038f411225d5f4d3a26bb4b25a 64836 mx-tools_22.10_i386.deb
+ 58aad2175fcb062574cd00f34833e1a1399351d0ac04bb7f1984923942449703 65120 mx-tools_22.10.01_i386.deb
 Build-Origin: Debian
 Build-Architecture: i386
-Build-Date: Wed, 26 Oct 2022 20:49:39 -0400
+Build-Date: Fri, 28 Oct 2022 16:17:14 -0400
 Build-Tainted-By:
  merged-usr-via-symlinks
  usr-local-has-libraries
@@ -339,4 +339,4 @@ Installed-Build-Depends:
 Environment:
  DEB_BUILD_OPTIONS="parallel=4"
  LANG="en_US.UTF-8"
- SOURCE_DATE_EPOCH="1666829281"
+ SOURCE_DATE_EPOCH="1666986593"

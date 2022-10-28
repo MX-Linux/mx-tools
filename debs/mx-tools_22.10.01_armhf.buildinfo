@@ -2,16 +2,16 @@ Format: 1.0
 Source: mx-tools
 Binary: mx-tools
 Architecture: armhf
-Version: 22.10
+Version: 22.10.01
 Checksums-Md5:
- 684acdf9f4d9fc36e0df300ee4c41724 57560 mx-tools_22.10_armhf.deb
+ 0488474f304f41d524d3dad8b7634c6d 57828 mx-tools_22.10.01_armhf.deb
 Checksums-Sha1:
- 197a250cd7f950df340ac3a14db96bbc30760699 57560 mx-tools_22.10_armhf.deb
+ 435b29811d1d4bb5462b91c1951c966aee6f8e0c 57828 mx-tools_22.10.01_armhf.deb
 Checksums-Sha256:
- f6e1e0ffef9770212dd5f41c4056037215d6c30d4bfd6a11ab1e27fa745ccd6c 57560 mx-tools_22.10_armhf.deb
+ b7cdc92ca584089401b7d0cb08161f087a239f05ed12ec24bd09aa3e29e4d564 57828 mx-tools_22.10.01_armhf.deb
 Build-Origin: Raspbian
 Build-Architecture: armhf
-Build-Date: Wed, 26 Oct 2022 21:17:10 -0400
+Build-Date: Fri, 28 Oct 2022 16:11:44 -0400
 Build-Tainted-By:
  merged-usr-via-symlinks
  usr-local-has-libraries
@@ -313,4 +313,4 @@ Installed-Build-Depends:
 Environment:
  DEB_BUILD_OPTIONS="parallel=4"
  LANG="en_US.UTF-8"
- SOURCE_DATE_EPOCH="1666829281"
+ SOURCE_DATE_EPOCH="1666986593"

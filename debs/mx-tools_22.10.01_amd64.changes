@@ -1,0 +1,31 @@
+Format: 1.8
+Date: Fri, 28 Oct 2022 15:49:53 -0400
+Source: mx-tools
+Binary: mx-tools
+Architecture: source amd64
+Version: 22.10.01
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Dolphin Oracle <dolphinoracle@gmail.com>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (22.10.01) mx; urgency=medium
+ .
+   * fix string source files
+Checksums-Sha1:
+ 8b74d4bc9d9430f9eef223d80429c4a6bcc8fcf2 597 mx-tools_22.10.01.dsc
+ f6b39beb62650981443e93126e748e5b6cf43137 469516 mx-tools_22.10.01.tar.xz
+ b8ae5e50be01c935313893ca6807184e57b7166c 10468 mx-tools_22.10.01_amd64.buildinfo
+ 48d96559cd05cf5e2b1ee74fdba7387136e6fb87 62168 mx-tools_22.10.01_amd64.deb
+Checksums-Sha256:
+ 249a5a4cddde270225781ca7c449fd66ac95d4f8876746bc00eb079561e41e17 597 mx-tools_22.10.01.dsc
+ 135942bef9507e9b3a6456e811d6856ba9bea31289638ab9fa5a2c9e1b262c79 469516 mx-tools_22.10.01.tar.xz
+ 58518dc152adb5c6cc50a2b0e87a78c639f9a80dcd7cdad7a5663a158b31ac9a 10468 mx-tools_22.10.01_amd64.buildinfo
+ 8d2997ff3c2bb7147e7504d6ea3bb63770529bc04027716ef5fe6537d63e4914 62168 mx-tools_22.10.01_amd64.deb
+Files:
+ fc3809c2879737a3a30834447373360d 597 admin optional mx-tools_22.10.01.dsc
+ 589deeea38aefd0c684febcaa77118d1 469516 admin optional mx-tools_22.10.01.tar.xz
+ 91fc8548ecf39dce67432960889d85e4 10468 admin optional mx-tools_22.10.01_amd64.buildinfo
+ dad84408aebee2bd6777920e31008589 62168 admin optional mx-tools_22.10.01_amd64.deb

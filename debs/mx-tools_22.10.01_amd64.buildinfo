@@ -2,19 +2,19 @@ Format: 1.0
 Source: mx-tools
 Binary: mx-tools
 Architecture: amd64 source
-Version: 22.10
+Version: 22.10.01
 Checksums-Md5:
- cce0b50682669770e2f9e85e9255c991 585 mx-tools_22.10.dsc
- 86c232e0683b858d7b732c55acc03951 61848 mx-tools_22.10_amd64.deb
+ fc3809c2879737a3a30834447373360d 597 mx-tools_22.10.01.dsc
+ dad84408aebee2bd6777920e31008589 62168 mx-tools_22.10.01_amd64.deb
 Checksums-Sha1:
- 57f18b244393cac2f5c9a28a125e10096b435230 585 mx-tools_22.10.dsc
- c6e3d039a70ce5c6efecdc57f863afcb90cdfa4c 61848 mx-tools_22.10_amd64.deb
+ 8b74d4bc9d9430f9eef223d80429c4a6bcc8fcf2 597 mx-tools_22.10.01.dsc
+ 48d96559cd05cf5e2b1ee74fdba7387136e6fb87 62168 mx-tools_22.10.01_amd64.deb
 Checksums-Sha256:
- ad915fa27bbb812c7dc537e87adb0a0e5187460fbfa5f7ea316e2107c0ac81c3 585 mx-tools_22.10.dsc
- 8810a98054fb89a7129457ac6b91cb22acb36638400ace3e584d923b27e7c39f 61848 mx-tools_22.10_amd64.deb
+ 249a5a4cddde270225781ca7c449fd66ac95d4f8876746bc00eb079561e41e17 597 mx-tools_22.10.01.dsc
+ 8d2997ff3c2bb7147e7504d6ea3bb63770529bc04027716ef5fe6537d63e4914 62168 mx-tools_22.10.01_amd64.deb
 Build-Origin: Debian
 Build-Architecture: amd64
-Build-Date: Wed, 26 Oct 2022 20:33:28 -0400
+Build-Date: Fri, 28 Oct 2022 16:14:45 -0400
 Build-Tainted-By:
  merged-usr-via-symlinks
  usr-local-has-libraries
@@ -344,4 +344,4 @@ Installed-Build-Depends:
 Environment:
  DEB_BUILD_OPTIONS="parallel=4"
  LANG="en_US.UTF-8"
- SOURCE_DATE_EPOCH="1666829281"
+ SOURCE_DATE_EPOCH="1666986593"
