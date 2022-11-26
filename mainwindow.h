@@ -30,7 +30,8 @@
 
 #include <flatbutton.h>
 
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 
@@ -39,14 +40,14 @@ class MainWindow : public QDialog
     Q_OBJECT
 
 protected:
-    QProcess *proc{};
+    QProcess *proc {};
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    enum Info {Name, Comment, IconName, Exec, Category, Terminal};
-    FlatButton *btn{};
+    enum Info { Name, Comment, IconName, Exec, Category, Terminal };
+    FlatButton *btn {};
     QMultiMap<QString, QStringList> category_map;
     QMultiMap<QString, QMultiMap<QString, QStringList>> info_map;
     QStringList live_list;
@@ -66,7 +67,7 @@ public:
 
 private slots:
     void btn_clicked();
-    void closeEvent(QCloseEvent*);
+    void closeEvent(QCloseEvent *);
     void resizeEvent(QResizeEvent *event);
     void pushAbout_clicked();
     static void pushHelp_clicked();

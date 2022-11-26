@@ -23,23 +23,21 @@
 #ifndef FLATBUTTON_H
 #define FLATBUTTON_H
 
-
-#include <QPushButton>
 #include <QEvent>
+#include <QPushButton>
 
 class FlatButton : public QPushButton
 {
     Q_OBJECT
 public:
     FlatButton(QWidget *parent = nullptr);
-    FlatButton(const QString& name, QWidget *parent = nullptr);
+    FlatButton(const QString &name, QWidget *parent = nullptr);
     void setIconSize(int, int);
     void setIconSize(QSize size);
+
 protected:
     void enterEvent(QEvent *e);
     void leaveEvent(QEvent *e);
-
 };
 
 #endif // FLATBUTTON_H
-

@@ -19,6 +19,8 @@
  * You should have received a copy of the GNU General Public License
  * along with MX Tools.  If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 
 #include <QDebug>
 #include <QDir>
@@ -30,14 +32,12 @@
 #include <QTextEdit>
 
 #include "about.h"
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "flatbutton.h"
 #include "version.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::MainWindow)
 {
     qDebug().noquote() << qApp->applicationName() << "version:" << VERSION;
     ui->setupUi(this);
@@ -54,12 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     software_list = listDesktopFiles(QStringLiteral("MX-Software"), search_folder);
     utilities_list = listDesktopFiles(QStringLiteral("MX-Utilities"), search_folder);
 
-    QVector<QStringList *> lists {
-                &live_list,
-                &maintenance_list,
-                &setup_list,
-                &software_list,
-                &utilities_list };
+    QVector<QStringList *> lists {&live_list, &maintenance_list, &setup_list, &software_list, &utilities_list};
 
     QString test = getCmdOut(QStringLiteral("df -T / |tail -n1 |awk '{print $2}'"));
 
@@ -68,7 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
     if (!live) {
         const QStringList live_list_copy = live_list;
         for (const QString &item : live_list_copy)
-            if (item.contains(QLatin1String("mx-remastercc.desktop")) || item.contains(QLatin1String("live-kernel-updater.desktop")))
+            if (item.contains(QLatin1String("mx-remastercc.desktop"))
+                || item.contains(QLatin1String("live-kernel-updater.desktop")))
                 live_list.removeOne(item);
     }
 
@@ -97,9 +93,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->adjustSize();
     QSize size = this->size();
     restoreGeometry(settings.value(QStringLiteral("geometry")).toByteArray());
-    if (this->isMaximized()) {  // if started maximized give option to resize to normal window size
+    if (this->isMaximized()) { // if started maximized give option to resize to normal window size
         this->resize(size);
-        QRect screenGeometry = qApp->primaryScreen()->geometry();
+        QRect screenGeometry = QApplication::primaryScreen()->geometry();
         int x = (screenGeometry.width() - this->width()) / 2;
         int y = (screenGeometry.height() - this->height()) / 2;
         this->move(x, y);
@@ -107,10 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
     icon_size = settings.value(QStringLiteral("icon_size"), icon_size).toInt();
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::setConnections()
 {
@@ -195,7 +188,8 @@ void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
             if (name.isEmpty()) { // backup if Name is not translated
                 re.setPattern(QStringLiteral("^Name=(.*)$"));
                 name = re.match(text).captured(1).trimmed();
-                name = name.remove(QRegularExpression(QStringLiteral("^MX "))).replace(QLatin1Char('&'), QLatin1String("&&"));
+                name = name.remove(QRegularExpression(QStringLiteral("^MX ")))
+                           .replace(QLatin1Char('&'), QLatin1String("&&"));
             }
             if (comment.isEmpty()) { // backup if Comment is not translated
                 re.setPattern(QStringLiteral("^Comment=(.*)$"));
@@ -216,11 +210,11 @@ void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
 }
 
 // read the info_map and add the buttons to the UI
-void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringList> > &info_map)
+void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringList>> &info_map)
 {
     int col = 0;
     int row = 0;
-    const int max  = this->width() / 200;
+    const int max = this->width() / 200;
 
     max_elements = 0;
     QMapIterator<QString, QMultiMap<QString, QStringList>> it(info_map);
@@ -279,7 +273,7 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
                 btn->setIcon(findIcon(icon_name));
                 btn->setIconSize(icon_size, icon_size);
                 ui->gridLayout_btn->addWidget(btn, row, col);
-                //ui->gridLayout_btn->setRowStretch(row, 0);
+                // ui->gridLayout_btn->setRowStretch(row, 0);
                 ++col;
                 if (col >= max) {
                     col = 0;
@@ -305,7 +299,8 @@ QIcon MainWindow::findIcon(QString icon_name)
         return QIcon(icon_name);
 
     QString search_term = icon_name;
-    if (!icon_name.endsWith(QLatin1String(".png")) && !icon_name.endsWith(QLatin1String(".svg")) && !icon_name.endsWith(QLatin1String(".xpm")))
+    if (!icon_name.endsWith(QLatin1String(".png")) && !icon_name.endsWith(QLatin1String(".svg"))
+        && !icon_name.endsWith(QLatin1String(".xpm")))
         search_term = icon_name + ".*";
 
     icon_name.remove(QRegularExpression(QStringLiteral(R"(\.png$|\.svg$|\.xpm$)")));
@@ -315,16 +310,14 @@ QIcon MainWindow::findIcon(QString icon_name)
         return QIcon::fromTheme(icon_name);
 
     // Try to find in most obvious places
-    QStringList search_paths { QDir::homePath() + "/.local/share/icons/",
-                               "/usr/share/pixmaps/",
-                               "/usr/local/share/icons/",
-                               "/usr/share/icons/hicolor/48x48/apps/" };
+    QStringList search_paths {QDir::homePath() + "/.local/share/icons/", "/usr/share/pixmaps/",
+                              "/usr/local/share/icons/", "/usr/share/icons/hicolor/48x48/apps/"};
     for (const QString &path : search_paths) {
         if (!QFileInfo::exists(path)) {
             search_paths.removeOne(path);
             continue;
         }
-        for (const QString &ext : {".png", ".svg", ".xpm"} ) {
+        for (const QString &ext : {".png", ".svg", ".xpm"}) {
             QString file = path + icon_name + ext;
             if (QFileInfo::exists(file))
                 return QIcon(file);
@@ -336,7 +329,7 @@ QIcon MainWindow::findIcon(QString icon_name)
     search_paths.append(QStringLiteral("/usr/share/icons/hicolor/"));
     search_paths.append(QStringLiteral("/usr/share/icons/"));
     QString out = getCmdOut("find " + search_paths.join(QStringLiteral(" ")) + " -iname \"" + search_term
-                                   + "\" -print -quit 2>/dev/null");
+                            + "\" -print -quit 2>/dev/null");
     return (!out.isEmpty()) ? QIcon(out) : QIcon();
 }
 
@@ -347,10 +340,7 @@ void MainWindow::btn_clicked()
     this->show();
 }
 
-void MainWindow::closeEvent(QCloseEvent * /*unused*/)
-{
-    settings.setValue(QStringLiteral("geometry"), saveGeometry());
-}
+void MainWindow::closeEvent(QCloseEvent * /*unused*/) { settings.setValue(QStringLiteral("geometry"), saveGeometry()); }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
@@ -375,7 +365,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 }
 
 // hide icons in menu checkbox
-void MainWindow::checkHide_clicked(bool checked) {
+void MainWindow::checkHide_clicked(bool checked)
+{
     for (const QStringList &list : qAsConst(category_map))
         for (const QString &file_name : qAsConst(list))
             hideShowIcon(file_name, checked);
@@ -391,8 +382,8 @@ void MainWindow::hideShowIcon(const QString &file_name, bool hide)
         QFile::remove(file_name_home);
     } else {
         QFile::copy(file_name, file_name_home);
-        QString cmd  = QStringLiteral("sed -i -r -e '/^(NoDisplay|Hidden)=/d' ");
-        cmd += QLatin1String("-e '/Exec/aNoDisplay=true' ") ;
+        QString cmd = QStringLiteral("sed -i -r -e '/^(NoDisplay|Hidden)=/d' ");
+        cmd += QLatin1String("-e '/Exec/aNoDisplay=true' ");
         cmd += file_name_home;
         system(cmd.toUtf8());
     }
@@ -401,22 +392,23 @@ void MainWindow::hideShowIcon(const QString &file_name, bool hide)
 void MainWindow::pushAbout_clicked()
 {
     this->hide();
-    displayAboutMsgBox(tr("About MX Tools"),
-                       "<p align=\"center\"><b><h2>" + tr("MX Tools") + "</h2></b></p><p align=\"center\">" +
-                       tr("Version: ") + VERSION + "</p><p align=\"center\"><h3>" +
-                       tr("Configuration Tools for MX Linux") +
-                       "</h3></p><p align=\"center\"><a href=\"http://mxlinux.org\">http://mxlinux.org</a><br /></p>"
-                       "<p align=\"center\">" + tr("Copyright (c) MX Linux") + "<br /><br /></p>",
-                       QStringLiteral("/usr/share/doc/mx-tools/license.html"), tr("%1 License").arg(this->windowTitle()));
+    displayAboutMsgBox(
+        tr("About MX Tools"),
+        "<p align=\"center\"><b><h2>" + tr("MX Tools") + "</h2></b></p><p align=\"center\">" + tr("Version: ") + VERSION
+            + "</p><p align=\"center\"><h3>" + tr("Configuration Tools for MX Linux")
+            + "</h3></p><p align=\"center\"><a href=\"http://mxlinux.org\">http://mxlinux.org</a><br /></p>"
+              "<p align=\"center\">"
+            + tr("Copyright (c) MX Linux") + "<br /><br /></p>",
+        QStringLiteral("/usr/share/doc/mx-tools/license.html"), tr("%1 License").arg(this->windowTitle()));
     this->show();
 }
 
 void MainWindow::pushHelp_clicked()
 {
     if (QFile::exists(QStringLiteral("/usr/bin/mx-manual")))
-        system("mx-manual");
+        QProcess::execute(QStringLiteral("mx-manual"), {});
     else // for MX19?
-        system("xdg-open file:///usr/local/share/doc/mxum.html#toc-Subsection-3.2");
+        QProcess::execute(QStringLiteral("xdg-open"), {"file:///usr/local/share/doc/mxum.html#toc-Subsection-3.2"});
 }
 
 void MainWindow::textSearch_textChanged(const QString &arg1)
@@ -428,22 +420,22 @@ void MainWindow::textSearch_textChanged(const QString &arg1)
         delete child;
     }
 
-    QMultiMap<QString, QMultiMap<QString, QStringList> > new_map;
+    QMultiMap<QString, QMultiMap<QString, QStringList>> new_map;
     QMultiMap<QString, QStringList> map;
 
     // Create a new_map with items that match the search argument
     QMapIterator<QString, QMultiMap<QString, QStringList>> it(info_map);
     QString category;
-    while(it.hasNext()) {
+    while (it.hasNext()) {
         category = it.next().key();
-        QMultiMap<QString, QStringList> file_info =  info_map.value(category);
+        QMultiMap<QString, QStringList> file_info = info_map.value(category);
         for (const QString &file_name : category_map.value(category)) {
-            //qDebug() << file_name;
+            // qDebug() << file_name;
             QString name = file_info.value(file_name)[0];
             QString comment = file_info.value(file_name)[1];
             QString category = file_info.value(file_name)[4];
             if (name.contains(arg1, Qt::CaseInsensitive) || comment.contains(arg1, Qt::CaseInsensitive)
-                    || category.contains(arg1, Qt::CaseInsensitive)) {
+                || category.contains(arg1, Qt::CaseInsensitive)) {
                 map.insert(file_name, info_map.value(category).value(file_name));
             }
         }

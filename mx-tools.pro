@@ -26,7 +26,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets
+QT       += widgets
 CONFIG   += c++1z
 
 TARGET = mx-tools
