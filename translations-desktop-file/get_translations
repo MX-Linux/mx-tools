@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APPNAME="$(basename $(dirname $(pwd)))"
+APPNAME="$(basename $(dirname $(pwd)))-desktop"
 
 echodo() {
   echo "${@}"
@@ -15,19 +15,19 @@ if [ ! -s  .tx/config ]; then
 host = https://www.transifex.com
 
 [antix-development.$APPNAME]
-file_filter = ./${APPNAME}_<lang>.ts
-source_file = ${APPNAME}_en.ts
+file_filter = po/${APPNAME}_<lang>.po
+source_file = ${APPNAME}.pot
 source_lang = en
-type = ts
+type = po
 EOF
 fi    
 
-# remove existing translations
-find . -type f -name '*.ts' -not -name '*.en.ts' -delete
+
+#remove existing translations
+rm po/*
 
 # get all translations
 if command -v tx >/dev/null; then
    echodo tx pull -r antix-development.$APPNAME  --all
 fi
 
-lupdate ../*.pro

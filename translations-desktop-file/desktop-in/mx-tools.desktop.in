@@ -1,0 +1,11 @@
+[Desktop Entry]
+# The desktop entry name will be displayed within the menu.
+Name=MX Tools
+# # The desktop entry comment will be shown within the menu.
+Comment=Configuration tools for MX Linux
+Exec=mx-tools
+Icon=mx-tools
+NoDisplay=false
+Categories=XFCE;Settings;DesktopSettings;X-XFCE-SettingsDialog;X-XFCE-PersonalSettings;
+Type=Application
+
