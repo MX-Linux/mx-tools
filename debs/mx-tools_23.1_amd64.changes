@@ -19,29 +19,29 @@ Changes:
    * Strip %f,%F,%U from command since the program is called without arguments from launcher. This should fix starting deb-installer
    * Update translations
 Checksums-Sha1:
- b42b47c15c94801921d47f24ae1ea599521cd79d 1140 mx-tools_23.1.dsc
- 259aac0a912e6fc3d92169c03c79740f61b4553a 52084 mx-tools_23.1.tar.xz
- 6c4c0e947e43ae8cd7b5d42d58ddda9b67f56867 10701 mx-tools_23.1_amd64.buildinfo
- 0853fb24ff5e9c958b1a5d8f89dd3b4bf426d09a 64260 mx-tools_23.1_amd64.deb
+ 29e95a5f7de5b3419646b2c7c2a4a07e3ae66763 1140 mx-tools_23.1.dsc
+ 7402f4f94e2cfa28061199a208e04d9bcecc9a06 52100 mx-tools_23.1.tar.xz
+ d452e21e2f5cb20d99158dd96eae68d8d903b614 10701 mx-tools_23.1_amd64.buildinfo
+ 0130f487595bce2d49e0c2c731753543367d45a9 64268 mx-tools_23.1_amd64.deb
 Checksums-Sha256:
- d983344ab84d25e8e40530e98e47ac2e6ef86870e6d93686a9132bb63b467671 1140 mx-tools_23.1.dsc
- 42a59d6e9652714feca40f8dfb5bb446321ef8b34bdaf5c1d5745313469fec15 52084 mx-tools_23.1.tar.xz
- c31c9d2a4f08c9af9025aa4b17a109d63460d6f66aebe44e6e5a422e51e14994 10701 mx-tools_23.1_amd64.buildinfo
- ccbaba231c14df25d85c41386b085e27c6472070411b4bc792494e400287867e 64260 mx-tools_23.1_amd64.deb
+ 758ff4a80476ff362bbf29b2dad568e53483602cb35f4cf1215ef45dbd7539c6 1140 mx-tools_23.1.dsc
+ 9841e0fbceffa68c6cc81af85c523735b4276222ded2531fd9db73fdd6d79d35 52100 mx-tools_23.1.tar.xz
+ f238aaa483f86ae765e7de798e8d441d3239b643bc133328d64acdc6ee804ae2 10701 mx-tools_23.1_amd64.buildinfo
+ 9907cadf65ae5f0b13c1cde26575d7ca80d143d037dacd5b0ad91d091db3c89d 64268 mx-tools_23.1_amd64.deb
 Files:
- 05bd6c34445ca6165e0a5bd4f008c483 1140 admin optional mx-tools_23.1.dsc
- e110931873a4a563028df4c998334d9e 52084 admin optional mx-tools_23.1.tar.xz
- 90e610d130475e369f6c2ddfec6e3dbd 10701 admin optional mx-tools_23.1_amd64.buildinfo
- 224439db480c7a740233b476ebddf8d7 64260 admin optional mx-tools_23.1_amd64.deb
+ acd991599a6c65fe332d9b3a96f69fde 1140 admin optional mx-tools_23.1.dsc
+ 1477ef851bc0d075d5a9fb6bb1cc2fad 52100 admin optional mx-tools_23.1.tar.xz
+ 7b1166cdfbe71cd368adc561bb2798c2 10701 admin optional mx-tools_23.1_amd64.buildinfo
+ 48c1cf4c4b3d45b85e7d59106147b47d 64268 admin optional mx-tools_23.1_amd64.deb
 
 -----BEGIN PGP SIGNATURE-----
 
-iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmPL+kQTHGFkcmlhbkBt
-eGxpbnV4Lm9yZwAKCRBwk4x4BnnumLCQCACI1eqjmiP374FzLXwx6+Pt/EXVub2b
-cEbn5iBXRrCofEHwH3feaLaI5oU4fWVQ7a2UTOSY7HuGxhbadnaIvJ9XqNl/RRFg
-YQrMP/m2kJ2Sda8pjeVqh4CR/Xks22OyRQN/xrA1N4AlVtIwf7RGNv8Ob1zII3tY
-nfXWSFGkC1DT5xgL64R1Ugv53t9qVIbDLnIfGDEIH1hMAHSZ7qbFc0tKoD2QeAwR
-IeAyuA78Ra/Ptj9gGq1KxOA+gBrN/VcPG7pPqiU3FBr3wKKqf+9qx0SLYUaw4tqc
-nzqdMxjKPHnCnxuZwA7RvkQApZrFxMXGebxopcGOZBQb7rJfPEfSGlvf
-=tZsW
+iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmPL+8oTHGFkcmlhbkBt
+eGxpbnV4Lm9yZwAKCRBwk4x4BnnumGoYB/sH/B7mf069ehONBUJLDC2yarnyBIlu
+sNiVLA+i8LDqgSDMFqrLs/fPVOsB/RPPoauxTHP5T5NsaW9gt1q00rBs9LbrgCzC
+9DVVgnEYZDaAzSQIFbAMxsNQS8B5sBIRmo/NpXj+li3/fuaht64XXnO3onfGvADk
+y5scvOSHTj72XPGKiSVSX/oe6OIjJskbYgA3wwPXPX1RW4/Wh6uisdK2C3WZ6Fvw
+cFqiSmIYcOQnBSWOC/4oG5RmrWZJRnPjJckXbQ0LDSyD65V7vO307SBeg6N/c2HQ
+VriouqDy6nSWnMEWgoLpPJI8+2xCC5w7dIq2CZ334inKBL6byciP+qnQ
+=ymld
 -----END PGP SIGNATURE-----

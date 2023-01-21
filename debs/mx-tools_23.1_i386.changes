@@ -16,11 +16,11 @@ Changes:
    * Strip %f,%F,%U from command since the program is called without arguments from launcher. This should fix starting deb-installer
    * Update translations
 Checksums-Sha1:
- d5bfe4eebcf9aa99eae52a429a681488d84e4c9c 10044 mx-tools_23.1_i386.buildinfo
- f8fa528d26e3a701402386aa0a84395e3bd028b5 67320 mx-tools_23.1_i386.deb
+ 8a91340eb25750c5f39a87fd818f9be8fa1c83db 10044 mx-tools_23.1_i386.buildinfo
+ 6283ba815ee23a02b3d164725e3eac92e5fddf2c 67348 mx-tools_23.1_i386.deb
 Checksums-Sha256:
- 824972053b0a6d6da03c0d67fe19407a3808e168a9ec371e89517b9ba29fff9c 10044 mx-tools_23.1_i386.buildinfo
- ff11d018e332c005588ce94289e7802f5744aa1cd6e44e86d91bf52894c7f4b3 67320 mx-tools_23.1_i386.deb
+ 26f171bb68507e347d257dfe990a04b0842fa4a89aab7b0dfb0a6d2aa0c4c1b0 10044 mx-tools_23.1_i386.buildinfo
+ 4b4baff06a3283347e7b476af9486f42ba2e255c5c28ddfb9f8dd3f05ae9075e 67348 mx-tools_23.1_i386.deb
 Files:
- fc59458ee57efa2c334058af1ff4468a 10044 admin optional mx-tools_23.1_i386.buildinfo
- dc469bd795819a560f2821aa14df4a17 67320 admin optional mx-tools_23.1_i386.deb
+ 42bae4b919d7e08d42ece7e0584a972a 10044 admin optional mx-tools_23.1_i386.buildinfo
+ dbf647d54b51f409f94fd6ccd284afec 67348 admin optional mx-tools_23.1_i386.deb
