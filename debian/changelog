@@ -1,3 +1,10 @@
+mx-tools (23.1) mx; urgency=medium
+
+  * Strip %f,%F,%U from command since the program is called without arguments from launcher. This should fix starting deb-installer
+  * Update translations
+
+ -- Adrian <adrian@mxlinux.org>  Sat, 21 Jan 2023 09:24:40 -0500
+
 mx-tools (22.10) mx; urgency=medium
 
   * translation refresh 

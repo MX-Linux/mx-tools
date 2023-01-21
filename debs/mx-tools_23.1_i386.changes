@@ -1,0 +1,26 @@
+Format: 1.8
+Date: Sat, 21 Jan 2023 09:24:40 -0500
+Source: mx-tools
+Binary: mx-tools
+Architecture: i386
+Version: 23.1
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Adrian <adrian@mxlinux.org>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (23.1) mx; urgency=medium
+ .
+   * Strip %f,%F,%U from command since the program is called without arguments from launcher. This should fix starting deb-installer
+   * Update translations
+Checksums-Sha1:
+ d5bfe4eebcf9aa99eae52a429a681488d84e4c9c 10044 mx-tools_23.1_i386.buildinfo
+ f8fa528d26e3a701402386aa0a84395e3bd028b5 67320 mx-tools_23.1_i386.deb
+Checksums-Sha256:
+ 824972053b0a6d6da03c0d67fe19407a3808e168a9ec371e89517b9ba29fff9c 10044 mx-tools_23.1_i386.buildinfo
+ ff11d018e332c005588ce94289e7802f5744aa1cd6e44e86d91bf52894c7f4b3 67320 mx-tools_23.1_i386.deb
+Files:
+ fc59458ee57efa2c334058af1ff4468a 10044 admin optional mx-tools_23.1_i386.buildinfo
+ dc469bd795819a560f2821aa14df4a17 67320 admin optional mx-tools_23.1_i386.deb

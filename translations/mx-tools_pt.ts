@@ -1,9 +1,11 @@
-<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="pt">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="pt">
 <context>
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="405"/>
+        <location filename="../mainwindow.cpp" line="398"/>
         <source>MX Tools</source>
         <translation>Ferramentas do MX</translation>
     </message>
@@ -58,27 +60,27 @@
         <translation>procurar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="404"/>
+        <location filename="../mainwindow.cpp" line="397"/>
         <source>About MX Tools</source>
         <translation>Sobre o Ferramentas do MX</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="406"/>
+        <location filename="../mainwindow.cpp" line="398"/>
         <source>Version: </source>
         <translation>Versão: </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="407"/>
+        <location filename="../mainwindow.cpp" line="399"/>
         <source>Configuration Tools for MX Linux</source>
         <translation>Ferramentas de configuração para o MX Linux</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="409"/>
+        <location filename="../mainwindow.cpp" line="402"/>
         <source>Copyright (c) MX Linux</source>
         <translation> Direitos de autor (c) MX Linux</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="410"/>
+        <location filename="../mainwindow.cpp" line="403"/>
         <source>%1 License</source>
         <translation>Licença do %1</translation>
     </message>
@@ -86,23 +88,23 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../about.cpp" line="40"/>
+        <location filename="../about.cpp" line="42"/>
         <source>License</source>
         <translation>Licença</translation>
     </message>
     <message>
-        <location filename="../about.cpp" line="41"/>
-        <location filename="../about.cpp" line="51"/>
+        <location filename="../about.cpp" line="43"/>
+        <location filename="../about.cpp" line="53"/>
         <source>Changelog</source>
         <translation>Registo de alterações</translation>
     </message>
     <message>
-        <location filename="../about.cpp" line="42"/>
+        <location filename="../about.cpp" line="44"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="../about.cpp" line="63"/>
+        <location filename="../about.cpp" line="66"/>
         <source>&amp;Close</source>
         <translation>&amp;Fechar</translation>
     </message>

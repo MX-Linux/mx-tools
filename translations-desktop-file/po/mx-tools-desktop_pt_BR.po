@@ -1,28 +1,32 @@
-# Portuguese translations for PACKAGE package.
-# Copyright (C) 2022 THE PACKAGE'S COPYRIGHT HOLDER
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# Automatically generated, 2022.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+# Translators:
+# marcelo cripe <marcelocripe@gmail.com>, 2022
+# 
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-12-04 21:35-0500\n"
-"PO-Revision-Date: 2022-12-04 21:35-0500\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
-"Language: pt_BR\n"
+"PO-Revision-Date: 2022-12-09 04:10+0000\n"
+"Last-Translator: marcelo cripe <marcelocripe@gmail.com>, 2022\n"
+"Language-Team: Portuguese (Brazil) (https://www.transifex.com/anticapitalista/teams/10162/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #. The desktop entry name will be displayed within the menu.
 #: desktop-in/mx-tools.desktop.in:4
 msgid "MX Tools"
-msgstr "MX Ferramentas"
+msgstr "Ferramentas de Configurações do MX"
 
 #. # The desktop entry comment will be shown within the menu.
 #: desktop-in/mx-tools.desktop.in:6
 msgid "Configuration tools for MX Linux"
-msgstr "Ferramentas de configuração do MX [mx-tools]"
+msgstr "Ferramentas de configurações para o MX Linux"

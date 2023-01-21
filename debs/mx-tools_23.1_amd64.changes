@@ -1,0 +1,47 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Format: 1.8
+Date: Sat, 21 Jan 2023 09:24:40 -0500
+Source: mx-tools
+Binary: mx-tools
+Architecture: source amd64
+Version: 23.1
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Adrian <adrian@mxlinux.org>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (23.1) mx; urgency=medium
+ .
+   * Strip %f,%F,%U from command since the program is called without arguments from launcher. This should fix starting deb-installer
+   * Update translations
+Checksums-Sha1:
+ b42b47c15c94801921d47f24ae1ea599521cd79d 1140 mx-tools_23.1.dsc
+ 259aac0a912e6fc3d92169c03c79740f61b4553a 52084 mx-tools_23.1.tar.xz
+ 6c4c0e947e43ae8cd7b5d42d58ddda9b67f56867 10701 mx-tools_23.1_amd64.buildinfo
+ 0853fb24ff5e9c958b1a5d8f89dd3b4bf426d09a 64260 mx-tools_23.1_amd64.deb
+Checksums-Sha256:
+ d983344ab84d25e8e40530e98e47ac2e6ef86870e6d93686a9132bb63b467671 1140 mx-tools_23.1.dsc
+ 42a59d6e9652714feca40f8dfb5bb446321ef8b34bdaf5c1d5745313469fec15 52084 mx-tools_23.1.tar.xz
+ c31c9d2a4f08c9af9025aa4b17a109d63460d6f66aebe44e6e5a422e51e14994 10701 mx-tools_23.1_amd64.buildinfo
+ ccbaba231c14df25d85c41386b085e27c6472070411b4bc792494e400287867e 64260 mx-tools_23.1_amd64.deb
+Files:
+ 05bd6c34445ca6165e0a5bd4f008c483 1140 admin optional mx-tools_23.1.dsc
+ e110931873a4a563028df4c998334d9e 52084 admin optional mx-tools_23.1.tar.xz
+ 90e610d130475e369f6c2ddfec6e3dbd 10701 admin optional mx-tools_23.1_amd64.buildinfo
+ 224439db480c7a740233b476ebddf8d7 64260 admin optional mx-tools_23.1_amd64.deb
+
+-----BEGIN PGP SIGNATURE-----
+
+iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmPL+kQTHGFkcmlhbkBt
+eGxpbnV4Lm9yZwAKCRBwk4x4BnnumLCQCACI1eqjmiP374FzLXwx6+Pt/EXVub2b
+cEbn5iBXRrCofEHwH3feaLaI5oU4fWVQ7a2UTOSY7HuGxhbadnaIvJ9XqNl/RRFg
+YQrMP/m2kJ2Sda8pjeVqh4CR/Xks22OyRQN/xrA1N4AlVtIwf7RGNv8Ob1zII3tY
+nfXWSFGkC1DT5xgL64R1Ugv53t9qVIbDLnIfGDEIH1hMAHSZ7qbFc0tKoD2QeAwR
+IeAyuA78Ra/Ptj9gGq1KxOA+gBrN/VcPG7pPqiU3FBr3wKKqf+9qx0SLYUaw4tqc
+nzqdMxjKPHnCnxuZwA7RvkQApZrFxMXGebxopcGOZBQb7rJfPEfSGlvf
+=tZsW
+-----END PGP SIGNATURE-----
