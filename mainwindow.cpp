@@ -197,6 +197,7 @@ void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
             }
             re.setPattern(QStringLiteral("^Exec=(.*)$"));
             exec = re.match(text).captured(1).trimmed();
+            fixExecItem(exec);
             re.setPattern(QStringLiteral("^Icon=(.*)$"));
             icon_name = re.match(text).captured(1).trimmed();
             re.setPattern(QStringLiteral("^Terminal=(.*)$"));
@@ -463,6 +464,9 @@ void MainWindow::removeXfceOnly(QStringList &list)
             list.removeOne(file_name);
     }
 }
+
+// Strip %f|%F|%U if exec expects a file name since it's called without an argument from this launcher.
+void MainWindow::fixExecItem(QString &item) { item.remove(QRegularExpression(QStringLiteral(" %f| %F| %U"))); }
 
 // Remove FLUXBOX-only apps from the list
 void MainWindow::removeFLUXBOXonly(QStringList &list)

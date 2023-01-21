@@ -84,6 +84,7 @@ private:
     static void removeEnvExclusive(QStringList &list, bool live);
     static void removeFLUXBOXonly(QStringList &list);
     static void removeXfceOnly(QStringList &list);
+    static void fixExecItem(QString &item);
 };
 
 #endif // MAINWINDOW_H
