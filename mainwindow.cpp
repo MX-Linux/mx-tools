@@ -466,7 +466,7 @@ void MainWindow::removeXfceOnly(QStringList &list)
 }
 
 // Strip %f, %F, %U, etc. if exec expects a file name since it's called without an argument from this launcher.
-void MainWindow::fixExecItem(QString &item) { item.remove(QRegularExpression(QStringLiteral(R"(%[a-zA-Z])"))); }
+void MainWindow::fixExecItem(QString &item) { item.remove(QRegularExpression(QStringLiteral(R"( %[a-zA-Z])"))); }
 
 // Remove FLUXBOX-only apps from the list
 void MainWindow::removeFLUXBOXonly(QStringList &list)
