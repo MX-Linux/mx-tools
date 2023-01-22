@@ -216,7 +216,7 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
     int col = 0;
     int row = 0;
     int max = 200 ;
-    qDebug() << "max is " << max;
+
     max_elements = 0;
     QMapIterator<QString, QMultiMap<QString, QStringList>> it(info_map);
     QString category;
