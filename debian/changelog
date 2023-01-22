@@ -1,3 +1,9 @@
+mx-tools (23.1.01) mx; urgency=medium
+
+  * Add horizontal scrollbar if needed 
+
+ -- Adrian <adrian@mxlinux.org>  Sun, 22 Jan 2023 11:28:27 -0500
+
 mx-tools (23.1) mx; urgency=medium
 
   * Strip %f,%F,%U from command since the program is called without arguments from launcher. This should fix starting deb-installer

@@ -1,0 +1,25 @@
+Format: 1.8
+Date: Sun, 22 Jan 2023 11:28:27 -0500
+Source: mx-tools
+Binary: mx-tools
+Architecture: i386
+Version: 23.1.01
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Adrian <adrian@mxlinux.org>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (23.1.01) mx; urgency=medium
+ .
+   * Add horizontal scrollbar if needed
+Checksums-Sha1:
+ 3b5c58f83a6805efe96029bd8cb6043c670fa6ad 10059 mx-tools_23.1.01_i386.buildinfo
+ 2591ead697502fb50881735c5aab3e70b571e7f3 67384 mx-tools_23.1.01_i386.deb
+Checksums-Sha256:
+ 575156ae985fb3390d52c438afcf6945565eb0adc10de205b9d56d4f752f88d2 10059 mx-tools_23.1.01_i386.buildinfo
+ 6f6eb30d37e1e38522da5f7de28a492cbc4716d5abbb97a1f3385c8f33ee646a 67384 mx-tools_23.1.01_i386.deb
+Files:
+ 5fcb86b68439e2cdb71c492613ed0ada 10059 admin optional mx-tools_23.1.01_i386.buildinfo
+ 9ed6bb95f4de16cf2fef2c4fcac2ee9c 67384 admin optional mx-tools_23.1.01_i386.deb

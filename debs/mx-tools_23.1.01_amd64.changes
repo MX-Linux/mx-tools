@@ -1,0 +1,46 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Format: 1.8
+Date: Sun, 22 Jan 2023 11:28:27 -0500
+Source: mx-tools
+Binary: mx-tools
+Architecture: source amd64
+Version: 23.1.01
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Adrian <adrian@mxlinux.org>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (23.1.01) mx; urgency=medium
+ .
+   * Add horizontal scrollbar if needed
+Checksums-Sha1:
+ a19878ed9396b0fc2f597db8ef04365336c1a1b3 1152 mx-tools_23.1.01.dsc
+ dc40335d57d495faad63a236a2950988e380064c 52156 mx-tools_23.1.01.tar.xz
+ b91c3c5defddf3e16459219949d7004b91f72957 10725 mx-tools_23.1.01_amd64.buildinfo
+ ae1da3f4b9b94619507ca754b938d69333ee6308 64408 mx-tools_23.1.01_amd64.deb
+Checksums-Sha256:
+ 1e5873a391c8137f3489776869f106a0cfd2c48aaf51282732c5cd3efd0274f7 1152 mx-tools_23.1.01.dsc
+ 5e6f26a986f2ef43e13477063a244eaa9d1e3c141b9b4d9b90cb33648389edf0 52156 mx-tools_23.1.01.tar.xz
+ 65677788fb3f89be02974d88822f4fa10fc722d46f960fc39fda9f03b9f39180 10725 mx-tools_23.1.01_amd64.buildinfo
+ b459437cdd8f1d13e7da391af92889fdb01c8750ca52255cf5426f947a9bbadc 64408 mx-tools_23.1.01_amd64.deb
+Files:
+ 2dfc3b552ea87788d98c7acbceb12b40 1152 admin optional mx-tools_23.1.01.dsc
+ 120684aa04a71e20a70f4d20f2ccafbc 52156 admin optional mx-tools_23.1.01.tar.xz
+ e14bebe1729529353df2dfdaf2c8ca4c 10725 admin optional mx-tools_23.1.01_amd64.buildinfo
+ 9dd2a2d2cbf8c49a7795f75f3f09dbc1 64408 admin optional mx-tools_23.1.01_amd64.deb
+
+-----BEGIN PGP SIGNATURE-----
+
+iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmPNZIcTHGFkcmlhbkBt
+eGxpbnV4Lm9yZwAKCRBwk4x4BnnumLPmCAC8lZV7oAGjBABe0BlpA+NLjdaFxQTr
+2c7laujdU0FivNxx+BF7aRlTFt9wsHKpIVKAKJOBpSCmrwLuzNSZOBVmG4eaY+5W
+sp6KfgOCfWm0d3xdhtHvHAGbne9ObFNyX+YQ9cs3zEvCGLbdklC8N49a8cUPGR+R
+WdP9OX8eJqZ2GRcqDaIcK/P3WHfYEVkxOEqVOjbeoBmQt7SQ7H1PqCNjpGd57qKi
+V7j+c90eYdJ7ZephOT+HLOiW/AHwp4y85ZGujww2nZwNvthtSwu9UFWfhdZjdz+H
+P1QSUInXPy2ET2VrUXaF3qV2QcZaIVr/x5kLQuxJcGQLUySLPiRDklZj
+=By3n
+-----END PGP SIGNATURE-----
