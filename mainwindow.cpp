@@ -90,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent)
     readInfo(category_map);
     addButtons(info_map);
     ui->textSearch->setFocus();
-    this->adjustSize();
+    //this->adjustSize();
     QSize size = this->size();
     restoreGeometry(settings.value(QStringLiteral("geometry")).toByteArray());
     if (this->isMaximized()) { // if started maximized give option to resize to normal window size
