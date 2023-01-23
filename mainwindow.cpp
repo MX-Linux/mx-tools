@@ -215,7 +215,7 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
 {
     int col = 0;
     int row = 0;
-    const int max = this->width() / 200;
+    int max = 200 ;
 
     max_elements = 0;
     QMapIterator<QString, QMultiMap<QString, QStringList>> it(info_map);
@@ -226,12 +226,27 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
             max_elements = info_map.value(category).keys().count();
     }
 
+
     QString name;
     QString comment;
     QString exec;
     QString icon_name;
     QString terminal_switch;
 
+    //get max button size
+    QMapIterator<QString, QStringList> itsize(info_map.value(category));
+    int maxbuttonwidth = 0;
+    while (itsize.hasNext()){
+        QString file_name = itsize.next().key();
+        QStringList file_info = info_map.value(category).value(file_name);
+        name = file_info.at(Info::Name);
+        int buttonwidth = name.size() * QApplication::font().pointSize() + icon_size;
+        if (buttonwidth >= maxbuttonwidth){
+            maxbuttonwidth = buttonwidth;
+            //qDebug() << "max button width" << maxbuttonwidth;
+        }
+    }
+    max = this->width() / maxbuttonwidth;
     it.toFront();
     while (it.hasNext()) {
         category = it.next().key();
@@ -276,6 +291,7 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
                 ui->gridLayout_btn->addWidget(btn, row, col);
                 // ui->gridLayout_btn->setRowStretch(row, 0);
                 ++col;
+
                 if (col >= max) {
                     col = 0;
                     ++row;
