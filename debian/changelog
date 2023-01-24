@@ -1,3 +1,9 @@
+mx-tools (23.1.02) mx; urgency=medium
+
+  * new method to set colum size
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Mon, 23 Jan 2023 22:29:42 -0500
+
 mx-tools (23.1.01) mx; urgency=medium
 
   * Add horizontal scrollbar if needed 
