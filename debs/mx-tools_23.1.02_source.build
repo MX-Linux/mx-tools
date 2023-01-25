@@ -1,0 +1,41 @@
+ dpkg-buildpackage -us -uc -ui -S -sa
+dpkg-buildpackage: info: source package mx-tools
+dpkg-buildpackage: info: source version 23.1.02
+dpkg-buildpackage: info: source distribution mx
+dpkg-buildpackage: info: source changed by Dolphin Oracle <dolphinoracle@gmail.com>
+ dpkg-source --before-build .
+ fakeroot debian/rules clean
+dh clean --no-automatic-dbgsym --parallel 
+   debian/rules override_dh_auto_clean
+make[1]: Entering directory '/media/demo/dataext/development/working/mx-tools_23.1.02/mx-tools'
+dh_auto_clean
+	make -j4 distclean
+make[2]: Entering directory '/media/demo/dataext/development/working/mx-tools_23.1.02/mx-tools'
+rm -f qrc_images.cpp
+rm -f moc_predefs.h
+rm -f moc_flatbutton.cpp moc_mainwindow.cpp
+rm -f ui_mainwindow.h
+rm -f main.o about.o flatbutton.o mainwindow.o qrc_images.o moc_flatbutton.o moc_mainwindow.o
+rm -f *~ core *.core
+rm -f mx-tools 
+rm -f .qmake.stash
+rm -f Makefile
+make[2]: Leaving directory '/media/demo/dataext/development/working/mx-tools_23.1.02/mx-tools'
+rm -f src/translations/*.qm
+make[1]: Leaving directory '/media/demo/dataext/development/working/mx-tools_23.1.02/mx-tools'
+   dh_autoreconf_clean -O--no-automatic-dbgsym -O--parallel
+   dh_clean -O--no-automatic-dbgsym -O--parallel
+ dpkg-source -b .
+dpkg-source: info: using source format '3.0 (native)'
+dpkg-source: info: building mx-tools in mx-tools_23.1.02.tar.xz
+dpkg-source: info: building mx-tools in mx-tools_23.1.02.dsc
+ dpkg-genbuildinfo --build=source
+ dpkg-genchanges -sa --build=source >../mx-tools_23.1.02_source.changes
+dpkg-genchanges: info: including full source code in upload
+ dpkg-source --after-build .
+dpkg-buildpackage: info: source-only upload: Debian-native package
+Now signing changes and any dsc files...
+ signfile dsc mx-tools_23.1.02.dsc Dolphin Oracle <dolphinoracle@gmail.com>
+gpg: skipped "Dolphin Oracle <dolphinoracle@gmail.com>": No secret key
+gpg: /tmp/debsign.Krm56Zys/mx-tools_23.1.02.dsc: clear-sign failed: No secret key
+debsign: gpg error occurred!  Aborting....

@@ -1,0 +1,45 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Format: 1.8
+Date: Mon, 23 Jan 2023 22:29:42 -0500
+Source: mx-tools
+Binary: mx-tools
+Architecture: armhf
+Version: 23.1.02
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Dolphin Oracle <dolphinoracle@gmail.com>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (23.1.02) mx; urgency=medium
+ .
+   * new method to set colum size
+Checksums-Sha1:
+ 462537919f7975bab9be2abc0616ed2ecddca1eb 10734 mx-tools_23.1.02_armhf.buildinfo
+ 67fb98af6e6d5c16725c3aa67f6eaf371eb1a3fe 60456 mx-tools_23.1.02_armhf.deb
+Checksums-Sha256:
+ 8be974fdcf225d897093ac1742d8cc4f53465f0f109acea76f6805da5106e6d9 10734 mx-tools_23.1.02_armhf.buildinfo
+ cef554a8d385e6e44ea3fb3271669c61e79ee17650a64cece5c0c74e3a9dfa4b 60456 mx-tools_23.1.02_armhf.deb
+Files:
+ 86a6f45a17845606e052540cf5c9517d 10734 admin optional mx-tools_23.1.02_armhf.buildinfo
+ 1480ba65d3b098ac15703c330e215e80 60456 admin optional mx-tools_23.1.02_armhf.deb
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE9i7eqjrnCpyZ2sQYm2ih6Lm2N1wFAmPQewcACgkQm2ih6Lm2
+N1waYQ//VSdTDK5Csw2+6JkwAdnAoWYQqKE4rAyoBL2QHGTm7eeGD826oIjnuyZP
+QJyyeSdw03F0lBFh8Z3SE9qWiJ8ezm1HBJpILqPYU9/UoM90K58Lwa52lKJGEQsQ
+4CNBM4oNde4BbU9at3iHyHlOOG8NJzyf+yb48u+VzZsAmVUvAVWwl+R0TFCgisIb
+EJatDG7OWfjOletCVUtV4t0QjKemA1BeHhoLJrS80j2r8fnurcwEwaM2mJ6nM+uT
+ZaJzlswUfAJ5HRx+A6wifid4s3OQSyVrJfwp2KkRytd7wuix5CHN40PINigm5FJI
+QXotJfzW6Wr10exXi9YushuEx3qSa3UWck3Z0I/UPUa4SBPBG2KPVfsopSvMOcQw
+N9Fo9tSNHg2OgH+4nW5YMDpHvAeTfz/Z1AkahkRWlXpFWUkbMdumdn9wpTHTsBzL
+RrG/4qSSNHotxgQlYrjeOXsYgg/D0yqLo28yIDN3baLezgdCt51E+cA3ePPKCjQG
+x9/VEfMJAfhMsa0K5MiOMEwgjyFayfuOoCH1jWDCqthsaCEHrgbnFlCs3UB67cUN
+HwOW++nfpfT9+rnYyorLxcvH5c2TkB4x9KQq0zV4+iiOVYPV7IqLALkAHPtLBU9k
+2362i0xoSrGzgYneT/GaEX2wDjytq6nmhbUVAyRf4kZ/NaXIvpM=
+=NWGn
+-----END PGP SIGNATURE-----

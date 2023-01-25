@@ -1,0 +1,51 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Format: 1.8
+Date: Mon, 23 Jan 2023 22:29:42 -0500
+Source: mx-tools
+Binary: mx-tools
+Architecture: source amd64
+Version: 23.1.02
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Dolphin Oracle <dolphinoracle@gmail.com>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (23.1.02) mx; urgency=medium
+ .
+   * new method to set colum size
+Checksums-Sha1:
+ 71e59b04938ec04967f7860fca4bcff4a75c57db 1473 mx-tools_23.1.02.dsc
+ 34f84c763d3aa0a11004f4cfa69f740197c82278 54344 mx-tools_23.1.02.tar.xz
+ 6c8aacf7b6a504dc8819ff21c197080b78bd0dc0 11347 mx-tools_23.1.02_amd64.buildinfo
+ 843885f5c085a0de5d3653df4fb8d20b15725cf5 64816 mx-tools_23.1.02_amd64.deb
+Checksums-Sha256:
+ 94b3bf0d135b1b3ae4955c117b01b1dec79d664dd612a04324ffa8b920b268a3 1473 mx-tools_23.1.02.dsc
+ aa6cffd147e953f139ce79be85fc17008d8a8d68594fad4ff4ccd1946949dde7 54344 mx-tools_23.1.02.tar.xz
+ 491a983b3331a465da38ca4394060136330cc6f13933a7d0fbe460abdbf44925 11347 mx-tools_23.1.02_amd64.buildinfo
+ 6ece3248e29313c7bec0319dba57f6b6bb828e4d7ed9dedbfb3c906e968c1461 64816 mx-tools_23.1.02_amd64.deb
+Files:
+ b09d797a4b419b5b205006ebe5e0ddfc 1473 admin optional mx-tools_23.1.02.dsc
+ 81126a507a3d1a08512dae1da79cc890 54344 admin optional mx-tools_23.1.02.tar.xz
+ 4548a6e1ba52405b2a7f19001e504e5c 11347 admin optional mx-tools_23.1.02_amd64.buildinfo
+ cf3299bf08cffb299701c05a4c8137c8 64816 admin optional mx-tools_23.1.02_amd64.deb
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE9i7eqjrnCpyZ2sQYm2ih6Lm2N1wFAmPQewcACgkQm2ih6Lm2
+N1zBGA/+KEQf8O69LTh03kQZI3VoVMhD5D6+7mfDDErGGLfpwjVzNqScf84VohEw
+dyUar5amdhvk3JXhYHYIsJLZmfIElDVvmoMI1HOlrfUbQ4qQtcE/qykH9vgDFnl3
+xCorKfCgIPIqAsFpCjJTPEBcDhNNqCD3CIbyoo+mXiiP+sdAy/AtoZp0n3QYslJJ
+WrdlYn11jM2YbI2Jvl8i4uIME6frD4hJCiK0O83zqUjL9QqUrjKopgfnO6YYnw8B
+HNL9bsBWL99XdHyu/b2RAtT8xG6xNqgP3BGfw6zUZo2C1w5yVKWb6/QuKDOEuGLj
+v4bKq6c+lc1Wvye/njDiqZZBZRW+ZEVQmQn23D/vt+2keMFEzGgWJyP1NMNlUE0j
+d/+xtDzVvQqn/DO4XLig6/EP7EeSE9ExSWU5oqEmN5Xt4hv7QLuO24pvcByyWYNT
+eMms74xc0yr4Lo6IUGnRS8s3G7fZWsD6rQAsZF47Sujv8ZOiiDCb0KeM1836k7TX
+NBnWLmd8hHc7nqpdftK7sQo3abgZ13U8p2tY/NLXHRi+nYTkzUN2J9E1Ny4ClUJi
+w8jpuIoTTqSQ3C65FQ8iRmUn0WDCdA7JG6/kaOyitpuroZUv25vdQ1jR3XMlu86a
+rI5RsWw5mZdbluP/nORzapxlH/RjXZVsyR7ReQ1mjSXl728lQjQ=
+=pvd7
+-----END PGP SIGNATURE-----

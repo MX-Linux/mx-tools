@@ -1,0 +1,45 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Format: 1.8
+Date: Mon, 23 Jan 2023 22:29:42 -0500
+Source: mx-tools
+Architecture: source
+Version: 23.1.02
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Dolphin Oracle <dolphinoracle@gmail.com>
+Changes:
+ mx-tools (23.1.02) mx; urgency=medium
+ .
+   * new method to set colum size
+Checksums-Sha1:
+ 71e59b04938ec04967f7860fca4bcff4a75c57db 1473 mx-tools_23.1.02.dsc
+ b02afa74ed706fe79c812eef6c3346cf54fb8da7 66532 mx-tools_23.1.02.tar.xz
+ e3f32712350a04f64ae06480230f1281cbf47c45 11047 mx-tools_23.1.02_source.buildinfo
+Checksums-Sha256:
+ 94b3bf0d135b1b3ae4955c117b01b1dec79d664dd612a04324ffa8b920b268a3 1473 mx-tools_23.1.02.dsc
+ 126d7519e88a5ddd2754407c90b4f6f115cad3fd159ad25ee9c0e610e2b7c0db 66532 mx-tools_23.1.02.tar.xz
+ 53ca7bfde291cf647fcfd2644942311381ef3cd416208c6d683507523ec43ea5 11047 mx-tools_23.1.02_source.buildinfo
+Files:
+ b09d797a4b419b5b205006ebe5e0ddfc 1473 admin optional mx-tools_23.1.02.dsc
+ b2fb56235329ab379e4406d12582a122 66532 admin optional mx-tools_23.1.02.tar.xz
+ fcfda2a3b129f9b3491cbbfa8cb2d5ad 11047 admin optional mx-tools_23.1.02_source.buildinfo
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE9i7eqjrnCpyZ2sQYm2ih6Lm2N1wFAmPQew4ACgkQm2ih6Lm2
+N1x8qQ/+PZsYft9MEs4Z+diLnXstxM3qg2xUiD2s5eQeou2dBNS4KmcD6C38R0FH
+BAsW9zxrSLtkMPFD/VNcOYLcqMbxlfm68N3Gnqkq2fNB9br5Y73fgTOqDXFF3U3I
+ZSSfRWqMZzdB1Nq1lIFkHnqS2vrkzR3GLyY/xtBf+FdgnuQ+YX3zZiLj4775FwLz
+b6ZqGLYhGpJISk/QO49IZiKJUAKbd/tlarK3DRn9hOUg4f16TK5toSgsFizupzIA
+UqmrsC4itdGXDch9pn8C2eS4oF86Dbd8H8ibplxmiWuALiTPisMKN670hUfRnz/k
+XRE9qoTXoO614Cdq/JMcUhmnFVZXUDEWV0jfTqdeU/dJNKFbk7DmPmCbIAvXvy+0
+KlyLspZGf382Zc39jKr3LW1GU3SfglAhOJ0fArUWCUy29Yg7NaJ9144PJ49/wiQ4
++Mjbpa95CC1CLH2UvSmhuFmzbiT+AAt8w8wrBd3Zc4mkdi+GBQTnL14fpT0s9JnP
+Ahd2mxwHO4V/H2TZ/ptal1QUsFadr0+Uf3lcjGIYKLIyA/YydTBzhubL86gQGyD4
+fqrosDMbdCl9tSIGFaLsKeNTAleRJoN3b5OlFA5dDtVDz6dEfHGE2yQeSrpfB3+s
+2wYj1iAPQ/uw1ZF5Yp7pP7d/nElRYu4OL911USc6CndVUqtbKF4=
+=k5WS
+-----END PGP SIGNATURE-----
