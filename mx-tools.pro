@@ -27,7 +27,7 @@
 #-------------------------------------------------
 
 QT       += widgets
-CONFIG   += c++1z
+CONFIG   += c++17
 
 TARGET = mx-tools
 TEMPLATE = app
