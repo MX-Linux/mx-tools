@@ -1,0 +1,38 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get Latest Changelog Entry
+        id: get-changelog
+        run: |
+          changelog=$(awk '/^mx-tools/{i++} i==1' debian/changelog | grep '^[[:space:]]*\*')
+          echo "changelog<<EOF" >> $GITHUB_ENV
+          echo "$changelog" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        with:
+          name: Release ${{ github.ref_name }} 
+          body: |
+            ### Automated release created for tag *${{ github.ref_name }}*
+             - Direct download link: [![build service)](https://build.opensuse.org/projects/home:mx-packaging/packages/mx-tools/badge.svg?type=default)](https://software.opensuse.org//download.html?project=home%3Amx-packaging&package=mx-tools) 
+             - In repos: [![latest packaged version](https://repology.org/badge/latest-versions/mx-tools.svg)](https://repology.org/project/mx-tools/versions)
+            
+            ### Changelog
+            ${{ env.changelog }}
+
+          draft: false
+          prerelease: false

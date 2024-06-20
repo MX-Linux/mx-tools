@@ -4,8 +4,4 @@ workflow:
         project: home:mx-packaging
         package: %{SCM_REPOSITORY_NAME}
   filters:
-    event: push
-    branches:
-        only:
-            - main
-            - master
+    event: tag_push
