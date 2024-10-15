@@ -5,7 +5,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="414"/>
+        <location filename="../mainwindow.cpp" line="466"/>
         <source>MX Tools</source>
         <translation>MX Tools</translation>
     </message>
@@ -60,27 +60,27 @@
         <translation>ค้นหา</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="413"/>
+        <location filename="../mainwindow.cpp" line="465"/>
         <source>About MX Tools</source>
         <translation>เกี่ยวกับ MX Tools</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="414"/>
+        <location filename="../mainwindow.cpp" line="466"/>
         <source>Version: </source>
         <translation>เวอร์ชัน:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="415"/>
+        <location filename="../mainwindow.cpp" line="467"/>
         <source>Configuration Tools for MX Linux</source>
         <translation>เครื่องมือตั้งค่าสำหรับ MX Linux</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="418"/>
+        <location filename="../mainwindow.cpp" line="470"/>
         <source>Copyright (c) MX Linux</source>
         <translation>สงวนลิขสิทธิ์ (c) MX Linux</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="419"/>
+        <location filename="../mainwindow.cpp" line="471"/>
         <source>%1 License</source>
         <translation type="unfinished"></translation>
     </message>
