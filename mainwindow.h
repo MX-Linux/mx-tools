@@ -71,13 +71,13 @@ private:
     int max_col = 0;
     int max_elements = 0;
 
-    [[nodiscard]] QString getTranslation(const QString &text, const QString &key, const QString &lang_region,
+    [[nodiscard]] QString getTranslation(const QString &text, const QString &key, const QString &langRegion,
                                          const QString &lang);
     [[nodiscard]] QString getValueFromText(const QString &text, const QString &key);
-    [[nodiscard]] QIcon findIcon(const QString &icon_name);
-    [[nodiscard]] QStringList listDesktopFiles(const QString &search_string, const QString &location);
+    [[nodiscard]] QIcon findIcon(const QString &iconName);
+    [[nodiscard]] QStringList listDesktopFiles(const QString &searchString, const QString &location);
     static void fixExecItem(QString *item);
-    static void hideShowIcon(const QString &file_name, bool hide);
+    static void hideShowIcon(const QString &fileName, bool hide);
     static void removeEnvExclusive(QStringList *list, const QStringList &termsToRemove);
     void addButtons(const QMultiMap<QString, QMultiMap<QString, QStringList>> &info_map);
     void checkHideToolsInMenu();

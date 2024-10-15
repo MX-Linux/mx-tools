@@ -88,9 +88,9 @@ void MainWindow::checkHideToolsInMenu()
 
 void MainWindow::initializeCategoryLists()
 {
-    const QString search_folder {"/usr/share/applications"};
+    const QString searchFolder {"/usr/share/applications"};
     for (auto it = categories.cbegin(); it != categories.cend(); ++it) {
-        *(it.value()) = listDesktopFiles(it.key(), search_folder);
+        *(it.value()) = listDesktopFiles(it.key(), searchFolder);
     }
 }
 
@@ -146,7 +146,7 @@ void MainWindow::restoreWindowGeometry()
 }
 
 // List .desktop files that contain a specific string
-QStringList MainWindow::listDesktopFiles(const QString &search_string, const QString &location)
+QStringList MainWindow::listDesktopFiles(const QString &searchString, const QString &location)
 {
     QDirIterator it(location, {"*.desktop"}, QDir::Files, QDirIterator::Subdirectories);
     QStringList matchingFiles;
@@ -156,7 +156,7 @@ QStringList MainWindow::listDesktopFiles(const QString &search_string, const QSt
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream in(&file);
             QString content = in.readAll();
-            if (content.contains(search_string)) {
+            if (content.contains(searchString)) {
                 matchingFiles << file.fileName();
             }
         }
@@ -164,19 +164,19 @@ QStringList MainWindow::listDesktopFiles(const QString &search_string, const QSt
     return matchingFiles;
 }
 
-// Load info (name, comment, exec, icon_name, category, terminal) to the info_map
+// Load info (name, comment, exec, iconName, category, terminal) to the info_map
 void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
 {
     const QString lang = QLocale().name().split('_').first();
-    const QString lang_region = QLocale().name();
+    const QString langRegion = QLocale().name();
 
     for (auto it = category_map.cbegin(); it != category_map.cend(); ++it) {
         const QString category = it.key();
         const QStringList &fileList = it.value();
 
         QMultiMap<QString, QStringList> categoryInfoMap;
-        for (const QString &file_name : fileList) {
-            QFile file(file_name);
+        for (const QString &fileName : fileList) {
+            QFile file(fileName);
             if (!file.open(QFile::Text | QFile::ReadOnly)) {
                 continue;
             }
@@ -184,8 +184,8 @@ void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
             QString text = stream.readAll();
             file.close();
 
-            QString name = lang != "en" ? getTranslation(text, "Name", lang_region, lang) : QString();
-            QString comment = lang != "en" ? getTranslation(text, "Comment", lang_region, lang) : QString();
+            QString name = lang != "en" ? getTranslation(text, "Name", langRegion, lang) : QString();
+            QString comment = lang != "en" ? getTranslation(text, "Comment", langRegion, lang) : QString();
 
             name = name.isEmpty() ? getValueFromText(text, "Name").remove(QRegularExpression("^MX ")).replace('&', "&&")
                                   : name;
@@ -194,19 +194,19 @@ void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
             QString exec = getValueFromText(text, "Exec");
             fixExecItem(&exec);
 
-            QString icon_name = getValueFromText(text, "Icon");
-            QString terminal_switch = getValueFromText(text, "Terminal");
+            QString iconName = getValueFromText(text, "Icon");
+            QString terminalSwitch = getValueFromText(text, "Terminal");
 
-            categoryInfoMap.insert(file_name, {name, comment, icon_name, exec, category, terminal_switch});
+            categoryInfoMap.insert(fileName, {name, comment, iconName, exec, category, terminalSwitch});
         }
         info_map.insert(category, categoryInfoMap);
     }
 }
 
-QString MainWindow::getTranslation(const QString &text, const QString &key, const QString &lang_region,
+QString MainWindow::getTranslation(const QString &text, const QString &key, const QString &langRegion,
                                    const QString &lang)
 {
-    QRegularExpression re('^' + key + "\\[" + lang_region + "\\]=(.*)$");
+    QRegularExpression re('^' + key + "\\[" + langRegion + "\\]=(.*)$");
     re.setPatternOptions(QRegularExpression::MultilineOption);
     QString translation = re.match(text).captured(1).trimmed();
     if (!translation.isEmpty()) {
@@ -245,16 +245,16 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
     QString name;
     QString comment;
     QString exec;
-    QString icon_name;
+    QString iconName;
     QString terminal_switch;
 
     // Get max button size
     QMapIterator<QString, QStringList> itsize(info_map.value(category));
     int max_button_width = 20; // set a min != 0 to avoid div/0 in case of error
     while (itsize.hasNext()) {
-        QString file_name = itsize.next().key();
-        QStringList file_info = info_map.value(category).value(file_name);
-        name = file_info.at(Info::Name);
+        QString fileName = itsize.next().key();
+        QStringList fileInfo = info_map.value(category).value(fileName);
+        name = fileInfo.at(Info::Name);
         max_button_width = qMax(name.size() * QApplication::font().pointSize() + icon_size, max_button_width);
     }
     max = width() / max_button_width;
@@ -284,20 +284,20 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
             col = 0;
             QMapIterator<QString, QStringList> it(info_map.value(category));
             while (it.hasNext()) {
-                QString file_name = it.next().key();
+                QString fileName = it.next().key();
                 if (col >= col_count) {
                     col_count = col + 1;
                 }
-                QStringList file_info = info_map.value(category).value(file_name);
-                name = file_info.at(Info::Name);
-                comment = file_info.at(Info::Comment);
-                icon_name = file_info.at(Info::IconName);
-                exec = file_info.at(Info::Exec);
-                terminal_switch = file_info.at(Info::Terminal);
+                QStringList fileInfo = info_map.value(category).value(fileName);
+                name = fileInfo.at(Info::Name);
+                comment = fileInfo.at(Info::Comment);
+                iconName = fileInfo.at(Info::IconName);
+                exec = fileInfo.at(Info::Exec);
+                terminal_switch = fileInfo.at(Info::Terminal);
                 btn = new FlatButton(name);
                 btn->setToolTip(comment);
                 btn->setAutoDefault(false);
-                btn->setIcon(findIcon(icon_name));
+                btn->setIcon(findIcon(iconName));
                 btn->setIconSize(icon_size, icon_size);
                 ui->gridLayout_btn->addWidget(btn, row, col);
                 // ui->gridLayout_btn->setRowStretch(row, 0);
@@ -315,12 +315,12 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
     ui->gridLayout_btn->setRowStretch(row + 2, 1);
 }
 
-QIcon MainWindow::findIcon(const QString &icon_name)
+QIcon MainWindow::findIcon(const QString &iconName)
 {
     static QIcon defaultIcon;
     static bool defaultIconLoaded = false;
 
-    if (icon_name.isEmpty()) {
+    if (iconName.isEmpty()) {
         if (!defaultIconLoaded) {
             defaultIcon = findIcon("utilities-terminal");
             defaultIconLoaded = true;
@@ -329,43 +329,43 @@ QIcon MainWindow::findIcon(const QString &icon_name)
     }
 
     // Check if the icon name is an absolute path and exists
-    if (QFileInfo(icon_name).isAbsolute() && QFile::exists(icon_name)) {
-        return QIcon(icon_name);
+    if (QFileInfo(iconName).isAbsolute() && QFile::exists(iconName)) {
+        return QIcon(iconName);
     }
 
     // Prepare regular expression to strip extension
     static const QRegularExpression re(R"(\.(png|svg|xpm)$)");
-    QString name_noext = icon_name;
-    name_noext.remove(re);
+    QString nameNoExt = iconName;
+    nameNoExt.remove(re);
 
     // Return the themed icon if available
-    if (QIcon::hasThemeIcon(name_noext)) {
-        return QIcon::fromTheme(name_noext);
+    if (QIcon::hasThemeIcon(nameNoExt)) {
+        return QIcon::fromTheme(nameNoExt);
     }
 
     // Define common search paths for icons
-    QStringList search_paths {QDir::homePath() + "/.local/share/icons/",
-                              "/usr/share/pixmaps/",
-                              "/usr/local/share/icons/",
-                              "/usr/share/icons/",
-                              "/usr/share/icons/hicolor/scalable/apps/",
-                              "/usr/share/icons/hicolor/48x48/apps/",
-                              "/usr/share/icons/Adwaita/48x48/legacy/"};
+    QStringList searchPaths {QDir::homePath() + "/.local/share/icons/",
+                             "/usr/share/pixmaps/",
+                             "/usr/local/share/icons/",
+                             "/usr/share/icons/",
+                             "/usr/share/icons/hicolor/scalable/apps/",
+                             "/usr/share/icons/hicolor/48x48/apps/",
+                             "/usr/share/icons/Adwaita/48x48/legacy/"};
 
-    // Optimization: search first for the full icon_name with the specified extension
-    auto it = std::find_if(search_paths.cbegin(), search_paths.cend(),
-                           [&](const QString &path) { return QFile::exists(path + icon_name); });
-    if (it != search_paths.cend()) {
-        return QIcon(*it + icon_name);
+    // Optimization: search first for the full iconName with the specified extension
+    auto it = std::find_if(searchPaths.cbegin(), searchPaths.cend(),
+                           [&](const QString &path) { return QFile::exists(path + iconName); });
+    if (it != searchPaths.cend()) {
+        return QIcon(*it + iconName);
     }
 
     // Search for the icon without extension in the specified paths
-    for (const QString &path : search_paths) {
+    for (const QString &path : searchPaths) {
         if (!QFile::exists(path)) {
             continue;
         }
         for (const char *ext : {".png", ".svg", ".xpm"}) {
-            QString file = path + name_noext + ext;
+            QString file = path + nameNoExt + ext;
             if (QFile::exists(file)) {
                 return QIcon(file);
             }
@@ -373,7 +373,7 @@ QIcon MainWindow::findIcon(const QString &icon_name)
     }
 
     // If the icon is "utilities-terminal" and not found, return the default icon if it's already loaded
-    if (icon_name == "utilities-terminal") {
+    if (iconName == "utilities-terminal") {
         if (!defaultIconLoaded) {
             defaultIcon = QIcon();
             defaultIconLoaded = true;
@@ -408,11 +408,11 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     if (event->oldSize().width() == event->size().width()) {
         return;
     }
-    int new_count = width() / 200;
-    if (new_count == col_count || (new_count > max_elements && col_count == max_elements)) {
+    int newCount = width() / 200;
+    if (newCount == col_count || (newCount > max_elements && col_count == max_elements)) {
         return;
     }
-    col_count = new_count;
+    col_count = newCount;
 
     if (ui->textSearch->text().isEmpty()) {
         addButtons(info_map);
@@ -425,8 +425,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 void MainWindow::checkHide_clicked(bool checked)
 {
     for (const QStringList &list : qAsConst(category_map)) {
-        for (const QString &file_name : qAsConst(list)) {
-            hideShowIcon(file_name, checked);
+        for (const QString &fileName : qAsConst(list)) {
+            hideShowIcon(fileName, checked);
         }
     }
     QProcess process;
@@ -438,22 +438,22 @@ void MainWindow::checkHide_clicked(bool checked)
 }
 
 // Hide or show icon for .desktop file
-void MainWindow::hideShowIcon(const QString &file_name, bool hide)
+void MainWindow::hideShowIcon(const QString &fileName, bool hide)
 {
-    QFileInfo file(file_name);
+    QFileInfo file(fileName);
     const QDir userApplicationsDir(QDir::homePath() + "/.local/share/applications");
     if (!userApplicationsDir.exists() && !QDir().mkpath(userApplicationsDir.absolutePath())) {
         qWarning() << "Failed to create directory:" << userApplicationsDir.absolutePath();
         return;
     }
 
-    const QString file_name_home = userApplicationsDir.filePath(file.fileName());
+    const QString fileNameLocal = userApplicationsDir.filePath(file.fileName());
     if (!hide) {
-        QFile::remove(file_name_home);
+        QFile::remove(fileNameLocal);
     } else {
-        QFile::copy(file_name, file_name_home);
+        QFile::copy(fileName, fileNameLocal);
         QProcess process;
-        process.start("sed", {"-ire", "/^(NoDisplay|Hidden)=/d", "-e", "/Exec/aNoDisplay=true", file_name_home});
+        process.start("sed", {"-ire", "/^(NoDisplay|Hidden)=/d", "-e", "/Exec/aNoDisplay=true", fileNameLocal});
         process.waitForFinished();
     }
 }
@@ -553,8 +553,7 @@ void MainWindow::removeEnvExclusive(QStringList *list, const QStringList &termsT
 // Remove all items from the layout
 void MainWindow::clearGrid()
 {
-    QLayoutItem *child {nullptr};
-    while ((child = ui->gridLayout_btn->takeAt(0)) != nullptr) {
+    while (auto *child = ui->gridLayout_btn->takeAt(0)) {
         delete child->widget();
         delete child;
     }
