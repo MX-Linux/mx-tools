@@ -70,8 +70,14 @@ void MainWindow::setConnections()
 
 void MainWindow::checkHideToolsInMenu()
 {
-    QString userDesktopPath = QDir::homePath() + "/.local/share/applications/mx-user.desktop";
-    QFile userDesktopFile(userDesktopPath);
+    const QDir userApplicationsDir(QDir::homePath() + "/.local/share/applications");
+    const QString userDesktopFilePath = userApplicationsDir.filePath("mx-user.desktop");
+    QFile userDesktopFile(userDesktopFilePath);
+    if (!userDesktopFile.exists()) {
+        ui->checkHide->setChecked(false);
+        return;
+    }
+
     if (userDesktopFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         ui->checkHide->setChecked(userDesktopFile.readAll().contains("NoDisplay=true"));
         userDesktopFile.close();
@@ -92,7 +98,7 @@ void MainWindow::filterLiveEnvironmentItems()
 {
     QStorageInfo storageInfo(QDir::rootPath());
     const QString partitionType = storageInfo.fileSystemType();
-    bool live = (partitionType == "aufs" || partitionType == "overlay");
+    bool live = partitionType == "aufs" || partitionType == "overlay";
 
     if (!live) {
         QStringList itemsToRemove {"mx-remastercc.desktop", "live-kernel-updater.desktop"};
@@ -435,7 +441,13 @@ void MainWindow::checkHide_clicked(bool checked)
 void MainWindow::hideShowIcon(const QString &file_name, bool hide)
 {
     QFileInfo file(file_name);
-    QString file_name_home = QDir::homePath() + "/.local/share/applications/" + file.fileName();
+    const QDir userApplicationsDir(QDir::homePath() + "/.local/share/applications");
+    if (!userApplicationsDir.exists() && !QDir().mkpath(userApplicationsDir.absolutePath())) {
+        qWarning() << "Failed to create directory:" << userApplicationsDir.absolutePath();
+        return;
+    }
+
+    const QString file_name_home = userApplicationsDir.filePath(file.fileName());
     if (!hide) {
         QFile::remove(file_name_home);
     } else {
