@@ -1,3 +1,9 @@
+mx-tools (24.10.01) mx; urgency=medium
+
+  * Fix sed command for hiding icons
+
+ -- Adrian <adrian@mxlinux.org>  Tue, 15 Oct 2024 15:49:35 -0400
+
 mx-tools (24.10) mx; urgency=medium
 
   * If needed, create ~/.local/share/applications path for mx-user.desktop
