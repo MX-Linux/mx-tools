@@ -453,7 +453,7 @@ void MainWindow::hideShowIcon(const QString &fileName, bool hide)
     } else {
         QFile::copy(fileName, fileNameLocal);
         QProcess process;
-        process.start("sed", {"-ire", "/^(NoDisplay|Hidden)=/d", "-e", "/Exec/aNoDisplay=true", fileNameLocal});
+        process.start("sed", {"-i", "-re", "/^(NoDisplay|Hidden)=/d", "-e", "/Exec/aNoDisplay=true", fileNameLocal});
         process.waitForFinished();
     }
 }
