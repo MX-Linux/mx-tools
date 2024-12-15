@@ -1,3 +1,9 @@
+mx-tools (24.12.01) mx; urgency=medium
+
+  * Fix doubled command within QProcess::execute call.
+
+ -- fehlix <fehlix@mxlinux.org>  Sun, 15 Dec 2024 08:53:07 -0400
+
 mx-tools (24.10.01) mx; urgency=medium
 
   * Fix sed command for hiding icons
