@@ -164,6 +164,26 @@ QStringList MainWindow::listDesktopFiles(const QString &searchString, const QStr
     return matchingFiles;
 }
 
+int MainWindow::calculateMaxElements(const QMultiMap<QString, QMultiMap<QString, QStringList>> &info_map)
+{
+    max_elements = 0;
+    // Find maximum number of elements across all categories
+    for (const auto &categoryMap : info_map) {
+        max_elements = std::max(max_elements, categoryMap.size());
+    }
+
+    // Calculate maximum button width based on first category
+    const QString firstCategory = info_map.isEmpty() ? QString() : info_map.firstKey();
+    int max_button_width = 20;
+    for (const auto &fileInfo : info_map.value(firstCategory)) {
+        const QString &name = fileInfo.at(Info::Name);
+        max_button_width = qMax(name.size() * QApplication::font().pointSize() + icon_size, max_button_width);
+    }
+
+    // Calculate maximum columns that fit in window width
+    return std::max(1, width() / max_button_width);
+}
+
 // Load info (name, comment, exec, iconName, category, terminal) to the info_map
 void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
 {
@@ -228,91 +248,77 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
 {
     clearGrid();
 
-    int col = 0;
+    const int max_columns = calculateMaxElements(info_map);
     int row = 0;
-    int max = 200;
 
-    max_elements = 0;
-    QMapIterator<QString, QMultiMap<QString, QStringList>> it(info_map);
-    QString category;
-    while (it.hasNext()) {
-        category = it.next().key();
-        if (info_map.value(category).keys().count() > max_elements) {
-            max_elements = info_map.value(category).keys().count();
+    // Add buttons for each category
+    for (auto it = info_map.cbegin(); it != info_map.cend(); ++it) {
+        const QString &category = it.key();
+        const auto &categoryMap = it.value();
+
+        if (categoryMap.isEmpty()) {
+            continue;
         }
-    }
 
-    QString name;
-    QString comment;
-    QString exec;
-    QString iconName;
-    QString terminal_switch;
+        if (row > 0) {
+            addCategorySeparator(row, max_columns);
+        }
 
-    // Get max button size
-    QMapIterator<QString, QStringList> itsize(info_map.value(category));
-    int max_button_width = 20; // set a min != 0 to avoid div/0 in case of error
-    while (itsize.hasNext()) {
-        QString fileName = itsize.next().key();
-        QStringList fileInfo = info_map.value(category).value(fileName);
-        name = fileInfo.at(Info::Name);
-        max_button_width = qMax(name.size() * QApplication::font().pointSize() + icon_size, max_button_width);
-    }
-    max = width() / max_button_width;
-    it.toFront();
-    while (it.hasNext()) {
-        category = it.next().key();
-        if (!info_map.value(category).isEmpty()) {
-            // Add empty row and delimiter except for the first row
-            if (row != 0) {
+        addCategoryHeader(category, row, max_columns);
+
+        // Add buttons for this category
+        int col = 0;
+        for (const auto &fileInfo : categoryMap) {
+            col_count = std::max(col_count, col + 1);
+            auto *btn = createButton(fileInfo);
+            ui->gridLayout_btn->addWidget(btn, row, col);
+
+            // Move to the next row if more items than max columns
+            if (++col >= max_columns) {
+                col = 0;
                 ++row;
-                auto *line = new QFrame();
-                line->setFrameShape(QFrame::HLine);
-                line->setFrameShadow(QFrame::Sunken);
-                ui->gridLayout_btn->addWidget(line, row, 0, 1, -1);
-            }
-            auto *label = new QLabel();
-            QFont font;
-            font.setBold(true);
-            font.setUnderline(true);
-            label->setFont(font);
-            QString label_txt = category;
-            label_txt.remove(QRegularExpression("^MX-"));
-            label->setText(label_txt);
-            ++row;
-            ui->gridLayout_btn->addWidget(label, row, 0);
-            ++row;
-            col = 0;
-            QMapIterator<QString, QStringList> it(info_map.value(category));
-            while (it.hasNext()) {
-                QString fileName = it.next().key();
-                if (col >= col_count) {
-                    col_count = col + 1;
-                }
-                QStringList fileInfo = info_map.value(category).value(fileName);
-                name = fileInfo.at(Info::Name);
-                comment = fileInfo.at(Info::Comment);
-                iconName = fileInfo.at(Info::IconName);
-                exec = fileInfo.at(Info::Exec);
-                terminal_switch = fileInfo.at(Info::Terminal);
-                btn = new FlatButton(name);
-                btn->setToolTip(comment);
-                btn->setAutoDefault(false);
-                btn->setIcon(findIcon(iconName));
-                btn->setIconSize(icon_size, icon_size);
-                ui->gridLayout_btn->addWidget(btn, row, col);
-                // ui->gridLayout_btn->setRowStretch(row, 0);
-                ++col;
-
-                if (col >= max) {
-                    col = 0;
-                    ++row;
-                }
-                btn->setObjectName(terminal_switch == "true" ? "x-terminal-emulator -e " + exec : exec);
-                QObject::connect(btn, &FlatButton::clicked, this, &MainWindow::btn_clicked);
             }
         }
     }
-    ui->gridLayout_btn->setRowStretch(row + 2, 1);
+    ui->gridLayout_btn->setRowStretch(row, 1);
+}
+
+void MainWindow::addCategorySeparator(int &row, int max_columns)
+{
+    auto *line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    ui->gridLayout_btn->addWidget(line, ++row, 0, 1, max_columns);
+}
+
+void MainWindow::addCategoryHeader(const QString &category, int &row, int max_columns)
+{
+    auto *label = new QLabel(category);
+    label->setText(label->text().remove(QRegularExpression("^MX-")));
+    QFont font;
+    font.setBold(true);
+    font.setUnderline(true);
+    label->setFont(font);
+    ui->gridLayout_btn->addWidget(label, ++row, 0, 1, max_columns);
+    ++row;
+}
+
+FlatButton *MainWindow::createButton(const QStringList &fileInfo)
+{
+    auto *btn = new FlatButton(fileInfo.at(Info::Name));
+    btn->setToolTip(fileInfo.at(Info::Comment));
+    btn->setAutoDefault(false);
+    const QIcon icon = findIcon(fileInfo.at(Info::IconName));
+    btn->setIcon(icon);
+    btn->setIconSize({icon_size, icon_size});
+
+    // Configure button command
+    const QString &exec = fileInfo.at(Info::Exec);
+    const bool runInTerminal = fileInfo.at(Info::Terminal) == "true";
+    btn->setObjectName(runInTerminal ? "x-terminal-emulator -e " + exec : exec);
+    connect(btn, &FlatButton::clicked, this, &MainWindow::btn_clicked);
+
+    return btn;
 }
 
 QIcon MainWindow::findIcon(const QString &iconName)
@@ -409,11 +415,16 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     if (event->oldSize().width() == event->size().width()) {
         return;
     }
-    int newCount = width() / 200;
+    const int newCount = width() / 200;
     if (newCount == col_count || (newCount > max_elements && col_count == max_elements)) {
         return;
     }
-    col_count = newCount;
+    // Finer check
+    const int max = calculateMaxElements(info_map);
+    if (col_count == max) {
+        return;
+    }
+    col_count = max;
 
     if (ui->textSearch->text().isEmpty()) {
         addButtons(info_map);
