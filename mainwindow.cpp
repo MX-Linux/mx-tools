@@ -389,8 +389,7 @@ void MainWindow::btn_clicked()
 {
     hide();
     QStringList cmdList = QProcess::splitCommand(sender()->objectName());
-    QString command = cmdList.first();
-    cmdList.removeFirst();
+    QString command = cmdList.takeFirst();
     if (cmdList.last() == "&") {
         cmdList.removeLast();
         QProcess::startDetached(command, cmdList);
