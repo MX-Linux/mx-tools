@@ -5,7 +5,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="466"/>
+        <location filename="../mainwindow.cpp" line="478"/>
         <source>MX Tools</source>
         <translation>הכלים של MX</translation>
     </message>
@@ -60,27 +60,27 @@
         <translation>חיפוש</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="465"/>
+        <location filename="../mainwindow.cpp" line="477"/>
         <source>About MX Tools</source>
         <translation>על אודות הכלים של MX</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="466"/>
+        <location filename="../mainwindow.cpp" line="478"/>
         <source>Version: </source>
         <translation>גרסה:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="467"/>
+        <location filename="../mainwindow.cpp" line="479"/>
         <source>Configuration Tools for MX Linux</source>
         <translation>כלי הגדרות ל־MX Linux</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="470"/>
+        <location filename="../mainwindow.cpp" line="482"/>
         <source>Copyright (c) MX Linux</source>
         <translation>זכויות היוצרים (c) שמורות ל־MX Linux</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="471"/>
+        <location filename="../mainwindow.cpp" line="483"/>
         <source>%1 License</source>
         <translation>רישיון של %1</translation>
     </message>
