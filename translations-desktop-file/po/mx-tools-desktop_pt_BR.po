@@ -24,7 +24,7 @@ msgstr ""
 #. The desktop entry name will be displayed within the menu.
 #: desktop-in/mx-tools.desktop.in:4
 msgid "MX Tools"
-msgstr "Ferramentas de Configurações do MX"
+msgstr "Ferramentas do MX"
 
 #. # The desktop entry comment will be shown within the menu.
 #: desktop-in/mx-tools.desktop.in:6
