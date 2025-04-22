@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2014 MX Authors
+ * Copyright (C) 2014-2024 MX Authors
  *
  * Authors: Adrian
  *          MX Linux <http://mxlinux.org>
@@ -43,7 +43,7 @@ void FlatButton::leaveEvent(QEvent *e)
     QPushButton::leaveEvent(e);
 }
 
-void FlatButton::enterEvent(QEvent *e)
+void FlatButton::enterEvent(QEnterEvent *e)
 {
     // setFlat(false);
     setStyleSheet("QPushButton { text-align:left; text-decoration:underline}; QToolTip { text-decoration: none; }");

@@ -1,15 +1,18 @@
 #!/usr/bin/make -f
-export QT_SELECT=5
+export QT_SELECT=6
 
 QMAKE_OPTS = DEFINES+=NO_DEBUG_ON_CONSOLE
-MAKE_OPTS  = QMAKE=qmake-qt5 LRELEASE=lrelease-qt5 QMAKE_OPTS="$(QMAKE_OPTS)"
+MAKE_OPTS  = QMAKE=qmake6 QMAKE_OPTS="$(QMAKE_OPTS)"
+
+override_dh_auto_configure:
+	qmake6
 
 override_dh_auto_clean:
 	dh_auto_clean
 	rm -f src/translations/*.qm
 
 override_dh_auto_build:
-	lrelease translations/*.ts
+	/usr/lib/qt6/bin/lrelease translations/*.ts
 	head -n1 debian/changelog | sed -e "s/.*(\([^(]*\)).*/const QString VERSION {\"\1\"};/" > version.h
 	dh_auto_build -- $(MAKE_OPTS)
 
@@ -20,4 +23,4 @@ override_dh_shlibdeps:
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
 
 %:
-	dh $@ --no-automatic-dbgsym --parallel 
+	dh $@ --no-automatic-dbgsym --parallel

@@ -171,7 +171,7 @@ int MainWindow::calculateMaxElements(const QMultiMap<QString, QMultiMap<QString,
     max_elements = 0;
     // Find maximum number of elements across all categories
     for (const auto &categoryMap : info_map) {
-        max_elements = std::max(max_elements, categoryMap.size());
+        max_elements = std::max(max_elements, static_cast<int>(categoryMap.size()));
     }
 
     // Calculate maximum button width based on first category

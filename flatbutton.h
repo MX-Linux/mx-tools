@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2014 MX Authors
+ * Copyright (C) 2014-2024 MX Authors
  *
  * Authors: Adrian
  *          MX Linux <http://mxlinux.org>
@@ -21,8 +21,11 @@
  **********************************************************************/
 #pragma once
 
+#include <QEnterEvent>
 #include <QEvent>
 #include <QPushButton>
+
+class QEvent;
 
 class FlatButton : public QPushButton
 {
@@ -31,9 +34,9 @@ public:
     explicit FlatButton(QWidget *parent = nullptr);
     explicit FlatButton(const QString &name, QWidget *parent = nullptr);
     void setIconSize(int, int);
-    void setIconSize(QSize size);
+    void setIconSize(QSize);
 
 protected:
-    void enterEvent(QEvent *e) override;
-    void leaveEvent(QEvent *e) override;
+    void enterEvent(QEnterEvent *e);
+    void leaveEvent(QEvent *e);
 };
