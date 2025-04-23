@@ -472,8 +472,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 // Hide icons in menu checkbox
 void MainWindow::checkHide_clicked(bool checked)
 {
-    for (const QStringList &list : qAsConst(category_map)) {
-        for (const QString &fileName : qAsConst(list)) {
+    for (const QStringList &list : std::as_const(category_map)) {
+        for (const QString &fileName : std::as_const(list)) {
             hideShowIcon(fileName, checked);
         }
     }
