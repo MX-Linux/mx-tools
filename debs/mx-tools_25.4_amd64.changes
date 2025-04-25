@@ -1,0 +1,46 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Format: 1.8
+Date: Thu, 24 Apr 2025 20:01:05 -0400
+Source: mx-tools
+Binary: mx-tools
+Architecture: source amd64
+Version: 25.4
+Distribution: mx
+Urgency: medium
+Maintainer: Adrian <adrian@mxlinux.org>
+Changed-By: Adrian <adrian@mxlinux.org>
+Description:
+ mx-tools   - MX Tools Launcher
+Changes:
+ mx-tools (25.4) mx; urgency=medium
+ .
+   * Update to Qt6
+Checksums-Sha1:
+ 0d5239238b6e22f5cc9f3b9d8803f50c5d2d5df4 1177 mx-tools_25.4.dsc
+ 732e1dd421a4833d7b08f2887cefc7f2aaaeccdb 58000 mx-tools_25.4.tar.xz
+ a85d4ab1347081288b1235f3d9081213fa00b040 10585 mx-tools_25.4_amd64.buildinfo
+ f24b98ce8188ad40a913b23b3d605ce52203ef84 67380 mx-tools_25.4_amd64.deb
+Checksums-Sha256:
+ 31b28ffe57f8af3862446afeb78b46e5eeb153882df5b1c8c53f2d2bf497fab8 1177 mx-tools_25.4.dsc
+ e590793c3a532e5eb4804b0a14ab22aaf23f83a3902c8680c2d3ab0071d04b7b 58000 mx-tools_25.4.tar.xz
+ a616af7dad14f7c96d8d66b06068a4d1f4f7698d59065d759f1e50c4c9df3b3b 10585 mx-tools_25.4_amd64.buildinfo
+ 6577f871608c692eba200dd51835b1ed0f874c4d6a7d95c66af8a9c83645dfe9 67380 mx-tools_25.4_amd64.deb
+Files:
+ 169610c140b0987c0ff658af190b980e 1177 admin optional mx-tools_25.4.dsc
+ 21c146d8a1714f0e1353cb51927be64f 58000 admin optional mx-tools_25.4.tar.xz
+ 49280f285141a2298f4b204ea1c313bb 10585 admin optional mx-tools_25.4_amd64.buildinfo
+ 56560dc6f81735bddeb0d1ad81dd38c8 67380 admin optional mx-tools_25.4_amd64.deb
+
+-----BEGIN PGP SIGNATURE-----
+
+iQFHBAEBCgAxFiEE8ndToY6S45N+YzXncJOMeAZ57pgFAmgK0PQTHGFkcmlhbkBt
+eGxpbnV4Lm9yZwAKCRBwk4x4BnnumPe1B/0a3exiJtfnSRL3vdWuDOEgj3Pa1u7c
+grYiHlpQJ9IXKRuDslqMXa7TPm67WSH5LVBpf9gAfqu8ACn42odmtmOsazZYOFKk
+sxYbWgg/PmXhhTl8aC7dgiCcrQcSBfqt6yPRbA8kDxayAgZk9quNrC8g11usY9nK
+P37B9r2TKH3aeQ7kxwBnH2On1Yzo9/AxelHyFeMgTcaka4QcabEFloNmj11hZKmb
+AWEqpPCFWIQaCQAviW5fV11MxXLjkCj1L1F38RqTmriaf8EpT/i6T/90DukpBrMt
+hEHPjxBzMu1dm3dzvWSX6ocsLQX81mxkkh4hcurLU6iuIB1xq6Cly1nh
+=I7kG
+-----END PGP SIGNATURE-----
