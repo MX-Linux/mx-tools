@@ -2,16 +2,20 @@ Source: mx-tools
 Section: admin
 Priority: optional
 Maintainer: Adrian <adrian@mxlinux.org>
-Build-Depends: debhelper (>=10), qt6-base-dev, qt6-base-dev-tools, qt6-tools-dev, qt6-tools-dev-tools
+Build-Depends: debhelper-compat (= 13),
+               qt6-base-dev,
+               qt6-base-dev-tools,
+               qt6-tools-dev,
+               qt6-tools-dev-tools
 Standards-Version: 3.9.8
-Vcs-Git: git://github.com/AdrianTM/mx-tools
+Vcs-Git: git://github.com/MX-Linux/mx-tools
+Homepage: https://github.com/MX-Linux/mx-tools
 
 Package: mx-tools
 Architecture: any
-Depends: libqt5svg5,
-        mx-viewer | xdg-utils,
-        ${misc:Depends},
-        ${shlibs:Depends}
+Depends: mx-viewer | xdg-utils,
+         ${misc:Depends},
+         ${shlibs:Depends}
 Recommends: apt-notifier,
             checkaptgpg,
             menu,
@@ -22,6 +26,13 @@ Recommends: apt-notifier,
             mx-remastercc,
             mx-repo-manager,
             mx-select-sound,
-            mx-user
-Description: MX Tools Launcher
- MX Tools is a simple launcher used for starting various MX configuration tools.
+            mx-user,
+            mx-launcher-l10n
+Description: MX Tools Launcher for MX Linux
+ MX Tools is a graphical utility that provides a centralized launcher for
+ accessing various MX Linux configuration and system management tools.
+ It offers a user-friendly interface for:
+  * System maintenance and repair
+  * Software installation and management
+  * Hardware configuration
+  * System customization
