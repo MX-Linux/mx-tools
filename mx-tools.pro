@@ -21,7 +21,7 @@
 # **********************************************************************
 
 QT       += core gui widgets
-CONFIG   += debug_and_release warn_on strict_c++ c++17
+CONFIG   += debug_and_release warn_on strict_c++ c++20
 
 CONFIG(release, debug|release) {
     DEFINES += NDEBUG
