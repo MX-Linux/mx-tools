@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QDirIterator>
+#include <QHash>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QResizeEvent>
@@ -155,10 +156,9 @@ QStringList MainWindow::listDesktopFiles(const QString &searchString, const QStr
     while (it.hasNext()) {
         const QString filePath = it.next();
         QFile file(filePath);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream in(&file);
-            QString content = in.readAll();
-            if (content.contains(searchString)) {
+        if (file.open(QIODevice::ReadOnly)) {
+            const QByteArray content = file.readAll();
+            if (content.contains(searchString.toUtf8())) {
                 matchingFiles << filePath;
             }
         }
@@ -243,10 +243,19 @@ void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
 QString MainWindow::getTranslation(const QString &text, const QString &key, const QString &langRegion,
                                    const QString &lang)
 {
+    static QHash<QString, QRegularExpression> regexCache;
+
     // First try to find translation for specific region (e.g., en_US)
-    QRegularExpression re(QStringLiteral("^") + key + QStringLiteral("\\[") + langRegion + QStringLiteral("\\]=(.*)$"));
-    re.setPatternOptions(QRegularExpression::MultilineOption);
-    QRegularExpressionMatch match = re.match(text);
+    const QString regionPattern = key + QStringLiteral("[") + langRegion + QStringLiteral("]");
+    auto it = regexCache.find(regionPattern);
+    if (it == regexCache.end()) {
+        QString pattern = QStringLiteral("^") + key + QStringLiteral("\\[") + langRegion + QStringLiteral("\\]=(.*)$");
+        QRegularExpression re(pattern);
+        re.setPatternOptions(QRegularExpression::MultilineOption);
+        it = regexCache.insert(regionPattern, re);
+    }
+
+    QRegularExpressionMatch match = it->match(text);
     if (match.hasMatch()) {
         QString translation = match.captured(1).trimmed();
         if (!translation.isEmpty()) {
@@ -255,17 +264,32 @@ QString MainWindow::getTranslation(const QString &text, const QString &key, cons
     }
 
     // Fall back to general language (e.g., en)
-    re.setPattern(QStringLiteral("^") + key + QStringLiteral("\\[") + lang + QStringLiteral("\\]=(.*)$"));
-    match = re.match(text);
+    const QString langPattern = key + QStringLiteral("[") + lang + QStringLiteral("]");
+    it = regexCache.find(langPattern);
+    if (it == regexCache.end()) {
+        QString pattern = QStringLiteral("^") + key + QStringLiteral("\\[") + lang + QStringLiteral("\\]=(.*)$");
+        QRegularExpression re(pattern);
+        re.setPatternOptions(QRegularExpression::MultilineOption);
+        it = regexCache.insert(langPattern, re);
+    }
+
+    match = it->match(text);
     return match.hasMatch() ? match.captured(1).trimmed() : QString();
 }
 
 QString MainWindow::getValueFromText(const QString &text, const QString &key)
 {
-    QString pattern = QStringLiteral("^") + key + QStringLiteral("=(.*)$");
-    QRegularExpression re(pattern);
-    re.setPatternOptions(QRegularExpression::MultilineOption);
-    return re.match(text).captured(1).trimmed();
+    static QHash<QString, QRegularExpression> regexCache;
+
+    auto it = regexCache.find(key);
+    if (it == regexCache.end()) {
+        QString pattern = QStringLiteral("^") + key + QStringLiteral("=(.*)$");
+        QRegularExpression re(pattern);
+        re.setPatternOptions(QRegularExpression::MultilineOption);
+        it = regexCache.insert(key, re);
+    }
+
+    return it->match(text).captured(1).trimmed();
 }
 
 // Read the info_map and add the buttons to the UI
@@ -348,6 +372,7 @@ FlatButton *MainWindow::createButton(const QStringList &fileInfo)
 
 QIcon MainWindow::findIcon(const QString &iconName)
 {
+    static QHash<QString, QIcon> iconCache;
     static QIcon defaultIcon;
     static bool defaultIconLoaded = false;
 
@@ -359,9 +384,17 @@ QIcon MainWindow::findIcon(const QString &iconName)
         return defaultIcon;
     }
 
+    // Check cache first
+    auto cacheIt = iconCache.find(iconName);
+    if (cacheIt != iconCache.end()) {
+        return *cacheIt;
+    }
+
     // Check if the icon name is an absolute path and exists
     if (QFileInfo(iconName).isAbsolute() && QFile::exists(iconName)) {
-        return QIcon(iconName);
+        QIcon icon(iconName);
+        iconCache.insert(iconName, icon);
+        return icon;
     }
 
     // Prepare regular expression to strip extension
@@ -371,7 +404,9 @@ QIcon MainWindow::findIcon(const QString &iconName)
 
     // Return the themed icon if available
     if (QIcon::hasThemeIcon(nameNoExt)) {
-        return QIcon::fromTheme(nameNoExt);
+        QIcon icon = QIcon::fromTheme(nameNoExt);
+        iconCache.insert(iconName, icon);
+        return icon;
     }
 
     // Define common search paths for icons
@@ -387,7 +422,9 @@ QIcon MainWindow::findIcon(const QString &iconName)
     auto it = std::find_if(searchPaths.cbegin(), searchPaths.cend(),
                            [&](const QString &path) { return QFile::exists(path + iconName); });
     if (it != searchPaths.cend()) {
-        return QIcon(*it + iconName);
+        QIcon icon(*it + iconName);
+        iconCache.insert(iconName, icon);
+        return icon;
     }
 
     // Search for the icon without extension in the specified paths
@@ -398,7 +435,9 @@ QIcon MainWindow::findIcon(const QString &iconName)
         for (const auto &ext : {QStringLiteral(".png"), QStringLiteral(".svg"), QStringLiteral(".xpm")}) {
             const QString file = path + nameNoExt + ext;
             if (QFile::exists(file)) {
-                return QIcon(file);
+                QIcon icon(file);
+                iconCache.insert(iconName, icon);
+                return icon;
             }
         }
     }
@@ -409,11 +448,14 @@ QIcon MainWindow::findIcon(const QString &iconName)
             defaultIcon = QIcon();
             defaultIconLoaded = true;
         }
+        iconCache.insert(iconName, defaultIcon);
         return defaultIcon;
     }
 
     // If the icon is not "utilities-terminal", try to load the default icon
-    return findIcon(QStringLiteral("utilities-terminal"));
+    QIcon fallbackIcon = findIcon(QStringLiteral("utilities-terminal"));
+    iconCache.insert(iconName, fallbackIcon);
+    return fallbackIcon;
 }
 
 void MainWindow::btn_clicked()

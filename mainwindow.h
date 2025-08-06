@@ -67,7 +67,6 @@ private:
     enum Info { Name, Comment, IconName, Exec, Category, Terminal };
     int col_count = 0;
     int icon_size = 32;
-    int max_col = 0;
     int max_elements = 0;
 
     [[nodiscard]] FlatButton *createButton(const QStringList &fileInfo);
