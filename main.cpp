@@ -32,6 +32,13 @@ inline const QString starting_home = qEnvironmentVariable("HOME");
 
 int main(int argc, char *argv[])
 {
+    // Set Qt platform to XCB (X11) if not already set and we're in X11 environment
+    if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
+        if (!qEnvironmentVariableIsEmpty("DISPLAY")) {
+            qputenv("QT_QPA_PLATFORM", "xcb");
+        }
+    }
+
     QApplication app(argc, argv);
     QApplication::setWindowIcon(QIcon::fromTheme(QApplication::applicationName()));
     QApplication::setOrganizationName("MX-Linux");
