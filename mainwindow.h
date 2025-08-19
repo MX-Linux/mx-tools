@@ -25,7 +25,7 @@
 #include <QMultiMap>
 #include <QSettings>
 
-#include <flatbutton.h>
+#include "flatbutton.h"
 
 namespace Ui
 {

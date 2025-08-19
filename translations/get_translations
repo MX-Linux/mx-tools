@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $(dirname $(pwd)))"
+# Get script directory and determine app name
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+APPNAME="$(basename "$PROJECT_DIR")"
 
 echodo() {
   echo "${@}"
@@ -21,7 +24,7 @@ source_lang = en
 type        = ts
 minimum_perc = 25
 EOF
-fi    
+fi
 
 # Migrate percent checking
 if [ -z "$(grep minimum_perc .tx/config)" ]; then
@@ -36,5 +39,24 @@ if command -v tx >/dev/null; then
    echodo tx pull -r antix-development.$APPNAME --all
 fi
 
-lupdate ../*.pro # Update en.ts file
-lupdate ../*.cpp ../*.h ../*.ui -ts *.ts
+# Find lupdate command in common locations
+LUPDATE=""
+for cmd in lupdate lupdate-qt6 /usr/lib/qt6/bin/lupdate /usr/bin/lupdate /usr/local/bin/lupdate; do
+    if command -v "$cmd" >/dev/null 2>&1; then
+        LUPDATE="$cmd"
+        break
+    fi
+done
+
+if [ -z "$LUPDATE" ]; then
+    echo "Error: lupdate command not found. Please install Qt development tools."
+    exit 1
+fi
+
+echo "Using lupdate: $LUPDATE"
+
+# Update all .ts files from source files
+SOURCE_FILES=$(find ../src -name "*.cpp" -o -name "*.h" -o -name "*.ui" 2>/dev/null)
+if [ -n "$SOURCE_FILES" ]; then
+    "$LUPDATE" $SOURCE_FILES -ts *.ts
+fi

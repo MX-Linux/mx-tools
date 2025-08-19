@@ -1,6 +1,6 @@
 icons/mx-tools.png	usr/share/icons/hicolor/96x96/apps
 icons/mx-tools.svg     	usr/share/icons/hicolor/scalable/apps
 help/*			usr/share/doc/mx-tools
-mx-tools		usr/bin
+obj-*/mx-tools		usr/bin
 mx-tools.desktop	usr/share/applications
-translations/*.qm	usr/share/mx-tools/locale
+obj-*/*.qm		usr/share/mx-tools/locale
