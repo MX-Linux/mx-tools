@@ -34,7 +34,10 @@
 #include "flatbutton.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "version.h"
+
+#ifndef VERSION
+    #define VERSION "?.?.?.?"
+#endif
 
 MainWindow::MainWindow(QWidget *parent)
     : QDialog(parent),
