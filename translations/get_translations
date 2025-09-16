@@ -58,5 +58,5 @@ echo "Using lupdate: $LUPDATE"
 # Update all .ts files from source files
 SOURCE_FILES=$(find ../src -name "*.cpp" -o -name "*.h" -o -name "*.ui" 2>/dev/null)
 if [ -n "$SOURCE_FILES" ]; then
-    "$LUPDATE" $SOURCE_FILES -ts *.ts
+    "$LUPDATE" $SOURCE_FILES -ts *en.ts
 fi
