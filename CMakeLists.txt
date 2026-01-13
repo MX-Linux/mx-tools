@@ -22,17 +22,35 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-# Get version from debian/changelog
-execute_process(
-    COMMAND dpkg-parsechangelog -SVersion
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE PROJECT_VERSION_FROM_CHANGELOG
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    RESULT_VARIABLE DPKG_RESULT
-)
+set(PROJECT_VERSION_FROM_CHANGELOG "")
 
-if(NOT DPKG_RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to get version from debian/changelog using dpkg-parsechangelog")
+if(DEFINED PROJECT_VERSION_OVERRIDE AND NOT "${PROJECT_VERSION_OVERRIDE}" STREQUAL "")
+    set(PROJECT_VERSION_FROM_CHANGELOG "${PROJECT_VERSION_OVERRIDE}")
+    message(STATUS "Using version override: ${PROJECT_VERSION_FROM_CHANGELOG}")
+else()
+    # Try dpkg-parsechangelog first (Debian/Ubuntu)
+    execute_process(
+        COMMAND dpkg-parsechangelog -SVersion
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE PROJECT_VERSION_FROM_CHANGELOG
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        RESULT_VARIABLE DPKG_RESULT
+        ERROR_QUIET
+    )
+
+    if(DPKG_RESULT EQUAL 0 AND NOT "${PROJECT_VERSION_FROM_CHANGELOG}" STREQUAL "")
+        message(STATUS "Using version from debian/changelog: ${PROJECT_VERSION_FROM_CHANGELOG}")
+    elseif(EXISTS ${CMAKE_SOURCE_DIR}/debian/changelog)
+        file(READ ${CMAKE_SOURCE_DIR}/debian/changelog PROJECT_CHANGELOG_CONTENT)
+        string(REGEX MATCH "^[^\\(]*\\(([^)]+)\\)" _match "${PROJECT_CHANGELOG_CONTENT}")
+        if(NOT _match)
+            message(FATAL_ERROR "Could not parse version from debian/changelog")
+        endif()
+        set(PROJECT_VERSION_FROM_CHANGELOG "${CMAKE_MATCH_1}")
+        message(STATUS "Using version parsed from debian/changelog: ${PROJECT_VERSION_FROM_CHANGELOG}")
+    else()
+        message(FATAL_ERROR "Could not determine version: dpkg-parsechangelog not available and debian/changelog missing")
+    endif()
 endif()
 
 project(mx-tools

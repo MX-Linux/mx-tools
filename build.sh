@@ -30,6 +30,7 @@ BUILD_TYPE="Release"
 USE_CLANG=false
 CLEAN=false
 DEBIAN_BUILD=false
+ARCH_BUILD=false
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -50,6 +51,10 @@ while [[ $# -gt 0 ]]; do
             DEBIAN_BUILD=true
             shift
             ;;
+        --arch)
+            ARCH_BUILD=true
+            shift
+            ;;
         -h|--help)
             echo "Usage: $0 [OPTIONS]"
             echo "Options:"
@@ -57,6 +62,7 @@ while [[ $# -gt 0 ]]; do
             echo "  -c, --clang     Use clang compiler"
             echo "  --clean         Clean build directory before building"
             echo "  --debian        Build Debian package"
+            echo "  --arch          Build Arch Linux package"
             echo "  -h, --help      Show this help message"
             exit 0
             ;;
@@ -90,6 +96,49 @@ if [ "$DEBIAN_BUILD" = true ]; then
 
     echo "Debian package build completed!"
     echo "Debian artifacts moved to debs/ directory"
+    exit 0
+fi
+
+# Build Arch Linux package
+if [ "$ARCH_BUILD" = true ]; then
+    echo "Building Arch Linux package..."
+
+    if ! command -v makepkg &> /dev/null; then
+        echo "Error: makepkg not found. Please install base-devel package."
+        exit 1
+    fi
+
+    if [ ! -f debian/changelog ]; then
+        echo "Error: debian/changelog not found; cannot determine version for Arch build."
+        exit 1
+    fi
+
+    ARCH_VERSION=$(sed -n '1{s/^[^(]*(\([^)]*\)).*/\1/p}' debian/changelog)
+    if [ -z "$ARCH_VERSION" ]; then
+        echo "Error: could not parse version from debian/changelog."
+        exit 1
+    fi
+    echo "Using version ${ARCH_VERSION} from debian/changelog"
+
+    ARCH_BUILDDIR=$(mktemp -d -p "$PWD" archpkgbuild.XXXXXX)
+    trap 'rm -rf "$ARCH_BUILDDIR"' EXIT
+
+    # Clean previous build artifacts
+    rm -rf pkg *.pkg.tar.zst
+
+    PKG_DEST_DIR="$PWD/build"
+    mkdir -p "$PKG_DEST_DIR"
+
+    # Build package (without --clean to preserve directories)
+    BUILDDIR="$ARCH_BUILDDIR" PKGDEST="$PKG_DEST_DIR" PKGVER="$ARCH_VERSION" makepkg -f
+
+    # Clean makepkg artifacts
+    echo "Cleaning makepkg artifacts..."
+    rm -rf pkg
+
+    echo "Arch Linux package build completed!"
+    echo "Package: $(ls build/*.pkg.tar.zst 2>/dev/null || echo 'not found')"
+    echo "Binary available at: build/mx-tools"
     exit 0
 fi
 
