@@ -121,9 +121,9 @@ void MainWindow::filterDesktopEnvironmentItems()
     const QMap<QString, QString> desktopTerms {
         {"XFCE", "OnlyShowIn=XFCE"}, {"Fluxbox", "OnlyShowIn=FLUXBOX"}, {"KDE", "OnlyShowIn=KDE"}};
 
-    for (auto it = desktopTerms.keyValueBegin(); it != desktopTerms.keyValueEnd(); ++it) {
-        if (qgetenv("XDG_CURRENT_DESKTOP") != it->first) {
-            termsToRemove << it->second;
+    for (const auto &[desktop, term] : desktopTerms.asKeyValueRange()) {
+        if (qgetenv("XDG_CURRENT_DESKTOP") != desktop) {
+            termsToRemove << term;
         }
     }
     for (auto it = categories.begin(); it != categories.end(); ++it) {
@@ -422,8 +422,9 @@ QIcon MainWindow::findIcon(const QString &iconName)
                              QStringLiteral("/usr/share/icons/Adwaita/48x48/legacy/")};
 
     // Optimization: search first for the full iconName with the specified extension
-    auto it = std::find_if(searchPaths.cbegin(), searchPaths.cend(),
-                           [&](const QString &path) { return QFile::exists(path + iconName); });
+    auto it = std::ranges::find_if(searchPaths, [&](const QString &path) {
+        return QFile::exists(path + iconName);
+    });
     if (it != searchPaths.cend()) {
         QIcon icon(*it + iconName);
         iconCache.insert(iconName, icon);
@@ -642,10 +643,9 @@ void MainWindow::removeEnvExclusive(QStringList *list, const QStringList &termsT
             QString fileContent = QString::fromUtf8(file.readAll());
             file.close();
 
-            bool containsTerm
-                = std::any_of(termsToRemove.cbegin(), termsToRemove.cend(), [&fileContent](const QString &term) {
-                      return fileContent.contains(term, Qt::CaseInsensitive);
-                  });
+            bool containsTerm = std::ranges::any_of(termsToRemove, [&fileContent](const QString &term) {
+                return fileContent.contains(term, Qt::CaseInsensitive);
+            });
 
             containsTerm ? it = list->erase(it) : ++it;
         } else {
