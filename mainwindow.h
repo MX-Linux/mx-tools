@@ -68,6 +68,7 @@ private:
     int col_count = 0;
     int icon_size = 32;
     int max_elements = 0;
+    int cached_max_button_width = 0;
 
     [[nodiscard]] FlatButton *createButton(const QStringList &fileInfo);
     [[nodiscard]] QString getTranslation(const QString &text, const QString &key, const QString &langRegion,

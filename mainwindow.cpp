@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QDirIterator>
+#include <QFontMetrics>
 #include <QHash>
 #include <QProcess>
 #include <QRegularExpression>
@@ -177,16 +178,25 @@ int MainWindow::calculateMaxElements(const QMultiMap<QString, QMultiMap<QString,
         max_elements = std::max(max_elements, static_cast<int>(categoryMap.size()));
     }
 
-    // Calculate maximum button width based on first category
-    const QString firstCategory = info_map.isEmpty() ? QString() : info_map.firstKey();
-    int max_button_width = 20;
-    for (const auto &fileInfo : info_map.value(firstCategory)) {
-        const QString &name = fileInfo.at(Info::Name);
-        max_button_width = qMax(name.size() * QApplication::font().pointSize() + icon_size, max_button_width);
+    // Only recalculate button width if not cached (expensive operation)
+    if (cached_max_button_width == 0) {
+        const QFontMetrics fm(QApplication::font());
+        constexpr int buttonPadding = 16; // Left/right padding inside button
+
+        // Check ALL categories for the widest button text
+        for (const auto &categoryMap : info_map) {
+            for (const auto &fileInfo : categoryMap) {
+                const QString &name = fileInfo.at(Info::Name);
+                const int textWidth = fm.horizontalAdvance(name);
+                cached_max_button_width = std::max(cached_max_button_width, textWidth);
+            }
+        }
+        // Add icon size, spacing between icon and text, and button padding
+        cached_max_button_width += icon_size + 8 + buttonPadding;
     }
 
     // Calculate maximum columns that fit in window width
-    return std::max(1, width() / max_button_width);
+    return std::max(1, width() / cached_max_button_width);
 }
 
 // Load info (name, comment, exec, iconName, category, terminal) to the info_map
@@ -302,6 +312,7 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
 
     const int max_columns = calculateMaxElements(info_map);
     int row = 0;
+    int actualMaxCol = 0;
 
     // Add buttons for each category
     for (auto it = info_map.cbegin(); it != info_map.cend(); ++it) {
@@ -321,9 +332,9 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
         // Add buttons for this category
         int col = 0;
         for (const auto &fileInfo : categoryMap) {
-            col_count = std::max(col_count, col + 1);
             auto *btn = createButton(fileInfo);
             ui->gridLayout_btn->addWidget(btn, row, col);
+            actualMaxCol = std::max(actualMaxCol, col + 1);
 
             // Move to the next row if more items than max columns
             if (++col >= max_columns) {
@@ -332,6 +343,8 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
             }
         }
     }
+
+    col_count = actualMaxCol;
     ui->gridLayout_btn->setRowStretch(row, 1);
 }
 
@@ -497,16 +510,22 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     if (event->oldSize().width() == event->size().width()) {
         return;
     }
-    const int newCount = width() / 200;
-    if (newCount == col_count || (newCount > max_elements && col_count == max_elements)) {
+
+    // Fast column calculation using cached button width (avoids full recalculation)
+    const int effectiveWidth = cached_max_button_width > 0 ? cached_max_button_width : 200;
+    const int newColCount = std::max(1, width() / effectiveWidth);
+
+    // Early exit: column count unchanged or already at max elements
+    if (newColCount == col_count || (newColCount >= max_elements && col_count == max_elements)) {
         return;
     }
-    // Finer check
-    const int max = calculateMaxElements(info_map);
-    if (col_count == max) {
+
+    // Full recalculation to get exact column count (updates max_elements too)
+    const int exactColCount = calculateMaxElements(info_map);
+    if (col_count == exactColCount) {
         return;
     }
-    col_count = max;
+    col_count = exactColCount;
 
     if (ui->textSearch->text().isEmpty()) {
         addButtons(info_map);
