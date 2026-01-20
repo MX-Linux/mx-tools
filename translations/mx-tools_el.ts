@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="el">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="el">
 <context>
     <name>MainWindow</name>
     <message>
@@ -52,7 +50,7 @@
     <message>
         <location filename="../mainwindow.ui" line="290"/>
         <source>Hide individual tools from the menu</source>
-        <translation>Απόκρυψη μεμονωμένων εργαλείων από το μενού</translation>
+        <translation>Απόκρυψη των επί μέρους εργαλείων στο μενού</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="309"/>

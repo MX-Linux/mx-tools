@@ -1,3 +1,11 @@
+mx-tools (26.01) mx; urgency=medium
+
+  * Improve layout detection
+  * Faster redraw on resize
+  * Update translations
+
+ -- Adrian <adrian@mxlinux.org>  Tue, 20 Jan 2026 01:08:26 -0500
+
 mx-tools (25.4) mx; urgency=medium
 
   * Update to Qt6
@@ -8,7 +16,7 @@ mx-tools (24.12.01) mx; urgency=medium
 
   * Fix doubled command within QProcess::execute call -- fixes deb-installer
     launch.
- 
+
  -- fehlix <fehlix@mxlinux.org>  Sun, 15 Dec 2024 08:53:07 -0400
 
 mx-tools (24.10.01) mx; urgency=medium
@@ -26,7 +34,7 @@ mx-tools (24.10) mx; urgency=medium
 
 mx-tools (24.3) mx; urgency=medium
 
-  * Update translations 
+  * Update translations
 
  -- Adrian <adrian@mxlinux.org>  Sat, 23 Mar 2024 13:16:30 -0400
 
@@ -57,7 +65,7 @@ mx-tools (23.1.02) mx; urgency=medium
 
 mx-tools (23.1.01) mx; urgency=medium
 
-  * Add horizontal scrollbar if needed 
+  * Add horizontal scrollbar if needed
 
  -- Adrian <adrian@mxlinux.org>  Sun, 22 Jan 2023 11:28:27 -0500
 
@@ -70,7 +78,7 @@ mx-tools (23.1) mx; urgency=medium
 
 mx-tools (22.10) mx; urgency=medium
 
-  * translation refresh 
+  * translation refresh
 
  -- Dolphin Oracle <dolphinoracle@gmail.com>  Wed, 26 Oct 2022 20:08:01 -0400
 
@@ -82,7 +90,7 @@ mx-tools (22.8) mx; urgency=medium
 
 mx-tools (22.7) mx; urgency=medium
 
-  * translation refresh 
+  * translation refresh
 
  -- Dolphin Oracle <dolphinoracle@gmail.com>  Sat, 23 Jul 2022 12:31:21 -0400
 
@@ -102,7 +110,7 @@ mx-tools (21.8.02) mx; urgency=medium
 
   * Smoother resize; don't readd the buttons if no need to expand
   * Allow setting icon size in mx-tools.conf, e.g., icon_size=40
-  * Add vertical stretch (it looks bad without stretch when searching). 
+  * Add vertical stretch (it looks bad without stretch when searching).
 
  -- Adrian <adrian@mxlinux.org>  Fri, 27 Aug 2021 21:23:03 -0400
 
@@ -114,7 +122,7 @@ mx-tools (21.8.01) mx; urgency=medium
 
 mx-tools (21.8) mx; urgency=medium
 
-  * Remove "MX-" only from the begining of names 
+  * Remove "MX-" only from the begining of names
 
  -- Adrian <adrian@mxlinux.org>  Sun, 01 Aug 2021 16:36:06 -0400
 
@@ -133,7 +141,7 @@ mx-tools (21.02.01) mx; urgency=medium
 
 mx-tools (21.02) mx; urgency=medium
 
-  * add fluxbox filter 
+  * add fluxbox filter
 
  -- Dolphin Oracle <dolphinoracle@gmail.com>  Sat, 13 Feb 2021 19:45:39 -0500
 
@@ -174,7 +182,7 @@ mx-tools (19.9.02) mx; urgency=medium
 
 mx-tools (19.9.01) mx; urgency=medium
 
-  * improve hide function 
+  * improve hide function
 
  -- Dolphin Oracle <dolphinoracle@gmail.com>  Sat, 14 Sep 2019 20:44:44 -0400
 
@@ -355,7 +363,7 @@ mx-tools (17.3mx16) mx; urgency=medium
 
 mx-tools (16.11mx16+4) mx; urgency=medium
 
-  * new translations 
+  * new translations
 
  -- Adrian <adrian@mxlinux.org>  Wed, 30 Nov 2016 12:55:42 -0500
 

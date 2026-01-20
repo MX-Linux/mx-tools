@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="is">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="is">
 <context>
     <name>MainWindow</name>
     <message>
@@ -27,7 +25,7 @@
     <message>
         <location filename="../mainwindow.ui" line="127"/>
         <source>Close application</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="130"/>
@@ -42,27 +40,27 @@
     <message>
         <location filename="../mainwindow.ui" line="165"/>
         <source>Manual</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="274"/>
         <source>These MX applications save time and effort with important tasks.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="290"/>
         <source>Hide individual tools from the menu</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="309"/>
         <source>search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="477"/>
         <source>About MX Tools</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="478"/>
@@ -72,7 +70,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="479"/>
         <source>Configuration Tools for MX Linux</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="482"/>
@@ -82,7 +80,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="483"/>
         <source>%1 License</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>

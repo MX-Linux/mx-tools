@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="kk">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="kk">
 <context>
     <name>MainWindow</name>
     <message>
@@ -27,7 +25,7 @@
     <message>
         <location filename="../mainwindow.ui" line="127"/>
         <source>Close application</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="130"/>
@@ -82,7 +80,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="483"/>
         <source>%1 License</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -96,7 +94,7 @@
         <location filename="../about.cpp" line="62"/>
         <location filename="../about.cpp" line="72"/>
         <source>Changelog</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="../about.cpp" line="63"/>
@@ -106,7 +104,7 @@
     <message>
         <location filename="../about.cpp" line="85"/>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 </TS>
