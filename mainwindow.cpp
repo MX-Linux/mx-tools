@@ -477,7 +477,16 @@ QIcon MainWindow::findIcon(const QString &iconName)
 void MainWindow::btn_clicked()
 {
     hide();
-    QStringList cmdList = QProcess::splitCommand(sender()->objectName());
+    
+    // Get sender and check for null pointer
+    auto *senderObj = sender();
+    if (!senderObj) {
+        qWarning() << "btn_clicked called with null sender";
+        show();
+        return;
+    }
+    
+    QStringList cmdList = QProcess::splitCommand(senderObj->objectName());
     if (cmdList.isEmpty()) {
         qWarning() << "Empty command list";
         show();
