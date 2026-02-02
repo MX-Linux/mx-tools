@@ -392,11 +392,14 @@ QIcon MainWindow::findIcon(const QString &iconName)
     static QHash<QString, QIcon> iconCache;
     static QIcon defaultIcon;
     static bool defaultIconLoaded = false;
+    static thread_local bool resolvingDefault = false;
 
     if (iconName.isEmpty()) {
         if (!defaultIconLoaded) {
+            resolvingDefault = true;
             defaultIcon = findIcon(DEFAULT_ICON_NAME);
             defaultIconLoaded = true;
+            resolvingDefault = false;
         }
         return defaultIcon;
     }
@@ -471,9 +474,20 @@ QIcon MainWindow::findIcon(const QString &iconName)
     }
 
     // If the icon is not "utilities-terminal", try to load the default icon
-    QIcon fallbackIcon = findIcon(DEFAULT_ICON_NAME);
-    iconCache.insert(iconName, fallbackIcon);
-    return fallbackIcon;
+    if (!defaultIconLoaded) {
+        if (!resolvingDefault) {
+            resolvingDefault = true;
+            defaultIcon = findIcon(DEFAULT_ICON_NAME);
+            defaultIconLoaded = true;
+            resolvingDefault = false;
+        } else {
+            defaultIcon = QIcon();
+            defaultIconLoaded = true;
+        }
+    }
+
+    iconCache.insert(iconName, defaultIcon);
+    return defaultIcon;
 }
 
 void MainWindow::btn_clicked()
