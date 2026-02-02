@@ -39,6 +39,7 @@ class MainWindow;
 class MainWindow : public QDialog
 {
     Q_OBJECT
+    Q_DISABLE_COPY(MainWindow)
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);

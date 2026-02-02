@@ -507,6 +507,11 @@ void MainWindow::btn_clicked()
         int exitCode = QProcess::execute(command, cmdList);
         if (exitCode != 0) {
             qWarning() << "Process failed with exit code:" << exitCode << "Command:" << command << cmdList;
+            // Show error message to user and ensure window is shown again
+            QMessageBox::critical(this, tr("Error"), 
+                tr("Failed to execute command") + "\n" + 
+                tr("Command: %1").arg(command + " " + cmdList.join(" ")) + "\n" +
+                tr("Exit code: %1").arg(exitCode));
         }
     }
     show();
