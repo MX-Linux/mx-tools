@@ -75,7 +75,7 @@ void MainWindow::setConnections()
 
 void MainWindow::checkHideToolsInMenu()
 {
-    const QDir userApplicationsDir(QDir::homePath() + "/.local/share/applications");
+    const QDir userApplicationsDir(QDir::homePath() + USER_APPLICATIONS_PATH);
     const QString userDesktopFilePath = userApplicationsDir.filePath("mx-user.desktop");
     QFile userDesktopFile(userDesktopFilePath);
     if (!userDesktopFile.exists()) {
@@ -93,9 +93,8 @@ void MainWindow::checkHideToolsInMenu()
 
 void MainWindow::initializeCategoryLists()
 {
-    const QString searchFolder {"/usr/share/applications"};
     for (auto it = categories.cbegin(); it != categories.cend(); ++it) {
-        *(it.value()) = listDesktopFiles(it.key(), searchFolder);
+        *(it.value()) = listDesktopFiles(it.key(), APPLICATIONS_PATH);
     }
 }
 
@@ -394,7 +393,7 @@ QIcon MainWindow::findIcon(const QString &iconName)
 
     if (iconName.isEmpty()) {
         if (!defaultIconLoaded) {
-            defaultIcon = findIcon(QStringLiteral("utilities-terminal"));
+            defaultIcon = findIcon(DEFAULT_ICON_NAME);
             defaultIconLoaded = true;
         }
         return defaultIcon;
@@ -426,13 +425,13 @@ QIcon MainWindow::findIcon(const QString &iconName)
     }
 
     // Define common search paths for icons
-    QStringList searchPaths {QDir::homePath() + QStringLiteral("/.local/share/icons/"),
-                             QStringLiteral("/usr/share/pixmaps/"),
-                             QStringLiteral("/usr/local/share/icons/"),
-                             QStringLiteral("/usr/share/icons/"),
-                             QStringLiteral("/usr/share/icons/hicolor/scalable/apps/"),
-                             QStringLiteral("/usr/share/icons/hicolor/48x48/apps/"),
-                             QStringLiteral("/usr/share/icons/Adwaita/48x48/legacy/")};
+    QStringList searchPaths {QDir::homePath() + HOME_SHARE_ICONS_PATH,
+                             PIXMAPS_PATH,
+                             LOCAL_SHARE_ICONS_PATH,
+                             SHARE_ICONS_PATH,
+                             HICOLOR_SCALABLE_PATH,
+                             HICOLOR_48_PATH,
+                             ADWAITA_PATH};
 
     // Optimization: search first for the full iconName with the specified extension
     auto it = std::ranges::find_if(searchPaths, [&](const QString &path) {
@@ -460,7 +459,7 @@ QIcon MainWindow::findIcon(const QString &iconName)
     }
 
     // If the icon is "utilities-terminal" and not found, return the default icon if it's already loaded
-    if (iconName == QStringLiteral("utilities-terminal")) {
+    if (iconName == DEFAULT_ICON_NAME) {
         if (!defaultIconLoaded) {
             defaultIcon = QIcon();
             defaultIconLoaded = true;
@@ -470,7 +469,7 @@ QIcon MainWindow::findIcon(const QString &iconName)
     }
 
     // If the icon is not "utilities-terminal", try to load the default icon
-    QIcon fallbackIcon = findIcon(QStringLiteral("utilities-terminal"));
+    QIcon fallbackIcon = findIcon(DEFAULT_ICON_NAME);
     iconCache.insert(iconName, fallbackIcon);
     return fallbackIcon;
 }
@@ -554,7 +553,7 @@ void MainWindow::checkHide_clicked(bool checked)
 void MainWindow::hideShowIcon(const QString &fileName, bool hide)
 {
     QFileInfo file(fileName);
-    const QDir userApplicationsDir(QDir::homePath() + "/.local/share/applications");
+    const QDir userApplicationsDir(QDir::homePath() + USER_APPLICATIONS_PATH);
     if (!userApplicationsDir.exists() && !QDir().mkpath(userApplicationsDir.absolutePath())) {
         qWarning() << "Failed to create directory:" << userApplicationsDir.absolutePath();
         return;
@@ -588,22 +587,19 @@ void MainWindow::pushAbout_clicked()
             + "</h3></p><p align=\"center\"><a href=\"http://mxlinux.org\">http://mxlinux.org</a><br /></p>"
               "<p align=\"center\">"
             + tr("Copyright (c) MX Linux") + "<br /><br /></p>",
-        "/usr/share/doc/mx-tools/license.html", tr("%1 License").arg(windowTitle()));
+        LICENSE_PATH, tr("%1 License").arg(windowTitle()));
     show();
 }
 
 void MainWindow::pushHelp_clicked()
 {
-    const QString manualPath = "/usr/bin/mx-manual";
-    const QString fallbackPath = "/usr/local/share/doc/mxum.html#toc-Subsection-3.2";
-
-    if (QFile::exists(manualPath)) {
-        if (!QProcess::startDetached(manualPath, {})) {
+    if (QFile::exists(MX_MANUAL_PATH)) {
+        if (!QProcess::startDetached(MX_MANUAL_PATH, {})) {
             qWarning() << "Failed to start mx-manual";
             return;
         }
     } else { // for MX19?
-        if (!QProcess::startDetached("xdg-open", {"file://" + fallbackPath})) {
+        if (!QProcess::startDetached("xdg-open", {QStringLiteral("file://") + FALLBACK_DOC_PATH})) {
             qWarning() << "Failed to open fallback documentation";
             return;
         }

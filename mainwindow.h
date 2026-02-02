@@ -21,9 +21,13 @@
  **********************************************************************/
 #pragma once
 
+#include <QDialog>
+#include <QCloseEvent>
 #include <QMessageBox>
 #include <QMultiMap>
+#include <QResizeEvent>
 #include <QSettings>
+#include <QStringList>
 
 #include "flatbutton.h"
 
@@ -69,6 +73,22 @@ private:
     int icon_size = 32;
     int max_elements = 0;
     int cached_max_button_width = 0;
+
+    // Path constants
+    static constexpr auto APPLICATIONS_PATH = "/usr/share/applications";
+    static constexpr auto USER_APPLICATIONS_PATH = "/.local/share/applications";
+    static constexpr auto HOME_SHARE_ICONS_PATH = "/.local/share/icons/";
+    static constexpr auto PIXMAPS_PATH = "/usr/share/pixmaps/";
+    static constexpr auto LOCAL_SHARE_ICONS_PATH = "/usr/local/share/icons/";
+    static constexpr auto SHARE_ICONS_PATH = "/usr/share/icons/";
+    static constexpr auto HICOLOR_SCALABLE_PATH = "/usr/share/icons/hicolor/scalable/apps/";
+    static constexpr auto HICOLOR_48_PATH = "/usr/share/icons/hicolor/48x48/apps/";
+    static constexpr auto ADWAITA_PATH = "/usr/share/icons/Adwaita/48x48/legacy/";
+    static constexpr auto MX_TOOLS_PATH = "/usr/bin/mx-tools";
+    static constexpr auto MX_MANUAL_PATH = "/usr/bin/mx-manual";
+    static constexpr auto FALLBACK_DOC_PATH = "/usr/local/share/doc/mxum.html#toc-Subsection-3.2";
+    static constexpr auto LICENSE_PATH = "/usr/share/doc/mx-tools/license.html";
+    static constexpr auto DEFAULT_ICON_NAME = "utilities-terminal";
 
     [[nodiscard]] FlatButton *createButton(const QStringList &fileInfo);
     [[nodiscard]] QString getTranslation(const QString &text, const QString &key, const QString &langRegion,

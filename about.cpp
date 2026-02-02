@@ -77,7 +77,7 @@ void displayAboutMsgBox(const QString &title, const QString &message, const QStr
         QProcess proc;
         proc.start(
             "zless",
-            {"/usr/share/doc/" + QFileInfo(QCoreApplication::applicationFilePath()).fileName() + "/changelog.gz"},
+            {QStringLiteral("/usr/share/doc/") + QFileInfo(QCoreApplication::applicationFilePath()).fileName() + "/changelog.gz"},
             QIODevice::ReadOnly);
         proc.waitForFinished();
         text->setText(proc.readAllStandardOutput());
