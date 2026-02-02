@@ -242,7 +242,7 @@
          <bool>true</bool>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
         </property>
         <widget class="QWidget" name="scrollAreaWidgetContents">
          <property name="geometry">

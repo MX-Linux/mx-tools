@@ -30,6 +30,7 @@
 #include <QRegularExpression>
 #include <QResizeEvent>
 #include <QScreen>
+#include <QSpacerItem>
 #include <QStorageInfo>
 #include <QTextStream>
 
@@ -314,6 +315,7 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
     const int max_columns = calculateMaxElements(info_map);
     int row = 0;
     int actualMaxCol = 0;
+    bool addedWidgets = false;
 
     // Add buttons for each category
     for (auto it = info_map.cbegin(); it != info_map.cend(); ++it) {
@@ -329,6 +331,7 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
         }
 
         addCategoryHeader(category, row, max_columns);
+        addedWidgets = true;
 
         // Add buttons for this category
         int col = 0;
@@ -336,6 +339,7 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
             auto *btn = createButton(fileInfo);
             ui->gridLayout_btn->addWidget(btn, row, col);
             actualMaxCol = std::max(actualMaxCol, col + 1);
+            addedWidgets = true;
 
             // Move to the next row if more items than max columns
             if (++col >= max_columns) {
@@ -346,7 +350,10 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
     }
 
     colCount = actualMaxCol;
-    ui->gridLayout_btn->setRowStretch(row, 1);
+    if (addedWidgets) {
+        auto *spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        ui->gridLayout_btn->addItem(spacer, row + 1, 0, 1, std::max(1, max_columns));
+    }
 }
 
 void MainWindow::addCategorySeparator(int &row, int max_columns)
@@ -734,6 +741,13 @@ void MainWindow::removeEnvExclusive(QStringList *list, const QStringList &termsT
 // Remove all items from the layout
 void MainWindow::clearGrid()
 {
+    for (int row = 0; row < ui->gridLayout_btn->rowCount(); ++row) {
+        ui->gridLayout_btn->setRowStretch(row, 0);
+    }
+    for (int col = 0; col < ui->gridLayout_btn->columnCount(); ++col) {
+        ui->gridLayout_btn->setColumnStretch(col, 0);
+    }
+
     QLayoutItem *child;
     while ((child = ui->gridLayout_btn->takeAt(0)) != nullptr) {
         if (child->widget()) {
