@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     addButtons(info_map);
     ui->textSearch->setFocus();
     restoreWindowGeometry();
-    icon_size = settings.value("icon_size", icon_size).toInt();
+    iconSize = settings.value("icon_size", iconSize).toInt();
 }
 
 MainWindow::~MainWindow()
@@ -171,14 +171,14 @@ QStringList MainWindow::listDesktopFiles(const QString &searchString, const QStr
 
 int MainWindow::calculateMaxElements(const QMultiMap<QString, QMultiMap<QString, QStringList>> &info_map)
 {
-    max_elements = 0;
+    maxElements = 0;
     // Find maximum number of elements across all categories
     for (const auto &categoryMap : info_map) {
-        max_elements = std::max(max_elements, static_cast<int>(categoryMap.size()));
+        maxElements = std::max(maxElements, static_cast<int>(categoryMap.size()));
     }
 
     // Only recalculate button width if not cached (expensive operation)
-    if (cached_max_button_width == 0) {
+    if (cachedMaxButtonWidth == 0) {
         const QFontMetrics fm(QApplication::font());
         constexpr int buttonPadding = 16; // Left/right padding inside button
 
@@ -187,15 +187,15 @@ int MainWindow::calculateMaxElements(const QMultiMap<QString, QMultiMap<QString,
             for (const auto &fileInfo : categoryMap) {
                 const QString &name = fileInfo.at(Info::Name);
                 const int textWidth = fm.horizontalAdvance(name);
-                cached_max_button_width = std::max(cached_max_button_width, textWidth);
+                cachedMaxButtonWidth = std::max(cachedMaxButtonWidth, textWidth);
             }
         }
         // Add icon size, spacing between icon and text, and button padding
-        cached_max_button_width += icon_size + 8 + buttonPadding;
+        cachedMaxButtonWidth += iconSize + 8 + buttonPadding;
     }
 
     // Calculate maximum columns that fit in window width
-    return std::max(1, width() / cached_max_button_width);
+    return std::max(1, width() / cachedMaxButtonWidth);
 }
 
 // Load info (name, comment, exec, iconName, category, terminal) to the info_map
@@ -343,7 +343,7 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
         }
     }
 
-    col_count = actualMaxCol;
+    colCount = actualMaxCol;
     ui->gridLayout_btn->setRowStretch(row, 1);
 }
 
@@ -374,7 +374,7 @@ FlatButton *MainWindow::createButton(const QStringList &fileInfo)
     btn->setAutoDefault(false);
     const QIcon icon = findIcon(fileInfo.at(Info::IconName));
     btn->setIcon(icon);
-    btn->setIconSize({icon_size, icon_size});
+    btn->setIconSize({iconSize, iconSize});
 
     // Configure button command
     const QString &exec = fileInfo.at(Info::Exec);
@@ -511,20 +511,20 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     }
 
     // Fast column calculation using cached button width (avoids full recalculation)
-    const int effectiveWidth = cached_max_button_width > 0 ? cached_max_button_width : 200;
+    const int effectiveWidth = cachedMaxButtonWidth > 0 ? cachedMaxButtonWidth : 200;
     const int newColCount = std::max(1, width() / effectiveWidth);
 
     // Early exit: column count unchanged or already at max elements
-    if (newColCount == col_count || (newColCount >= max_elements && col_count == max_elements)) {
+    if (newColCount == colCount || (newColCount >= maxElements && colCount == maxElements)) {
         return;
     }
 
-    // Full recalculation to get exact column count (updates max_elements too)
+    // Full recalculation to get exact column count (updates maxElements too)
     const int exactColCount = calculateMaxElements(info_map);
-    if (col_count == exactColCount) {
+    if (colCount == exactColCount) {
         return;
     }
-    col_count = exactColCount;
+    colCount = exactColCount;
 
     if (ui->textSearch->text().isEmpty()) {
         addButtons(info_map);

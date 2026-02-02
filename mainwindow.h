@@ -69,10 +69,10 @@ private:
                                                    {"MX-Software", &software_list},
                                                    {"MX-Utilities", &utilities_list}};
     enum Info { Name, Comment, IconName, Exec, Category, Terminal };
-    int col_count = 0;
-    int icon_size = 32;
-    int max_elements = 0;
-    int cached_max_button_width = 0;
+    int colCount = 0;
+    int iconSize = 32;
+    int maxElements = 0;
+    int cachedMaxButtonWidth = 0;
 
     // Path constants
     static constexpr auto APPLICATIONS_PATH = "/usr/share/applications";

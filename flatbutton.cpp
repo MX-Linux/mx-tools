@@ -40,7 +40,6 @@ FlatButton::FlatButton(const QString &name, QWidget *parent)
 
 void FlatButton::leaveEvent(QEvent *e)
 {
-    // setFlat(true);
     static const QString leaveStyle = QStringLiteral("text-align:left; text-decoration:none");
     setStyleSheet(leaveStyle);
     QPushButton::leaveEvent(e);
@@ -48,7 +47,6 @@ void FlatButton::leaveEvent(QEvent *e)
 
 void FlatButton::enterEvent(QEnterEvent *e)
 {
-    // setFlat(false);
     static const QString enterStyle = QStringLiteral("QPushButton { text-align:left; text-decoration:underline}; QToolTip { text-decoration: none; }");
     setStyleSheet(enterStyle);
     QPushButton::enterEvent(e);
