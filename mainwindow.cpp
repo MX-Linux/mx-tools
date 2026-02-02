@@ -494,7 +494,9 @@ void MainWindow::btn_clicked()
     }
 
     QString command = cmdList.takeFirst();
-    if (cmdList.last() == "&") {
+    
+    // Check if list has elements before accessing last()
+    if (!cmdList.isEmpty() && cmdList.last() == "&") {
         cmdList.removeLast();
         if (!QProcess::startDetached(command, cmdList)) {
             qWarning() << "Failed to start detached process:" << command << cmdList;
