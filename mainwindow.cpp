@@ -25,11 +25,13 @@
 #include <QDirIterator>
 #include <QFontMetrics>
 #include <QHash>
+#include <QLatin1String>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QResizeEvent>
 #include <QScreen>
 #include <QStorageInfo>
+#include <QTextStream>
 
 #include "about.h"
 #include "flatbutton.h"
@@ -575,15 +577,44 @@ void MainWindow::hideShowIcon(const QString &fileName, bool hide)
         QFile::remove(fileNameLocal);
     } else {
         QFile::copy(fileName, fileNameLocal);
-        QProcess process;
-        process.start("sed", {"-i", "-re", "/^(NoDisplay|Hidden)=/d", "-e", "/Exec/aNoDisplay=true", fileNameLocal});
-        if (!process.waitForFinished()) {
-            qWarning() << "Failed to modify file:" << fileNameLocal;
+        
+        // Read and modify the file content using Qt APIs
+        QFile file(fileNameLocal);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qWarning() << "Failed to open file for reading:" << fileNameLocal;
             return;
         }
-        if (process.exitCode() != 0) {
-            qWarning() << "sed command failed with exit code:" << process.exitCode();
+        
+        QTextStream in(&file);
+        QStringList lines;
+        
+        // Process each line
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            
+            // Skip NoDisplay and Hidden lines
+            if (line.startsWith(QLatin1String("NoDisplay=")) || line.startsWith(QLatin1String("Hidden="))) {
+                continue;
+            }
+            
+            lines << line;
+
+            // Add NoDisplay=true immediately after Exec line
+            if (line.startsWith(QLatin1String("Exec="))) {
+                lines << QLatin1String("NoDisplay=true");
+            }
+        }
+        file.close();
+        
+        // Write the modified content back
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+            qWarning() << "Failed to open file for writing:" << fileNameLocal;
             return;
+        }
+        
+        QTextStream out(&file);
+        for (const QString &line : lines) {
+            out << line << Qt::endl;
         }
     }
 }
