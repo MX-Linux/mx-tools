@@ -180,7 +180,6 @@ QStringList MainWindow::listDesktopFiles(const QString &searchString, const QStr
 {
     QDirIterator it(location, {"*.desktop"}, QDir::Files, QDirIterator::Subdirectories);
     QStringList matchingFiles;
-    matchingFiles.reserve(200);
 
     while (it.hasNext()) {
         const QString filePath = it.next();
