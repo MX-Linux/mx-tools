@@ -428,7 +428,7 @@ QIcon MainWindow::findIcon(const QString &iconName)
     static QHash<QString, QIcon> iconCache;
     static QIcon defaultIcon;
     static bool defaultIconLoaded = false;
-    static thread_local bool resolvingDefault = false;
+    static bool resolvingDefault = false;
 
     if (iconName.isEmpty()) {
         if (!defaultIconLoaded) {
