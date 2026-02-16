@@ -24,10 +24,12 @@
 #include <QDialog>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QMap>
 #include <QMultiMap>
 #include <QResizeEvent>
 #include <QSettings>
 #include <QStringList>
+#include <QVector>
 
 #include "flatbutton.h"
 
@@ -57,8 +59,20 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    struct ToolInfo {
+        QString fileName;
+        QString name;
+        QString comment;
+        QString iconName;
+        QString exec;
+        QString category;
+        bool runInTerminal = false;
+    };
+
+    using CategoryToolsMap = QMap<QString, QVector<ToolInfo>>;
+
     Ui::MainWindow *ui;
-    QMultiMap<QString, QMultiMap<QString, QStringList>> info_map;
+    CategoryToolsMap info_map;
     QMultiMap<QString, QStringList> category_map;
     QSettings settings;
     QStringList live_list;
@@ -71,7 +85,6 @@ private:
                                                    {"MX-Setup", &setup_list},
                                                    {"MX-Software", &software_list},
                                                    {"MX-Utilities", &utilities_list}};
-    enum Info { Name, Comment, IconName, Exec, Category, Terminal };
     int colCount = 0;
     int iconSize = 32;
     int maxElements = 0;
@@ -93,17 +106,17 @@ private:
     static constexpr auto LICENSE_PATH = "/usr/share/doc/mx-tools/license.html";
     static constexpr auto DEFAULT_ICON_NAME = "utilities-terminal";
 
-    [[nodiscard]] FlatButton *createButton(const QStringList &fileInfo);
+    [[nodiscard]] FlatButton *createButton(const ToolInfo &toolInfo);
     [[nodiscard]] QString getTranslation(const QString &text, const QString &key, const QString &langRegion,
                                          const QString &lang);
     [[nodiscard]] QString getValueFromText(const QString &text, const QString &key);
     [[nodiscard]] QIcon findIcon(const QString &iconName);
     [[nodiscard]] QStringList listDesktopFiles(const QString &searchString, const QString &location);
-    [[nodiscard]] int calculateMaxElements(const QMultiMap<QString, QMultiMap<QString, QStringList>> &info_map);
+    [[nodiscard]] int calculateMaxElements(const CategoryToolsMap &infoMap);
     static void fixExecItem(QString *item);
     static void hideShowIcon(const QString &fileName, bool hide);
     static void removeEnvExclusive(QStringList *list, const QStringList &termsToRemove);
-    void addButtons(const QMultiMap<QString, QMultiMap<QString, QStringList>> &info_map);
+    void addButtons(const CategoryToolsMap &infoMap);
     void addCategoryHeader(const QString &category, int &row, int max_columns);
     void addCategorySeparator(int &row, int max_columns);
     void checkHideToolsInMenu();

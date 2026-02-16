@@ -172,12 +172,12 @@ QStringList MainWindow::listDesktopFiles(const QString &searchString, const QStr
     return matchingFiles;
 }
 
-int MainWindow::calculateMaxElements(const QMultiMap<QString, QMultiMap<QString, QStringList>> &info_map)
+int MainWindow::calculateMaxElements(const CategoryToolsMap &infoMap)
 {
     maxElements = 0;
     // Find maximum number of elements across all categories
-    for (const auto &categoryMap : info_map) {
-        maxElements = std::max(maxElements, static_cast<int>(categoryMap.size()));
+    for (const auto &categoryTools : infoMap) {
+        maxElements = std::max(maxElements, static_cast<int>(categoryTools.size()));
     }
 
     // Only recalculate button width if not cached (expensive operation)
@@ -186,10 +186,9 @@ int MainWindow::calculateMaxElements(const QMultiMap<QString, QMultiMap<QString,
         constexpr int buttonPadding = 16; // Left/right padding inside button
 
         // Check ALL categories for the widest button text
-        for (const auto &categoryMap : info_map) {
-            for (const auto &fileInfo : categoryMap) {
-                const QString &name = fileInfo.at(Info::Name);
-                const int textWidth = fm.horizontalAdvance(name);
+        for (const auto &categoryTools : infoMap) {
+            for (const auto &toolInfo : categoryTools) {
+                const int textWidth = fm.horizontalAdvance(toolInfo.name);
                 cachedMaxButtonWidth = std::max(cachedMaxButtonWidth, textWidth);
             }
         }
@@ -219,7 +218,8 @@ void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
         const QString category = it.key();
         const QStringList &fileList = it.value();
 
-        QMultiMap<QString, QStringList> categoryInfoMap;
+        QVector<ToolInfo> categoryTools;
+        categoryTools.reserve(fileList.size());
 
         for (const QString &fileName : fileList) {
             QFile file(fileName);
@@ -242,16 +242,17 @@ void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
             QString exec = getValueFromText(text, execKey);
             fixExecItem(&exec);
 
-            QString iconName = getValueFromText(text, iconKey);
-            QString terminalSwitch = getValueFromText(text, terminalKey);
-
-            QStringList infoList;
-            infoList.reserve(6);
-            infoList << name << comment << iconName << exec << category << terminalSwitch;
-
-            categoryInfoMap.insert(fileName, infoList);
+            ToolInfo toolInfo;
+            toolInfo.fileName = fileName;
+            toolInfo.name = name;
+            toolInfo.comment = comment;
+            toolInfo.iconName = getValueFromText(text, iconKey);
+            toolInfo.exec = exec;
+            toolInfo.category = category;
+            toolInfo.runInTerminal = getValueFromText(text, terminalKey).compare("true", Qt::CaseInsensitive) == 0;
+            categoryTools.append(toolInfo);
         }
-        info_map.insert(category, categoryInfoMap);
+        info_map.insert(category, categoryTools);
     }
 }
 
@@ -308,21 +309,21 @@ QString MainWindow::getValueFromText(const QString &text, const QString &key)
 }
 
 // Read the info_map and add the buttons to the UI
-void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringList>> &info_map)
+void MainWindow::addButtons(const CategoryToolsMap &infoMap)
 {
     clearGrid();
 
-    const int max_columns = calculateMaxElements(info_map);
+    const int max_columns = calculateMaxElements(infoMap);
     int row = 0;
     int actualMaxCol = 0;
     bool addedWidgets = false;
 
     // Add buttons for each category
-    for (auto it = info_map.cbegin(); it != info_map.cend(); ++it) {
+    for (auto it = infoMap.cbegin(); it != infoMap.cend(); ++it) {
         const QString &category = it.key();
-        const auto &categoryMap = it.value();
+        const auto &categoryTools = it.value();
 
-        if (categoryMap.isEmpty()) {
+        if (categoryTools.isEmpty()) {
             continue;
         }
 
@@ -335,8 +336,8 @@ void MainWindow::addButtons(const QMultiMap<QString, QMultiMap<QString, QStringL
 
         // Add buttons for this category
         int col = 0;
-        for (const auto &fileInfo : categoryMap) {
-            auto *btn = createButton(fileInfo);
+        for (const auto &toolInfo : categoryTools) {
+            auto *btn = createButton(toolInfo);
             ui->gridLayout_btn->addWidget(btn, row, col);
             actualMaxCol = std::max(actualMaxCol, col + 1);
             addedWidgets = true;
@@ -376,18 +377,18 @@ void MainWindow::addCategoryHeader(const QString &category, int &row, int max_co
     ++row;
 }
 
-FlatButton *MainWindow::createButton(const QStringList &fileInfo)
+FlatButton *MainWindow::createButton(const ToolInfo &toolInfo)
 {
-    auto *btn = new FlatButton(fileInfo.at(Info::Name));
-    btn->setToolTip(fileInfo.at(Info::Comment));
+    auto *btn = new FlatButton(toolInfo.name);
+    btn->setToolTip(toolInfo.comment);
     btn->setAutoDefault(false);
-    const QIcon icon = findIcon(fileInfo.at(Info::IconName));
+    const QIcon icon = findIcon(toolInfo.iconName);
     btn->setIcon(icon);
     btn->setIconSize({iconSize, iconSize});
 
     // Configure button command
-    const QString &exec = fileInfo.at(Info::Exec);
-    const bool runInTerminal = fileInfo.at(Info::Terminal) == "true";
+    const QString &exec = toolInfo.exec;
+    const bool runInTerminal = toolInfo.runInTerminal;
     btn->setProperty("command", runInTerminal ? "x-terminal-emulator -e " + exec : exec);
     connect(btn, &FlatButton::clicked, this, &MainWindow::btn_clicked);
 
@@ -682,28 +683,25 @@ void MainWindow::textSearch_textChanged(const QString &searchTerm)
         return;
     }
 
-    QMultiMap<QString, QMultiMap<QString, QStringList>> filteredMap;
+    CategoryToolsMap filteredMap;
 
     // Iterate over categories in info_map
     for (auto it = info_map.constBegin(); it != info_map.constEnd(); ++it) {
         const auto &category = it.key();
-        const auto &fileInfo = it.value();
-        QMultiMap<QString, QStringList> filteredCategoryMap;
+        const auto &categoryTools = it.value();
+        QVector<ToolInfo> filteredCategoryTools;
+        filteredCategoryTools.reserve(categoryTools.size());
 
-        // Iterate over file names in the current category
-        for (const auto &fileName : category_map.value(category)) {
-            const auto &fileData = fileInfo.value(fileName);
-            const auto &name = fileData.at(Info::Name);
-            const auto &comment = fileData.at(Info::Comment);
-
-            if (name.contains(searchTerm, Qt::CaseInsensitive) || comment.contains(searchTerm, Qt::CaseInsensitive)
+        for (const auto &toolInfo : categoryTools) {
+            if (toolInfo.name.contains(searchTerm, Qt::CaseInsensitive)
+                || toolInfo.comment.contains(searchTerm, Qt::CaseInsensitive)
                 || category.contains(searchTerm, Qt::CaseInsensitive)) {
-                filteredCategoryMap.insert(fileName, fileData);
+                filteredCategoryTools.append(toolInfo);
             }
         }
 
-        if (!filteredCategoryMap.isEmpty()) {
-            filteredMap.insert(category, filteredCategoryMap);
+        if (!filteredCategoryTools.isEmpty()) {
+            filteredMap.insert(category, filteredCategoryTools);
         }
     }
 
