@@ -388,7 +388,7 @@ FlatButton *MainWindow::createButton(const QStringList &fileInfo)
     // Configure button command
     const QString &exec = fileInfo.at(Info::Exec);
     const bool runInTerminal = fileInfo.at(Info::Terminal) == "true";
-    btn->setObjectName(runInTerminal ? "x-terminal-emulator -e " + exec : exec);
+    btn->setProperty("command", runInTerminal ? "x-terminal-emulator -e " + exec : exec);
     connect(btn, &FlatButton::clicked, this, &MainWindow::btn_clicked);
 
     return btn;
@@ -509,7 +509,8 @@ void MainWindow::btn_clicked()
         return;
     }
     
-    QStringList cmdList = QProcess::splitCommand(senderObj->objectName());
+    const QString commandString = senderObj->property("command").toString();
+    QStringList cmdList = QProcess::splitCommand(commandString);
     if (cmdList.isEmpty()) {
         qWarning() << "Empty command list";
         show();

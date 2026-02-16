@@ -26,7 +26,7 @@ FlatButton::FlatButton(QWidget *parent)
     : QPushButton(parent)
 {
     setFlat(true);
-    static const QString defaultStyle = QStringLiteral("text-align:left; color:black");
+    static const QString defaultStyle = QStringLiteral("text-align:left");
     setStyleSheet(defaultStyle);
 }
 
