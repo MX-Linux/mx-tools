@@ -396,7 +396,8 @@ void MainWindow::addCategorySeparator(int &row, int max_columns)
 void MainWindow::addCategoryHeader(const QString &category, int &row, int max_columns)
 {
     auto *label = new QLabel(category, this);
-    label->setText(label->text().remove(QRegularExpression("^MX-")));
+    static const QRegularExpression mxPrefixRegex(QStringLiteral("^MX-"));
+    label->setText(label->text().remove(mxPrefixRegex));
     QFont font;
     font.setBold(true);
     font.setUnderline(true);
