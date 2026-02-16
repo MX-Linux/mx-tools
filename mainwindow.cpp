@@ -591,27 +591,27 @@ void MainWindow::checkHide_clicked(bool checked)
 // Hide or show icon for .desktop file
 void MainWindow::hideShowIcon(const QString &fileName, bool hide)
 {
-    QFileInfo file(fileName);
+    QFileInfo fileInfo(fileName);
     const QDir userApplicationsDir(QDir::homePath() + USER_APPLICATIONS_PATH);
     if (!userApplicationsDir.exists() && !QDir().mkpath(userApplicationsDir.absolutePath())) {
         qWarning() << "Failed to create directory:" << userApplicationsDir.absolutePath();
         return;
     }
 
-    const QString fileNameLocal = userApplicationsDir.filePath(file.fileName());
+    const QString fileNameLocal = userApplicationsDir.filePath(fileInfo.fileName());
     if (!hide) {
         QFile::remove(fileNameLocal);
     } else {
         QFile::copy(fileName, fileNameLocal);
         
         // Read and modify the file content using Qt APIs
-        QFile file(fileNameLocal);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QFile localFile(fileNameLocal);
+        if (!localFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
             qWarning() << "Failed to open file for reading:" << fileNameLocal;
             return;
         }
-        
-        QTextStream in(&file);
+
+        QTextStream in(&localFile);
         QStringList lines;
         
         // Process each line
@@ -630,15 +630,15 @@ void MainWindow::hideShowIcon(const QString &fileName, bool hide)
                 lines << QLatin1String("NoDisplay=true");
             }
         }
-        file.close();
-        
+        localFile.close();
+
         // Write the modified content back
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        if (!localFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
             qWarning() << "Failed to open file for writing:" << fileNameLocal;
             return;
         }
-        
-        QTextStream out(&file);
+
+        QTextStream out(&localFile);
         for (const QString &line : lines) {
             out << line << Qt::endl;
         }
