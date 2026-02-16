@@ -49,10 +49,12 @@ private slots:
     static void pushHelp_clicked();
     void btn_clicked();
     void checkHide_clicked(bool checked);
-    void closeEvent(QCloseEvent * /*unused*/) override;
     void pushAbout_clicked();
-    void resizeEvent(QResizeEvent *event) override;
     void textSearch_textChanged(const QString &arg1);
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     Ui::MainWindow *ui;
