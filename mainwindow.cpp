@@ -185,10 +185,15 @@ QStringList MainWindow::listDesktopFiles(const QString &searchString, const QStr
     while (it.hasNext()) {
         const QString filePath = it.next();
         QFile file(filePath);
-        if (file.open(QIODevice::ReadOnly)) {
-            const QByteArray content = file.readAll();
-            if (content.contains(searchString.toUtf8())) {
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            continue;
+        }
+
+        QTextStream stream(&file);
+        while (!stream.atEnd()) {
+            if (stream.readLine().contains(searchString)) {
                 matchingFiles << filePath;
+                break;
             }
         }
     }
