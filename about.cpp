@@ -74,13 +74,16 @@ void displayAboutMsgBox(const QString &title, const QString &message, const QStr
 
         auto *text = new QTextEdit(&changelog);
         text->setReadOnly(true);
+        const QString changelogPath =
+            QStringLiteral("/usr/share/doc/") + QFileInfo(QCoreApplication::applicationFilePath()).fileName()
+            + QStringLiteral("/changelog.gz");
         QProcess proc;
-        proc.start(
-            "zless",
-            {QStringLiteral("/usr/share/doc/") + QFileInfo(QCoreApplication::applicationFilePath()).fileName() + "/changelog.gz"},
-            QIODevice::ReadOnly);
-        proc.waitForFinished();
-        text->setText(proc.readAllStandardOutput());
+        proc.start("zcat", {changelogPath}, QIODevice::ReadOnly);
+        if (!proc.waitForFinished()) {
+            text->setText(QObject::tr("Unable to load changelog from %1").arg(changelogPath));
+        } else {
+            text->setText(proc.readAllStandardOutput());
+        }
 
         QPushButton btnClose(QObject::tr("&Close"), &changelog);
         btnClose.setIcon(QIcon::fromTheme("window-close"));
