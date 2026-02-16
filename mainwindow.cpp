@@ -80,10 +80,10 @@ MainWindow::MainWindow(QWidget *parent)
     filterDesktopEnvironmentItems();
     populateCategoryMap();
     readInfo(category_map);
+    iconSize = settings.value("icon_size", iconSize).toInt();
     addButtons(info_map);
     ui->textSearch->setFocus();
     restoreWindowGeometry();
-    iconSize = settings.value("icon_size", iconSize).toInt();
 }
 
 MainWindow::~MainWindow()
