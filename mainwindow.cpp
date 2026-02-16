@@ -718,7 +718,6 @@ void MainWindow::textSearch_textChanged(const QString &searchTerm)
         const auto &category = it.key();
         const auto &categoryTools = it.value();
         QVector<ToolInfo> filteredCategoryTools;
-        filteredCategoryTools.reserve(categoryTools.size());
 
         for (const auto &toolInfo : categoryTools) {
             if (toolInfo.name.contains(searchTerm, Qt::CaseInsensitive)
