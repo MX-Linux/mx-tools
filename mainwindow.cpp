@@ -31,7 +31,6 @@
 #include <QResizeEvent>
 #include <QScreen>
 #include <QSpacerItem>
-#include <QStorageInfo>
 #include <QTextStream>
 
 #include "about.h"
@@ -42,6 +41,31 @@
 #ifndef VERSION
     #define VERSION "?.?.?.?"
 #endif
+
+namespace
+{
+QString rootFileSystemType()
+{
+    QFile mountsFile(QStringLiteral("/proc/mounts"));
+    if (!mountsFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return {};
+    }
+
+    QTextStream stream(&mountsFile);
+    while (!stream.atEnd()) {
+        const QString line = stream.readLine();
+        const QStringList fields = line.split(QLatin1Char(' '), Qt::SkipEmptyParts);
+        if (fields.size() < 3) {
+            continue;
+        }
+        if (fields.at(1) == QLatin1String("/")) {
+            return fields.at(2);
+        }
+    }
+
+    return {};
+}
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QDialog(parent),
@@ -103,9 +127,8 @@ void MainWindow::initializeCategoryLists()
 
 void MainWindow::filterLiveEnvironmentItems()
 {
-    QStorageInfo storageInfo(QDir::rootPath());
-    const QString partitionType = storageInfo.fileSystemType();
-    bool live = partitionType == "aufs" || partitionType == "overlay";
+    const QString partitionType = rootFileSystemType();
+    const bool live = partitionType == QLatin1String("aufs") || partitionType == QLatin1String("overlay");
 
     if (!live) {
         QStringList itemsToRemove {"mx-remastercc.desktop", "live-kernel-updater.desktop"};
