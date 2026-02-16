@@ -229,7 +229,7 @@ int MainWindow::calculateMaxElements(const CategoryToolsMap &infoMap)
 }
 
 // Load info (name, comment, exec, iconName, category, terminal) to the info_map
-void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
+void MainWindow::readInfo(const CategoryFileMap &categoryMap)
 {
     const QString lang = QLocale().name().split(QStringLiteral("_")).first();
     const QString langRegion = QLocale().name();
@@ -242,7 +242,7 @@ void MainWindow::readInfo(const QMultiMap<QString, QStringList> &category_map)
     const QString terminalKey = QStringLiteral("Terminal");
     const QString enLang = QStringLiteral("en");
 
-    for (auto it = category_map.cbegin(); it != category_map.cend(); ++it) {
+    for (auto it = categoryMap.cbegin(); it != categoryMap.cend(); ++it) {
         const QString category = it.key();
         const QStringList &fileList = it.value();
 

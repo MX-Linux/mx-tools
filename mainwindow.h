@@ -25,7 +25,6 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 #include <QMap>
-#include <QMultiMap>
 #include <QResizeEvent>
 #include <QSettings>
 #include <QStringList>
@@ -70,10 +69,11 @@ private:
     };
 
     using CategoryToolsMap = QMap<QString, QVector<ToolInfo>>;
+    using CategoryFileMap = QMap<QString, QStringList>;
 
     Ui::MainWindow *ui;
     CategoryToolsMap info_map;
-    QMultiMap<QString, QStringList> category_map;
+    CategoryFileMap category_map;
     QSettings settings;
     QStringList live_list;
     QStringList maintenance_list;
@@ -125,7 +125,7 @@ private:
     void filterLiveEnvironmentItems();
     void initializeCategoryLists();
     void populateCategoryMap();
-    void readInfo(const QMultiMap<QString, QStringList> &category_map);
+    void readInfo(const CategoryFileMap &categoryMap);
     void restoreWindowGeometry();
     void setConnections();
 };
