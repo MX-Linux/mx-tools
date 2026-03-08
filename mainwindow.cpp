@@ -65,6 +65,22 @@ QString rootFileSystemType()
 
     return {};
 }
+
+bool isLiveEnvironment()
+{
+    const QString partitionType = rootFileSystemType();
+    return partitionType == QLatin1String("aufs") || partitionType == QLatin1String("overlay");
+}
+
+QStringList currentDesktopNames()
+{
+    QStringList desktops = QString::fromUtf8(qgetenv("XDG_CURRENT_DESKTOP")).split(QLatin1Char(':'),
+                                                                                    Qt::SkipEmptyParts);
+    for (QString &desktop : desktops) {
+        desktop = desktop.trimmed().toUpper();
+    }
+    return desktops;
+}
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -127,10 +143,7 @@ void MainWindow::initializeCategoryLists()
 
 void MainWindow::filterLiveEnvironmentItems()
 {
-    const QString partitionType = rootFileSystemType();
-    const bool live = partitionType == QLatin1String("aufs") || partitionType == QLatin1String("overlay");
-
-    if (!live) {
+    if (!isLiveEnvironment()) {
         QStringList itemsToRemove {"mx-remastercc.desktop", "live-kernel-updater.desktop"};
         live_list.erase(std::remove_if(live_list.begin(), live_list.end(),
                                        [&itemsToRemove](const QString &item) {
@@ -143,12 +156,14 @@ void MainWindow::filterLiveEnvironmentItems()
 
 void MainWindow::filterDesktopEnvironmentItems()
 {
-    QStringList termsToRemove {qgetenv("XDG_CURRENT_DESKTOP") == "live" ? "MX-OnlyInstalled" : "MX-OnlyLive"};
+    const bool live = isLiveEnvironment();
+    const QStringList desktops = currentDesktopNames();
+    QStringList termsToRemove {live ? "MX-OnlyInstalled" : "MX-OnlyLive"};
     const QMap<QString, QString> desktopTerms {
-        {"XFCE", "OnlyShowIn=XFCE"}, {"Fluxbox", "OnlyShowIn=FLUXBOX"}, {"KDE", "OnlyShowIn=KDE"}};
+        {"XFCE", "OnlyShowIn=XFCE"}, {"FLUXBOX", "OnlyShowIn=FLUXBOX"}, {"KDE", "OnlyShowIn=KDE"}};
 
     for (const auto &[desktop, term] : desktopTerms.asKeyValueRange()) {
-        if (qgetenv("XDG_CURRENT_DESKTOP") != desktop) {
+        if (!desktops.contains(desktop)) {
             termsToRemove << term;
         }
     }
