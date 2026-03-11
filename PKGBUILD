@@ -2,7 +2,7 @@
 pkgname=mx-tools
 pkgver=${PKGVER:-25.4}
 pkgrel=1
-pkgdesc="MX Tools - Dashboard application for configuration tools in MX Linux"
+pkgdesc="MX Tools - Dashboard application launcher for various MX tools"
 arch=('x86_64' 'i686')
 url="https://mxlinux.org"
 license=('GPL3')
