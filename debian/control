@@ -9,8 +9,7 @@ Homepage: https://github.com/MX-Linux/mx-tools
 
 Package: mx-tools
 Architecture: any
-Depends: mx-viewer | xdg-utils,
-         ${misc:Depends},
+Depends: ${misc:Depends},
          ${shlibs:Depends}
 Recommends: apt-notifier,
             checkaptgpg,

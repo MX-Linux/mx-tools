@@ -22,34 +22,50 @@
 #include "about.h"
 
 #include <QApplication>
+#include <QDialog>
+#include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
-#include <QStandardPaths>
+#include <QTextBrowser>
 #include <QTextEdit>
+#include <QUrl>
 #include <QVBoxLayout>
 
-#include <unistd.h>
+namespace
+{
+void showHtmlDoc(const QString &url, const QString &title)
+{
+    QDialog dialog;
+    dialog.setWindowTitle(title);
+    dialog.resize(700, 600);
 
-// Display doc as nomal user when run as root
+    auto *browser = new QTextBrowser(&dialog);
+    browser->setOpenExternalLinks(true);
+
+    const QUrl sourceUrl = QUrl::fromUserInput(url);
+    const QString localPath = sourceUrl.isLocalFile() ? sourceUrl.toLocalFile() : url;
+    if (sourceUrl.isLocalFile() ? QFileInfo::exists(localPath) : QFile::exists(url)) {
+        browser->setSource(sourceUrl.isLocalFile() ? sourceUrl : QUrl::fromLocalFile(url));
+    } else {
+        browser->setText(QObject::tr("Could not load %1").arg(url));
+    }
+
+    auto *btnClose = new QPushButton(QObject::tr("&Close"), &dialog);
+    btnClose->setIcon(QIcon::fromTheme("window-close"));
+    QObject::connect(btnClose, &QPushButton::clicked, &dialog, &QDialog::close);
+
+    auto *layout = new QVBoxLayout(&dialog);
+    layout->addWidget(browser);
+    layout->addWidget(btnClose);
+    dialog.exec();
+}
+} // namespace
+
 void displayDoc(const QString &url, const QString &title)
 {
-    // Prefer mx-viewer otherwise use xdg-open (use runuser to run that as logname user)
-    QString executablePath = QStandardPaths::findExecutable("mx-viewer");
-    if (!executablePath.isEmpty()) {
-        QProcess::startDetached("mx-viewer", {url, title});
-    } else {
-        if (getuid() != 0) {
-            QProcess::startDetached("xdg-open", {url});
-        } else {
-            QProcess proc;
-            proc.start("logname", {}, QIODevice::ReadOnly);
-            proc.waitForFinished();
-            QString user = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
-            QProcess::startDetached("runuser", {"-u", user, "--", "xdg-open", url});
-        }
-    }
+    showHtmlDoc(url, title);
 }
 
 void displayAboutMsgBox(const QString &title, const QString &message, const QString &licence_url,
