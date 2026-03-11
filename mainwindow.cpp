@@ -81,6 +81,52 @@ QStringList currentDesktopNames()
     }
     return desktops;
 }
+
+QStringList desktopEntryListValue(const QString &fileContent, const QString &key)
+{
+    const QString valuePattern = key + QLatin1Char('=');
+    const QStringList lines = fileContent.split(QLatin1Char('\n'));
+    for (const QString &line : lines) {
+        if (!line.startsWith(valuePattern, Qt::CaseInsensitive)) {
+            continue;
+        }
+
+        QStringList values = line.mid(valuePattern.size()).split(QLatin1Char(';'), Qt::SkipEmptyParts);
+        for (QString &value : values) {
+            value = value.trimmed().toUpper();
+        }
+        return values;
+    }
+
+    return {};
+}
+
+bool isVisibleOnCurrentDesktop(const QString &fileContent, const QStringList &desktops)
+{
+    const QStringList onlyShowIn = desktopEntryListValue(fileContent, QStringLiteral("OnlyShowIn"));
+    if (!onlyShowIn.isEmpty()) {
+        const bool matchesAllowedDesktop = std::ranges::any_of(onlyShowIn, [&desktops](const QString &desktop) {
+            return desktops.contains(desktop);
+        });
+        if (!matchesAllowedDesktop) {
+            return false;
+        }
+    }
+
+    const QStringList notShowIn = desktopEntryListValue(fileContent, QStringLiteral("NotShowIn"));
+    const bool matchesBlockedDesktop = std::ranges::any_of(notShowIn, [&desktops](const QString &desktop) {
+        return desktops.contains(desktop);
+    });
+    return !matchesBlockedDesktop;
+}
+
+bool isVisibleInCurrentEnvironment(const QString &fileContent, bool live)
+{
+    if (live) {
+        return !fileContent.contains(QStringLiteral("MX-OnlyInstalled"), Qt::CaseInsensitive);
+    }
+    return !fileContent.contains(QStringLiteral("MX-OnlyLive"), Qt::CaseInsensitive);
+}
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -158,17 +204,8 @@ void MainWindow::filterDesktopEnvironmentItems()
 {
     const bool live = isLiveEnvironment();
     const QStringList desktops = currentDesktopNames();
-    QStringList termsToRemove {live ? "MX-OnlyInstalled" : "MX-OnlyLive"};
-    const QMap<QString, QString> desktopTerms {
-        {"XFCE", "OnlyShowIn=XFCE"}, {"FLUXBOX", "OnlyShowIn=FLUXBOX"}, {"KDE", "OnlyShowIn=KDE"}};
-
-    for (const auto &[desktop, term] : desktopTerms.asKeyValueRange()) {
-        if (!desktops.contains(desktop)) {
-            termsToRemove << term;
-        }
-    }
     for (auto it = categories.begin(); it != categories.end(); ++it) {
-        removeEnvExclusive(it.value(), termsToRemove);
+        removeEnvExclusive(it.value(), live, desktops);
     }
 }
 
@@ -756,9 +793,8 @@ void MainWindow::fixExecItem(QString *item)
     item->remove(QRegularExpression(R"( %[a-zA-Z])"));
 }
 
-// When running live remove programs meant only for installed environments and the other way round
-// Remove XfceOnly and FluxboxOnly when not running in that environment
-void MainWindow::removeEnvExclusive(QStringList *list, const QStringList &termsToRemove)
+// Remove programs hidden for the current live/install state or desktop environment.
+void MainWindow::removeEnvExclusive(QStringList *list, bool live, const QStringList &desktops)
 {
     for (auto it = list->begin(); it != list->end();) {
         const QString &filePath = *it;
@@ -767,11 +803,9 @@ void MainWindow::removeEnvExclusive(QStringList *list, const QStringList &termsT
             QString fileContent = QString::fromUtf8(file.readAll());
             file.close();
 
-            bool containsTerm = std::ranges::any_of(termsToRemove, [&fileContent](const QString &term) {
-                return fileContent.contains(term, Qt::CaseInsensitive);
-            });
-
-            containsTerm ? it = list->erase(it) : ++it;
+            const bool keepItem = isVisibleInCurrentEnvironment(fileContent, live)
+                                  && isVisibleOnCurrentDesktop(fileContent, desktops);
+            keepItem ? ++it : it = list->erase(it);
         } else {
             qWarning() << "Could not open file:" << filePath;
             ++it;

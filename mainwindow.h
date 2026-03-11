@@ -115,7 +115,7 @@ private:
     [[nodiscard]] int calculateMaxElements(const CategoryToolsMap &infoMap);
     static void fixExecItem(QString *item);
     static void hideShowIcon(const QString &fileName, bool hide);
-    static void removeEnvExclusive(QStringList *list, const QStringList &termsToRemove);
+    static void removeEnvExclusive(QStringList *list, bool live, const QStringList &desktops);
     void addButtons(const CategoryToolsMap &infoMap);
     void addCategoryHeader(const QString &category, int &row, int max_columns);
     void addCategorySeparator(int &row, int max_columns);
