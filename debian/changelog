@@ -1,3 +1,9 @@
+mx-tools (26.03.1) mx; urgency=medium
+
+  * Display License in an internal Qt dialog
+
+ -- Adrian <adrian@mxlinux.org>  Thu, 19 Mar 2026 15:45:55 -0400
+
 mx-tools (26.01) mx; urgency=medium
 
   * Improve layout detection
