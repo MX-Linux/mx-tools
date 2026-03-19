@@ -22,6 +22,7 @@
 #include "about.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QDialog>
 #include <QFile>
 #include <QFileInfo>
@@ -35,22 +36,17 @@
 
 namespace
 {
-void showHtmlDoc(const QString &url, const QString &title)
+void setupDocDialog(QDialog &dialog, QTextBrowser *browser, const QString &title, bool largeWindow)
 {
-    QDialog dialog;
     dialog.setWindowTitle(title);
-    dialog.resize(700, 600);
-
-    auto *browser = new QTextBrowser(&dialog);
-    browser->setOpenExternalLinks(true);
-
-    const QUrl sourceUrl = QUrl::fromUserInput(url);
-    const QString localPath = sourceUrl.isLocalFile() ? sourceUrl.toLocalFile() : url;
-    if (sourceUrl.isLocalFile() ? QFileInfo::exists(localPath) : QFile::exists(url)) {
-        browser->setSource(sourceUrl.isLocalFile() ? sourceUrl : QUrl::fromLocalFile(url));
+    if (largeWindow) {
+        dialog.setWindowFlags(Qt::Window);
+        dialog.resize(1000, 800);
     } else {
-        browser->setText(QObject::tr("Could not load %1").arg(url));
+        dialog.resize(700, 600);
     }
+
+    browser->setOpenExternalLinks(true);
 
     auto *btnClose = new QPushButton(QObject::tr("&Close"), &dialog);
     btnClose->setIcon(QIcon::fromTheme("window-close"));
@@ -59,13 +55,34 @@ void showHtmlDoc(const QString &url, const QString &title)
     auto *layout = new QVBoxLayout(&dialog);
     layout->addWidget(browser);
     layout->addWidget(btnClose);
+}
+
+void showHtmlDoc(const QString &url, const QString &title, bool largeWindow)
+{
+    QDialog dialog;
+    auto *browser = new QTextBrowser(&dialog);
+    setupDocDialog(dialog, browser, title, largeWindow);
+
+    const QUrl sourceUrl = QUrl::fromUserInput(url);
+    const QString localPath = sourceUrl.isLocalFile() ? sourceUrl.toLocalFile() : url;
+    if (sourceUrl.isLocalFile() ? QFileInfo::exists(localPath) : QFileInfo::exists(url)) {
+        browser->setSource(sourceUrl.isLocalFile() ? sourceUrl : QUrl::fromLocalFile(url));
+    } else {
+        browser->setText(QObject::tr("Could not load %1").arg(url));
+        qDebug() << "Could not load HTML document" << url;
+    }
     dialog.exec();
 }
 } // namespace
 
-void displayDoc(const QString &url, const QString &title)
+void displayDoc(const QString &url, const QString &title, bool largeWindow)
 {
-    showHtmlDoc(url, title);
+    showHtmlDoc(url, title, largeWindow);
+}
+
+void displayHelpDoc(const QString &path, const QString &title)
+{
+    showHtmlDoc(path, title, true);
 }
 
 void displayAboutMsgBox(const QString &title, const QString &message, const QString &licence_url,

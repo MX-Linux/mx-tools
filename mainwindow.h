@@ -47,7 +47,7 @@ public:
     ~MainWindow() override;
 
 private slots:
-    static void pushHelp_clicked();
+    void pushHelp_clicked();
     void btn_clicked();
     void checkHide_clicked(bool checked);
     void pushAbout_clicked();
@@ -101,8 +101,7 @@ private:
     static constexpr auto HICOLOR_48_PATH = "/usr/share/icons/hicolor/48x48/apps/";
     static constexpr auto ADWAITA_PATH = "/usr/share/icons/Adwaita/48x48/legacy/";
     static constexpr auto MX_TOOLS_PATH = "/usr/bin/mx-tools";
-    static constexpr auto MX_MANUAL_PATH = "/usr/bin/mx-manual";
-    static constexpr auto FALLBACK_DOC_PATH = "/usr/local/share/doc/mxum.html#toc-Subsection-3.2";
+    static constexpr auto HELP_DOC_PATH = "/usr/share/mx-docs/mxum_en.pdf";
     static constexpr auto LICENSE_PATH = "/usr/share/doc/mx-tools/license.html";
     static constexpr auto DEFAULT_ICON_NAME = "utilities-terminal";
 

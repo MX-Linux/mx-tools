@@ -1,0 +1,41 @@
+body {
+    margin: 1.5rem auto;
+    max-width: 72rem;
+    padding: 0 1.25rem 2rem;
+    color: #1f2328;
+    background: #f7f7f5;
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+    color: #17324d;
+    line-height: 1.25;
+}
+
+a {
+    color: #005a9c;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+}
+
+p,
+li {
+    max-width: 68rem;
+}
+
+.footer {
+    margin-top: 2rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #c8d1da;
+    color: #57606a;
+    font-size: 0.95em;
+}

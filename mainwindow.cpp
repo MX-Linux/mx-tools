@@ -24,6 +24,7 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QFontMetrics>
+#include <QFileInfo>
 #include <QHash>
 #include <QLatin1String>
 #include <QProcess>
@@ -729,7 +730,6 @@ void MainWindow::hideShowIcon(const QString &fileName, bool hide)
 
 void MainWindow::pushAbout_clicked()
 {
-    hide();
     displayAboutMsgBox(
         tr("About MX Tools"),
         "<p align=\"center\"><b><h2>" + tr("MX Tools") + "</h2></b></p><p align=\"center\">" + tr("Version: ") + VERSION
@@ -738,21 +738,17 @@ void MainWindow::pushAbout_clicked()
               "<p align=\"center\">"
             + tr("Copyright (c) MX Linux") + "<br /><br /></p>",
         LICENSE_PATH, tr("%1 License").arg(windowTitle()));
-    show();
 }
 
 void MainWindow::pushHelp_clicked()
 {
-    if (QFile::exists(MX_MANUAL_PATH)) {
-        if (!QProcess::startDetached(MX_MANUAL_PATH, {})) {
-            qWarning() << "Failed to start mx-manual";
-            return;
-        }
-    } else { // for MX19?
-        if (!QProcess::startDetached("xdg-open", {QStringLiteral("file://") + FALLBACK_DOC_PATH})) {
-            qWarning() << "Failed to open fallback documentation";
-            return;
-        }
+    if (!QFileInfo::exists(HELP_DOC_PATH)) {
+        qWarning() << "Help document not found:" << HELP_DOC_PATH;
+        return;
+    }
+
+    if (!QProcess::startDetached("xdg-open", {HELP_DOC_PATH})) {
+        qWarning() << "Failed to open help PDF:" << HELP_DOC_PATH;
     }
 }
 
