@@ -32,6 +32,7 @@
 #include <QResizeEvent>
 #include <QScreen>
 #include <QSpacerItem>
+#include <QStorageInfo>
 #include <QTextStream>
 
 #include "about.h"
@@ -47,24 +48,7 @@ namespace
 {
 QString rootFileSystemType()
 {
-    QFile mountsFile(QStringLiteral("/proc/mounts"));
-    if (!mountsFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return {};
-    }
-
-    QTextStream stream(&mountsFile);
-    while (!stream.atEnd()) {
-        const QString line = stream.readLine();
-        const QStringList fields = line.split(QLatin1Char(' '), Qt::SkipEmptyParts);
-        if (fields.size() < 3) {
-            continue;
-        }
-        if (fields.at(1) == QLatin1String("/")) {
-            return fields.at(2);
-        }
-    }
-
-    return {};
+    return QStorageInfo(QStringLiteral("/")).fileSystemType();
 }
 
 bool isLiveEnvironment()
