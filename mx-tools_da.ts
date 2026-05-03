@@ -1,86 +1,86 @@
-<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="ko">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="da">
 <context>
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
         <location filename="../mainwindow.cpp" line="478"/>
         <source>MX Tools</source>
-        <translation>MX Tools</translation>
+        <translation>MX Værktøjer</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="53"/>
         <source>About this application</source>
-        <translation>이 애플리케이션 정보</translation>
+        <translation>Om programmet</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="56"/>
         <source>About...</source>
-        <translation>About...</translation>
+        <translation>Om...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="63"/>
         <source>Alt+B</source>
-        <translation>Alt+B</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="127"/>
         <source>Close application</source>
-        <translation type="unfinished"/>
+        <translation>Luk program</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="130"/>
         <source>Close</source>
-        <translation>닫기</translation>
+        <translation>Luk</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="137"/>
         <source>Alt+N</source>
-        <translation type="unfinished"/>
+        <translation>Alt+N</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="165"/>
         <source>Manual</source>
-        <translation>매뉴얼</translation>
+        <translation>Manual</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="274"/>
         <source>These MX applications save time and effort with important tasks.</source>
-        <translation type="unfinished"/>
+        <translation>MX-programmerne sparer tid og besvær med vigtige opgaver.</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="290"/>
         <source>Hide individual tools from the menu</source>
-        <translation type="unfinished"/>
+        <translation>Skjul enkelte værktøjer fra menuen</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="309"/>
         <source>search</source>
-        <translation>검색</translation>
+        <translation>søg</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="477"/>
         <source>About MX Tools</source>
-        <translation type="unfinished"/>
+        <translation>Om MX Værktøjer</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="478"/>
         <source>Version: </source>
-        <translation>버전:</translation>
+        <translation>Version: </translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="479"/>
         <source>Configuration Tools for MX Linux</source>
-        <translation type="unfinished"/>
+        <translation>Konfigurationsværktøjer til MX Linux</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="482"/>
         <source>Copyright (c) MX Linux</source>
-        <translation type="unfinished"/>
+        <translation>Ophavsret (c) MX Linux</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="483"/>
         <source>%1 License</source>
-        <translation>%1 라이센스</translation>
+        <translation>%1-licens</translation>
     </message>
 </context>
 <context>
@@ -88,23 +88,23 @@
     <message>
         <location filename="../about.cpp" line="61"/>
         <source>License</source>
-        <translation>라이센스</translation>
+        <translation>Licens</translation>
     </message>
     <message>
         <location filename="../about.cpp" line="62"/>
         <location filename="../about.cpp" line="72"/>
         <source>Changelog</source>
-        <translation>변경 로그</translation>
+        <translation>Ændringslog</translation>
     </message>
     <message>
         <location filename="../about.cpp" line="63"/>
         <source>Cancel</source>
-        <translation>취소</translation>
+        <translation>Annuller</translation>
     </message>
     <message>
         <location filename="../about.cpp" line="85"/>
         <source>&amp;Close</source>
-        <translation>닫기(&amp;C)</translation>
+        <translation>&amp;Luk</translation>
     </message>
 </context>
 </TS>
