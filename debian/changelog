@@ -1,6 +1,6 @@
-mx-tools (26.05) mx; urgency=medium
+mx-tools (26.05.1) mx; urgency=medium
 
-  * Fix boggus error for mx-snapshot
+  * Fix bogus error for mx-snapshot
   * Update translations
 
  -- Adrian <adrian@mxlinux.org>  Sat, 02 May 2026 22:15:53 -0400
