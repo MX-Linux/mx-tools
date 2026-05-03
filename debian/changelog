@@ -1,3 +1,10 @@
+mx-tools (26.05) mx; urgency=medium
+
+  * Fix boggus error for mx-snapshot
+  * Update translations
+
+ -- Adrian <adrian@mxlinux.org>  Sat, 02 May 2026 22:15:53 -0400
+
 mx-tools (26.03.2) mx; urgency=medium
 
   * Fix root system detection
