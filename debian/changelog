@@ -1,3 +1,9 @@
+mx-tools (26.05.2) mx; urgency=medium
+
+  * Delete removed grid widgets immediately: fix potential corruption
+
+ -- Adrian <adrian@mxlinux.org>  Tue, 12 May 2026 22:22:53 -0400
+
 mx-tools (26.05.1) mx; urgency=medium
 
   * Fix bogus error for mx-snapshot
