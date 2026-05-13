@@ -808,9 +808,7 @@ void MainWindow::clearGrid()
 
     QLayoutItem *child;
     while ((child = ui->gridLayout_btn->takeAt(0)) != nullptr) {
-        if (child->widget()) {
-            child->widget()->deleteLater();
-        }
+        delete child->widget();
         delete child;
     }
 }
