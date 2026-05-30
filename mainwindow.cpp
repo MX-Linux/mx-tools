@@ -297,10 +297,14 @@ void MainWindow::readInfo(const CategoryFileMap &categoryMap)
             QString name = lang != enLang ? getTranslation(text, nameKey, langRegion, lang) : QString();
             QString comment = lang != enLang ? getTranslation(text, commentKey, langRegion, lang) : QString();
 
-            name = name.isEmpty() ? getValueFromText(text, nameKey)
-                                        .remove(QRegularExpression(QStringLiteral("^MX ")))
-                                        .replace(QStringLiteral("&"), QStringLiteral("&&"))
-                                  : name;
+            if (name.isEmpty()) {
+                name = getValueFromText(text, nameKey);
+            }
+            // Apply display fixups to both translated and English names: drop the
+            // redundant "MX " prefix and escape "&" so it isn't treated as a button mnemonic.
+            static const QRegularExpression mxPrefixRegex(QStringLiteral("^MX "));
+            name = name.remove(mxPrefixRegex).replace(QStringLiteral("&"), QStringLiteral("&&"));
+
             comment = comment.isEmpty() ? getValueFromText(text, commentKey) : comment;
 
             QString exec = getValueFromText(text, execKey);
@@ -672,8 +676,13 @@ void MainWindow::hideShowIcon(const QString &fileName, bool hide)
     if (!hide) {
         QFile::remove(fileNameLocal);
     } else {
-        QFile::copy(fileName, fileNameLocal);
-        
+        // QFile::copy won't overwrite an existing destination, so clear it first.
+        QFile::remove(fileNameLocal);
+        if (!QFile::copy(fileName, fileNameLocal)) {
+            qWarning() << "Failed to copy file:" << fileName << "to" << fileNameLocal;
+            return;
+        }
+
         // Read and modify the file content using Qt APIs
         QFile localFile(fileNameLocal);
         if (!localFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -683,24 +692,32 @@ void MainWindow::hideShowIcon(const QString &fileName, bool hide)
 
         QTextStream in(&localFile);
         QStringList lines;
-        
+        bool noDisplayAdded = false;
+
         // Process each line
         while (!in.atEnd()) {
             QString line = in.readLine();
-            
+
             // Skip NoDisplay and Hidden lines
             if (line.startsWith(QLatin1String("NoDisplay=")) || line.startsWith(QLatin1String("Hidden="))) {
                 continue;
             }
-            
+
             lines << line;
 
-            // Add NoDisplay=true immediately after Exec line
-            if (line.startsWith(QLatin1String("Exec="))) {
+            // Add NoDisplay=true inside the main group, right after its header. This is more
+            // robust than keying off Exec= (which may be absent or appear in action groups).
+            if (!noDisplayAdded && line.startsWith(QLatin1String("[Desktop Entry]"))) {
                 lines << QLatin1String("NoDisplay=true");
+                noDisplayAdded = true;
             }
         }
         localFile.close();
+
+        // Fallback for files without a recognizable [Desktop Entry] header.
+        if (!noDisplayAdded) {
+            lines << QLatin1String("NoDisplay=true");
+        }
 
         // Write the modified content back
         if (!localFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
