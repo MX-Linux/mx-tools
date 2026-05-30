@@ -473,68 +473,38 @@ FlatButton *MainWindow::createButton(const ToolInfo &toolInfo)
     return btn;
 }
 
-QIcon MainWindow::findIcon(const QString &iconName)
+// Locate an icon by name without any default fallback. Returns nullopt if nothing matched.
+std::optional<QIcon> MainWindow::lookupIcon(const QString &iconName)
 {
-    static QHash<QString, QIcon> iconCache;
-    static QIcon defaultIcon;
-    static bool defaultIconLoaded = false;
-    static bool resolvingDefault = false;
-
-    if (iconName.isEmpty()) {
-        if (!defaultIconLoaded) {
-            resolvingDefault = true;
-            defaultIcon = findIcon(DEFAULT_ICON_NAME);
-            defaultIconLoaded = true;
-            resolvingDefault = false;
-        }
-        return defaultIcon;
-    }
-
-    // Check cache first
-    auto cacheIt = iconCache.find(iconName);
-    if (cacheIt != iconCache.end()) {
-        return *cacheIt;
-    }
-
-    // Check if the icon name is an absolute path and exists
+    // Absolute path to an existing file.
     if (QFileInfo(iconName).isAbsolute() && QFile::exists(iconName)) {
-        QIcon icon(iconName);
-        iconCache.insert(iconName, icon);
-        return icon;
+        return QIcon(iconName);
     }
 
-    // Prepare regular expression to strip extension
-    static const QRegularExpression re(R"(\.(png|svg|xpm)$)");
+    static const QRegularExpression extRe(R"(\.(png|svg|xpm)$)");
     QString nameNoExt = iconName;
-    nameNoExt.remove(re);
+    nameNoExt.remove(extRe);
 
-    // Return the themed icon if available
+    // Themed icon.
     if (QIcon::hasThemeIcon(nameNoExt)) {
-        QIcon icon = QIcon::fromTheme(nameNoExt);
-        iconCache.insert(iconName, icon);
-        return icon;
+        return QIcon::fromTheme(nameNoExt);
     }
 
-    // Define common search paths for icons
-    QStringList searchPaths {QDir::homePath() + HOME_SHARE_ICONS_PATH,
-                             PIXMAPS_PATH,
-                             LOCAL_SHARE_ICONS_PATH,
-                             SHARE_ICONS_PATH,
-                             HICOLOR_SCALABLE_PATH,
-                             HICOLOR_48_PATH,
-                             ADWAITA_PATH};
+    const QStringList searchPaths {QDir::homePath() + HOME_SHARE_ICONS_PATH,
+                                   PIXMAPS_PATH,
+                                   LOCAL_SHARE_ICONS_PATH,
+                                   SHARE_ICONS_PATH,
+                                   HICOLOR_SCALABLE_PATH,
+                                   HICOLOR_48_PATH,
+                                   ADWAITA_PATH};
 
-    // Optimization: search first for the full iconName with the specified extension
-    auto it = std::ranges::find_if(searchPaths, [&](const QString &path) {
-        return QFile::exists(path + iconName);
-    });
+    // First try the full iconName (with its extension, if any) under each path.
+    auto it = std::ranges::find_if(searchPaths, [&](const QString &path) { return QFile::exists(path + iconName); });
     if (it != searchPaths.cend()) {
-        QIcon icon(*it + iconName);
-        iconCache.insert(iconName, icon);
-        return icon;
+        return QIcon(*it + iconName);
     }
 
-    // Search for the icon without extension in the specified paths
+    // Then try the extensionless name with each known extension.
     for (const QString &path : searchPaths) {
         if (!QFile::exists(path)) {
             continue;
@@ -542,38 +512,37 @@ QIcon MainWindow::findIcon(const QString &iconName)
         for (const auto &ext : {QStringLiteral(".png"), QStringLiteral(".svg"), QStringLiteral(".xpm")}) {
             const QString file = path + nameNoExt + ext;
             if (QFile::exists(file)) {
-                QIcon icon(file);
-                iconCache.insert(iconName, icon);
-                return icon;
+                return QIcon(file);
             }
         }
     }
 
-    // If the icon is "utilities-terminal" and not found, return the default icon if it's already loaded
-    if (iconName == DEFAULT_ICON_NAME) {
-        if (!defaultIconLoaded) {
-            defaultIcon = QIcon();
-            defaultIconLoaded = true;
-        }
-        iconCache.insert(iconName, defaultIcon);
-        return defaultIcon;
+    return std::nullopt;
+}
+
+// The shared fallback icon, resolved once. Empty QIcon if even the default cannot be found.
+QIcon MainWindow::defaultIcon()
+{
+    static const QIcon icon = lookupIcon(DEFAULT_ICON_NAME).value_or(QIcon());
+    return icon;
+}
+
+QIcon MainWindow::findIcon(const QString &iconName)
+{
+    static QHash<QString, QIcon> iconCache;
+
+    if (iconName.isEmpty()) {
+        return defaultIcon();
     }
 
-    // If the icon is not "utilities-terminal", try to load the default icon
-    if (!defaultIconLoaded) {
-        if (!resolvingDefault) {
-            resolvingDefault = true;
-            defaultIcon = findIcon(DEFAULT_ICON_NAME);
-            defaultIconLoaded = true;
-            resolvingDefault = false;
-        } else {
-            defaultIcon = QIcon();
-            defaultIconLoaded = true;
-        }
+    auto cacheIt = iconCache.find(iconName);
+    if (cacheIt != iconCache.end()) {
+        return *cacheIt;
     }
 
-    iconCache.insert(iconName, defaultIcon);
-    return defaultIcon;
+    const QIcon icon = lookupIcon(iconName).value_or(defaultIcon());
+    iconCache.insert(iconName, icon);
+    return icon;
 }
 
 void MainWindow::btn_clicked()

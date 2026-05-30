@@ -27,8 +27,11 @@
 #include <QMap>
 #include <QResizeEvent>
 #include <QSettings>
+#include <QIcon>
 #include <QStringList>
 #include <QVector>
+
+#include <optional>
 
 #include "flatbutton.h"
 
@@ -111,6 +114,8 @@ private:
                                          const QString &lang);
     [[nodiscard]] QString getValueFromText(const QString &text, const QString &key);
     [[nodiscard]] QIcon findIcon(const QString &iconName);
+    [[nodiscard]] static std::optional<QIcon> lookupIcon(const QString &iconName);
+    [[nodiscard]] static QIcon defaultIcon();
     [[nodiscard]] QStringList listDesktopFiles(const QString &category, const QString &location);
     [[nodiscard]] int columnsForWidth() const;
     void updateLayoutMetrics();
