@@ -21,11 +21,7 @@
  **********************************************************************/
 #pragma once
 
-#include <QEnterEvent>
-#include <QEvent>
 #include <QPushButton>
-
-class QEvent;
 
 class FlatButton : public QPushButton
 {
@@ -35,8 +31,4 @@ public:
     explicit FlatButton(const QString &name, QWidget *parent = nullptr);
     void setIconSize(int, int);
     void setIconSize(QSize);
-
-protected:
-    void enterEvent(QEnterEvent *e) override;
-    void leaveEvent(QEvent *e) override;
 };

@@ -24,36 +24,24 @@
 
 namespace
 {
-// Qt Style Sheet rules are concatenated with whitespace (no separator between rule blocks).
-const QString normalStyle = QStringLiteral("QPushButton { text-align: left; text-decoration: none; }");
-const QString hoverStyle = QStringLiteral(
-    "QPushButton { text-align: left; text-decoration: underline; } QToolTip { text-decoration: none; }");
+// Underline-on-hover handled declaratively via the :hover pseudo-state so it needs no
+// enter/leave event overrides. Qt Style Sheet rules are concatenated with whitespace.
+const QString buttonStyle = QStringLiteral("QPushButton { text-align: left; text-decoration: none; } "
+                                           "QPushButton:hover { text-decoration: underline; }");
 } // namespace
 
 FlatButton::FlatButton(QWidget *parent)
     : QPushButton(parent)
 {
     setFlat(true);
-    setStyleSheet(normalStyle);
+    setStyleSheet(buttonStyle);
 }
 
 FlatButton::FlatButton(const QString &name, QWidget *parent)
     : QPushButton(name, parent)
 {
     setFlat(true);
-    setStyleSheet(normalStyle);
-}
-
-void FlatButton::leaveEvent(QEvent *e)
-{
-    setStyleSheet(normalStyle);
-    QPushButton::leaveEvent(e);
-}
-
-void FlatButton::enterEvent(QEnterEvent *e)
-{
-    setStyleSheet(hoverStyle);
-    QPushButton::enterEvent(e);
+    setStyleSheet(buttonStyle);
 }
 
 void FlatButton::setIconSize(int x, int y)
