@@ -78,6 +78,7 @@ private:
     Ui::MainWindow *ui;
     CategoryToolsMap info_map;
     CategoryFileMap category_map;
+    CategoryFileMap menu_category_map;
     QSettings settings;
     QStringList live_list;
     QStringList maintenance_list;
@@ -130,7 +131,7 @@ private:
     void filterDesktopEnvironmentItems();
     void filterLiveEnvironmentItems();
     void initializeCategoryLists();
-    void populateCategoryMap();
+    void populateCategoryMap(CategoryFileMap *categoryMap);
     void readInfo(const CategoryFileMap &categoryMap);
     void restoreWindowGeometry();
     void setConnections();

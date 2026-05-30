@@ -123,9 +123,10 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowFlags(Qt::Window); // Enables the close, min, and max buttons
     checkHideToolsInMenu();
     initializeCategoryLists();
+    populateCategoryMap(&menu_category_map);
     filterLiveEnvironmentItems();
     filterDesktopEnvironmentItems();
-    populateCategoryMap();
+    populateCategoryMap(&category_map);
     readInfo(category_map);
     iconSize = settings.value("icon_size", iconSize).toInt();
     updateLayoutMetrics();
@@ -195,10 +196,11 @@ void MainWindow::filterDesktopEnvironmentItems()
     }
 }
 
-void MainWindow::populateCategoryMap()
+void MainWindow::populateCategoryMap(CategoryFileMap *categoryMap)
 {
+    categoryMap->clear();
     for (auto it = categories.cbegin(); it != categories.cend(); ++it) {
-        category_map.insert(it.key(), *(it.value()));
+        categoryMap->insert(it.key(), *(it.value()));
     }
 }
 
@@ -637,11 +639,16 @@ void MainWindow::changeEvent(QEvent *event)
 // Hide icons in menu checkbox
 void MainWindow::checkHide_clicked(bool checked)
 {
-    for (const QStringList &list : std::as_const(category_map)) {
-        for (const QString &fileName : std::as_const(list)) {
-            hideShowIcon(fileName, checked);
-        }
+    QStringList menuFiles;
+    for (const QStringList &list : std::as_const(menu_category_map)) {
+        menuFiles.append(list);
     }
+    menuFiles.removeDuplicates();
+
+    for (const QString &fileName : std::as_const(menuFiles)) {
+        hideShowIcon(fileName, checked);
+    }
+
     QProcess process;
     process.start("pgrep", {"xfce4-panel"});
     process.waitForFinished();
