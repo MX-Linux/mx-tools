@@ -54,6 +54,7 @@ private slots:
     void textSearch_textChanged(const QString &arg1);
 
 protected:
+    void changeEvent(QEvent *event) override;
     void closeEvent(QCloseEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
@@ -111,7 +112,8 @@ private:
     [[nodiscard]] QString getValueFromText(const QString &text, const QString &key);
     [[nodiscard]] QIcon findIcon(const QString &iconName);
     [[nodiscard]] QStringList listDesktopFiles(const QString &category, const QString &location);
-    [[nodiscard]] int calculateMaxElements(const CategoryToolsMap &infoMap);
+    [[nodiscard]] int columnsForWidth() const;
+    void updateLayoutMetrics();
     static void fixExecItem(QString *item);
     static void hideShowIcon(const QString &fileName, bool hide);
     static void removeEnvExclusive(QStringList *list, bool live, const QStringList &desktops);

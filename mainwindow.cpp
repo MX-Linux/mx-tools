@@ -128,6 +128,7 @@ MainWindow::MainWindow(QWidget *parent)
     populateCategoryMap();
     readInfo(category_map);
     iconSize = settings.value("icon_size", iconSize).toInt();
+    updateLayoutMetrics();
     addButtons(info_map);
     ui->textSearch->setFocus();
     restoreWindowGeometry();
@@ -244,32 +245,32 @@ QStringList MainWindow::listDesktopFiles(const QString &category, const QString 
     return matchingFiles;
 }
 
-int MainWindow::calculateMaxElements(const CategoryToolsMap &infoMap)
+// Recompute layout metrics derived from the full info_map: the largest category size
+// (maxElements) and the widest button (cachedMaxButtonWidth). These only change when
+// info_map or the application font changes, so this is called at init and on font change
+// rather than on every relayout.
+void MainWindow::updateLayoutMetrics()
 {
+    constexpr int buttonPadding = 16;   // left/right padding inside button
+    constexpr int iconTextSpacing = 8;  // gap between icon and text
+
     maxElements = 0;
-    // Find maximum number of elements across all categories
-    for (const auto &categoryTools : infoMap) {
+    int widestText = 0;
+    const QFontMetrics fm(QApplication::font());
+    for (const auto &categoryTools : std::as_const(info_map)) {
         maxElements = std::max(maxElements, static_cast<int>(categoryTools.size()));
-    }
-
-    // Only recalculate button width if not cached (expensive operation)
-    if (cachedMaxButtonWidth == 0) {
-        const QFontMetrics fm(QApplication::font());
-        constexpr int buttonPadding = 16; // Left/right padding inside button
-
-        // Check ALL categories for the widest button text
-        for (const auto &categoryTools : infoMap) {
-            for (const auto &toolInfo : categoryTools) {
-                const int textWidth = fm.horizontalAdvance(toolInfo.name);
-                cachedMaxButtonWidth = std::max(cachedMaxButtonWidth, textWidth);
-            }
+        for (const auto &toolInfo : categoryTools) {
+            widestText = std::max(widestText, fm.horizontalAdvance(toolInfo.name));
         }
-        // Add icon size, spacing between icon and text, and button padding
-        cachedMaxButtonWidth += iconSize + 8 + buttonPadding;
     }
+    cachedMaxButtonWidth = widestText + iconSize + iconTextSpacing + buttonPadding;
+}
 
-    // Calculate maximum columns that fit in window width
-    return std::max(1, width() / cachedMaxButtonWidth);
+// Number of button columns that fit in the current window width.
+int MainWindow::columnsForWidth() const
+{
+    const int buttonWidth = cachedMaxButtonWidth > 0 ? cachedMaxButtonWidth : 200;
+    return std::max(1, width() / buttonWidth);
 }
 
 // Load info (name, comment, exec, iconName, category, terminal) to the info_map
@@ -389,7 +390,7 @@ void MainWindow::addButtons(const CategoryToolsMap &infoMap)
 {
     clearGrid();
 
-    const int max_columns = calculateMaxElements(infoMap);
+    const int max_columns = columnsForWidth();
     int row = 0;
     int actualMaxCol = 0;
     bool addedWidgets = false;
@@ -631,27 +632,37 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         return;
     }
 
-    // Fast column calculation using cached button width (avoids full recalculation)
-    const int effectiveWidth = cachedMaxButtonWidth > 0 ? cachedMaxButtonWidth : 200;
-    const int newColCount = std::max(1, width() / effectiveWidth);
+    const int newColCount = columnsForWidth();
 
-    // Early exit: column count unchanged or already at max elements
-    if (newColCount == colCount || (newColCount >= maxElements && colCount == maxElements)) {
+    // Early exit: column count unchanged, or already wide enough to fit the largest
+    // category so extra width cannot add columns. maxElements always reflects the full
+    // info_map (set in updateLayoutMetrics), so this stays correct during an active search.
+    if (newColCount == colCount || (newColCount >= maxElements && colCount >= maxElements)) {
         return;
     }
-
-    // Full recalculation to get exact column count (updates maxElements too)
-    const int exactColCount = calculateMaxElements(info_map);
-    if (colCount == exactColCount) {
-        return;
-    }
-    colCount = exactColCount;
+    colCount = newColCount;
 
     if (ui->textSearch->text().isEmpty()) {
         addButtons(info_map);
     } else {
         textSearch_textChanged(ui->textSearch->text());
     }
+}
+
+void MainWindow::changeEvent(QEvent *event)
+{
+    // Button widths depend on the application font, so recompute metrics and relayout.
+    if (event->type() == QEvent::FontChange) {
+        updateLayoutMetrics();
+        colCount = 0; // force addButtons to relayout
+        const QString search = ui->textSearch->text();
+        if (search.isEmpty()) {
+            addButtons(info_map);
+        } else {
+            textSearch_textChanged(search);
+        }
+    }
+    QDialog::changeEvent(event);
 }
 
 // Hide icons in menu checkbox
