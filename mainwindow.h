@@ -110,7 +110,7 @@ private:
                                          const QString &lang);
     [[nodiscard]] QString getValueFromText(const QString &text, const QString &key);
     [[nodiscard]] QIcon findIcon(const QString &iconName);
-    [[nodiscard]] QStringList listDesktopFiles(const QString &searchString, const QString &location);
+    [[nodiscard]] QStringList listDesktopFiles(const QString &category, const QString &location);
     [[nodiscard]] int calculateMaxElements(const CategoryToolsMap &infoMap);
     static void fixExecItem(QString *item);
     static void hideShowIcon(const QString &fileName, bool hide);

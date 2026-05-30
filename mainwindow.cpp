@@ -212,8 +212,8 @@ void MainWindow::restoreWindowGeometry()
     }
 }
 
-// List .desktop files that contain a specific string
-QStringList MainWindow::listDesktopFiles(const QString &searchString, const QString &location)
+// List .desktop files whose Categories= line contains the given category token.
+QStringList MainWindow::listDesktopFiles(const QString &category, const QString &location)
 {
     QDirIterator it(location, {"*.desktop"}, QDir::Files, QDirIterator::Subdirectories);
     QStringList matchingFiles;
@@ -227,10 +227,18 @@ QStringList MainWindow::listDesktopFiles(const QString &searchString, const QStr
 
         QTextStream stream(&file);
         while (!stream.atEnd()) {
-            if (stream.readLine().contains(searchString)) {
-                matchingFiles << filePath;
-                break;
+            const QString line = stream.readLine();
+            if (!line.startsWith(QLatin1String("Categories="))) {
+                continue;
             }
+            // Match the category as an exact ;-separated token, not a loose substring,
+            // so it can only come from Categories= and won't partial-match other tokens.
+            const QStringList categories =
+                line.mid(line.indexOf(QLatin1Char('=')) + 1).split(QLatin1Char(';'), Qt::SkipEmptyParts);
+            if (categories.contains(category)) {
+                matchingFiles << filePath;
+            }
+            break; // only one Categories line per desktop file
         }
     }
     return matchingFiles;
