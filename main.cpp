@@ -28,6 +28,10 @@
 
 #include "mainwindow.h"
 
+#ifndef VERSION
+    #define VERSION "?.?.?.?"
+#endif
+
 int main(int argc, char *argv[])
 {
     // Set Qt platform to XCB (X11) if not already set and we're in X11 environment
@@ -38,12 +42,14 @@ int main(int argc, char *argv[])
     }
 
     QApplication app(argc, argv);
-    QApplication::setWindowIcon(QIcon::fromTheme(QApplication::applicationName()));
     QApplication::setOrganizationName("MX-Linux");
+    QApplication::setApplicationName(QStringLiteral("mx-tools"));
+    QApplication::setApplicationVersion(QStringLiteral(VERSION));
+    QApplication::setWindowIcon(QIcon::fromTheme(QApplication::applicationName()));
 
     QTranslator qtTran;
     if (qtTran.load("qt_" + QLocale::system().name(), QLibraryInfo::path(QLibraryInfo::TranslationsPath))) {
-        QCoreApplication::installTranslator(&qtTran);
+        QApplication::installTranslator(&qtTran);
     }
 
     QTranslator qtBaseTran;

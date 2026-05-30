@@ -44,11 +44,6 @@ FlatButton::FlatButton(const QString &name, QWidget *parent)
     setStyleSheet(buttonStyle);
 }
 
-void FlatButton::setIconSize(int x, int y)
-{
-    QPushButton::setIconSize(QSize(x, y));
-}
-
 void FlatButton::setIconSize(QSize size)
 {
     QPushButton::setIconSize(size);

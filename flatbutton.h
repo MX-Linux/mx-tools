@@ -29,6 +29,5 @@ class FlatButton : public QPushButton
 public:
     explicit FlatButton(QWidget *parent = nullptr);
     explicit FlatButton(const QString &name, QWidget *parent = nullptr);
-    void setIconSize(int, int);
     void setIconSize(QSize);
 };
