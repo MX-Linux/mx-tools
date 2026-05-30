@@ -22,33 +22,37 @@
 
 #include "flatbutton.h"
 
+namespace
+{
+// Qt Style Sheet rules are concatenated with whitespace (no separator between rule blocks).
+const QString normalStyle = QStringLiteral("QPushButton { text-align: left; text-decoration: none; }");
+const QString hoverStyle = QStringLiteral(
+    "QPushButton { text-align: left; text-decoration: underline; } QToolTip { text-decoration: none; }");
+} // namespace
+
 FlatButton::FlatButton(QWidget *parent)
     : QPushButton(parent)
 {
     setFlat(true);
-    static const QString defaultStyle = QStringLiteral("text-align:left");
-    setStyleSheet(defaultStyle);
+    setStyleSheet(normalStyle);
 }
 
 FlatButton::FlatButton(const QString &name, QWidget *parent)
     : QPushButton(name, parent)
 {
     setFlat(true);
-    static const QString namedStyle = QStringLiteral("text-align:left");
-    setStyleSheet(namedStyle);
+    setStyleSheet(normalStyle);
 }
 
 void FlatButton::leaveEvent(QEvent *e)
 {
-    static const QString leaveStyle = QStringLiteral("text-align:left; text-decoration:none");
-    setStyleSheet(leaveStyle);
+    setStyleSheet(normalStyle);
     QPushButton::leaveEvent(e);
 }
 
 void FlatButton::enterEvent(QEnterEvent *e)
 {
-    static const QString enterStyle = QStringLiteral("QPushButton { text-align:left; text-decoration:underline}; QToolTip { text-decoration: none; }");
-    setStyleSheet(enterStyle);
+    setStyleSheet(hoverStyle);
     QPushButton::enterEvent(e);
 }
 
