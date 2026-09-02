@@ -16,6 +16,7 @@
 #include <QProcess>
 #include <QRegularExpression>
 #include <QSaveFile>
+#include <QSet>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QStorageInfo>
@@ -153,6 +154,134 @@ bool writeFileAtomically(const QString &path, const QByteArray &content)
         return false;
     }
     return file.commit();
+}
+
+constexpr auto xfconfPanelChannel = QLatin1String("xfce4-panel");
+constexpr auto whiskerMenuFavoritesProperty = QLatin1String("favorites");
+
+bool xfconfQueryAvailable()
+{
+    static const bool available = !QStandardPaths::findExecutable(QStringLiteral("xfconf-query")).isEmpty();
+    return available;
+}
+
+struct XfconfResult {
+    bool success = false;
+    int exitCode = -1;
+    QString output;
+};
+
+XfconfResult runXfconfQuery(const QStringList &arguments)
+{
+    QProcess process;
+    process.start(QStringLiteral("xfconf-query"), arguments);
+    if (!process.waitForFinished(3000)) {
+        process.kill();
+        process.waitForFinished();
+        return {};
+    }
+    XfconfResult result;
+    result.exitCode = process.exitCode();
+    result.success = process.exitStatus() == QProcess::NormalExit;
+    result.output = QString::fromUtf8(process.readAllStandardOutput() + process.readAllStandardError());
+    return result;
+}
+
+QList<int> discoverWhiskerMenuInstances()
+{
+    const XfconfResult listResult = runXfconfQuery({QStringLiteral("-c"), xfconfPanelChannel,
+                                                     QStringLiteral("-p"), QStringLiteral("/plugins"),
+                                                     QStringLiteral("-l")});
+    if (!listResult.success || listResult.exitCode != 0) {
+        return {};
+    }
+    static const QRegularExpression instancePattern(QStringLiteral(R"(^/plugins/plugin-(\d+)$)"));
+    QList<int> instances;
+    for (const QString &line : listResult.output.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
+        const QRegularExpressionMatch match = instancePattern.match(line.trimmed());
+        if (!match.hasMatch()) {
+            continue;
+        }
+        const int instance = match.captured(1).toInt();
+        const XfconfResult typeResult = runXfconfQuery(
+            {QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"),
+             QStringLiteral("/plugins/plugin-%1").arg(instance)});
+        if (typeResult.success && typeResult.exitCode == 0
+            && typeResult.output.trimmed() == QStringLiteral("whiskermenu")) {
+            instances.append(instance);
+        }
+    }
+    return instances;
+}
+
+std::optional<QStringList> readXfconfArray(int instance, const QString &property)
+{
+    const QString propertyPath = QStringLiteral("/plugins/plugin-%1/%2").arg(instance).arg(property);
+    const XfconfResult result = runXfconfQuery(
+        {QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"), propertyPath});
+    if (!result.success) {
+        return std::nullopt;
+    }
+    if (result.exitCode != 0) {
+        if (result.output.contains(QStringLiteral("does not exist"))) {
+            return QStringList {};
+        }
+        return std::nullopt;
+    }
+    const QStringList lines = result.output.split(QLatin1Char('\n'));
+    const auto headerIt = std::ranges::find_if(
+        lines, [](const QString &line) { return line.startsWith(QStringLiteral("Value is an array")); });
+    if (headerIt == lines.cend()) {
+        return std::nullopt;
+    }
+    QStringList items;
+    for (auto it = std::next(headerIt); it != lines.cend(); ++it) {
+        if (!it->isEmpty()) {
+            items.append(*it);
+        }
+    }
+    return items;
+}
+
+bool writeXfconfArray(int instance, const QString &property, const QStringList &values)
+{
+    const QString propertyPath = QStringLiteral("/plugins/plugin-%1/%2").arg(instance).arg(property);
+
+    runXfconfQuery({QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"), propertyPath,
+                    QStringLiteral("-r")});
+
+    if (values.isEmpty()) {
+        return true;
+    }
+    QStringList arguments {QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"),
+                           propertyPath, QStringLiteral("-n")};
+    for (const QString &value : values) {
+        arguments << QStringLiteral("-t") << QStringLiteral("string") << QStringLiteral("-s") << value;
+    }
+    const XfconfResult result = runXfconfQuery(arguments);
+    return result.success && result.exitCode == 0;
+}
+
+void reconcileOneWhiskerMenuArray(int instance, const QString &property, const QStringList &before,
+                                  const QSet<QString> &ourDesktopIds)
+{
+    const std::optional<QStringList> currentOpt = readXfconfArray(instance, property);
+    if (!currentOpt) {
+        return;
+    }
+    QStringList current = *currentOpt;
+    bool changed = false;
+    for (int index = 0; index < before.size(); ++index) {
+        const QString &id = before.at(index);
+        if (!ourDesktopIds.contains(id) || current.contains(id)) {
+            continue;
+        }
+        current.insert(std::min(index, static_cast<int>(current.size())), id);
+        changed = true;
+    }
+    if (changed) {
+        writeXfconfArray(instance, property, current);
+    }
 }
 }
 
@@ -572,6 +701,7 @@ bool ToolModel::hideMenuEntries()
     QSettings state(statePath, QSettings::IniFormat);
     state.clear();
     state.setValue(QStringLiteral("active"), true);
+    snapshotWhiskerMenuFavorites(state);
     state.beginGroup(QStringLiteral("Entries"));
     bool success = true;
     for (const QString &fileName : std::as_const(m_menuFiles)) {
@@ -655,6 +785,7 @@ bool ToolModel::restoreMenuEntries()
     }
     state.endGroup();
     if (success) {
+        reconcileWhiskerMenuFavorites(state);
         state.clear();
         state.sync();
         success = state.status() == QSettings::NoError;
@@ -679,4 +810,68 @@ bool ToolModel::restoreLegacyMenuEntries()
         emit errorOccurred(tr("Menu setting failed"), tr("Could not update %1.").arg(directory.absolutePath()));
     }
     return success;
+}
+
+void ToolModel::snapshotWhiskerMenuFavorites(QSettings &state)
+{
+    if (!xfconfQueryAvailable()) {
+        return;
+    }
+    const QList<int> instances = discoverWhiskerMenuInstances();
+    if (instances.isEmpty()) {
+        return;
+    }
+    QStringList instanceStrings;
+    for (int instance : instances) {
+        instanceStrings.append(QString::number(instance));
+    }
+
+    state.beginGroup(QStringLiteral("WhiskerMenu"));
+    state.setValue(QStringLiteral("instances"), instanceStrings);
+    for (int instance : instances) {
+        state.beginGroup(QString::number(instance));
+        state.setValue(QStringLiteral("favorites"),
+                       readXfconfArray(instance, whiskerMenuFavoritesProperty).value_or(QStringList {}));
+        state.endGroup();
+    }
+    state.endGroup();
+}
+
+void ToolModel::reconcileWhiskerMenuFavorites(QSettings &state)
+{
+    if (!xfconfQueryAvailable()) {
+        return;
+    }
+    state.beginGroup(QStringLiteral("WhiskerMenu"));
+    const QStringList instanceStrings = state.value(QStringLiteral("instances")).toStringList();
+    state.endGroup();
+    if (instanceStrings.isEmpty()) {
+        return;
+    }
+
+    QSet<QString> ourDesktopIds;
+    for (const QString &fileName : std::as_const(m_menuFiles)) {
+        ourDesktopIds.insert(QFileInfo(fileName).fileName());
+    }
+
+    for (const QString &instanceString : instanceStrings) {
+        state.beginGroup(QStringLiteral("WhiskerMenu"));
+        state.beginGroup(instanceString);
+        const QStringList beforeFavorites = state.value(QStringLiteral("favorites")).toStringList();
+        state.endGroup();
+        state.endGroup();
+
+        const int instance = instanceString.toInt();
+
+        const XfconfResult typeCheck = runXfconfQuery(
+            {QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"),
+             QStringLiteral("/plugins/plugin-%1").arg(instance)});
+        if (!typeCheck.success || typeCheck.exitCode != 0
+            || typeCheck.output.trimmed() != QStringLiteral("whiskermenu")) {
+            continue;
+        }
+
+        reconcileOneWhiskerMenuArray(instance, whiskerMenuFavoritesProperty, beforeFavorites,
+                                     ourDesktopIds);
+    }
 }

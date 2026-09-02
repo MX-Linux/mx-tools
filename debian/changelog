@@ -5,6 +5,8 @@ mx-tools (26.08) mx; urgency=medium
   * Add direct access to the MX Linux manual, website, license, and
     application changelog
   * Add a manual page describing how to launch MX Tools
+  * Preserve Whisker Menu favorites when tools are hidden and later
+    restored from the menu
 
  -- Adrian <adrian@mxlinux.org>  Sat, 29 Aug 2026 19:04:24 -0400
 

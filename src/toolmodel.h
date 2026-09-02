@@ -13,6 +13,8 @@
 
 #include <optional>
 
+class QSettings;
+
 class ToolIconProvider final : public QQuickImageProvider
 {
 public:
@@ -101,6 +103,8 @@ private:
     [[nodiscard]] bool hideMenuEntries();
     [[nodiscard]] bool restoreMenuEntries();
     [[nodiscard]] bool restoreLegacyMenuEntries();
+    void snapshotWhiskerMenuFavorites(QSettings &state);
+    void reconcileWhiskerMenuFavorites(QSettings &state);
     [[nodiscard]] static QString value(const QString &text, const QString &key);
     [[nodiscard]] static QString translatedValue(const QString &text, const QString &key);
     [[nodiscard]] static QStringList desktopFilesForCategory(const QStringList &tokens);
