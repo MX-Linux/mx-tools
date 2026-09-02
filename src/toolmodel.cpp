@@ -405,13 +405,6 @@ void ToolModel::setHideFromMenu(bool hide)
     m_hideFromMenu = hide;
     m_legacyMenuState = false;
     emit hideFromMenuChanged();
-
-    QProcess panelCheck;
-    panelCheck.start(QStringLiteral("pgrep"), {QStringLiteral("xfce4-panel")});
-    panelCheck.waitForFinished();
-    if (panelCheck.exitCode() == 0) {
-        QProcess::startDetached(QStringLiteral("xfce4-panel"), {QStringLiteral("--restart")});
-    }
 }
 
 void ToolModel::loadTools()

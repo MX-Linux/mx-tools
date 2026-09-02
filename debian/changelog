@@ -7,6 +7,8 @@ mx-tools (26.08) mx; urgency=medium
   * Add a manual page describing how to launch MX Tools
   * Preserve Whisker Menu favorites when tools are hidden and later
     restored from the menu
+  * Stop needlessly restarting the panel when hiding or restoring menu
+    entries
 
  -- Adrian <adrian@mxlinux.org>  Sat, 29 Aug 2026 19:04:24 -0400
 
