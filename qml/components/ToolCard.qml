@@ -24,6 +24,9 @@ Button {
     Accessible.name: toolName
     Accessible.description: description
 
+    Keys.onReturnPressed: control.clicked()
+    Keys.onEnterPressed: control.clicked()
+
     scale: down ? 0.985 : 1
     Behavior on scale { NumberAnimation { duration: 90 } }
 

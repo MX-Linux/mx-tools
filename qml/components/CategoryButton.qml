@@ -17,6 +17,9 @@ Button {
     hoverEnabled: true
     Accessible.name: text
 
+    Keys.onReturnPressed: control.clicked()
+    Keys.onEnterPressed: control.clicked()
+
     contentItem: Text {
         text: control.text
         color: control.selected ? control.accentColor : control.mutedTextColor
