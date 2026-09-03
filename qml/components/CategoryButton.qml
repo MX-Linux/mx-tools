@@ -31,16 +31,5 @@ Button {
         color: control.selected ? control.hoverColor : (control.hovered ? Qt.alpha(control.hoverColor, 0.7) : "transparent")
         border.width: control.activeFocus ? 2 : 0
         border.color: control.accentColor
-
-        Rectangle {
-            visible: control.selected
-            width: 3
-            height: 20
-            radius: 2
-            color: control.accentColor
-            anchors.left: parent.left
-            anchors.leftMargin: 4
-            anchors.verticalCenter: parent.verticalCenter
-        }
     }
 }
