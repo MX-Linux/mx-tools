@@ -8,6 +8,7 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QQmlApplicationEngine>
+#include <QQuickStyle>
 #include <QTranslator>
 #include <QUrl>
 #include <QtGlobal>
@@ -55,6 +56,15 @@ int main(int argc, char *argv[])
     if (appTranslator.load(QApplication::applicationName() + QLatin1Char('_') + QLocale::system().name(),
                            QStringLiteral("/usr/share/mx-tools/locale"))) {
         QApplication::installTranslator(&appTranslator);
+    }
+
+    if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")
+        && qgetenv("QT_STYLE_OVERRIDE").toLower() == "gtk2") {
+        // QT_STYLE_OVERRIDE=gtk2 is a widget-only style name with no corresponding Qt Quick
+        // Controls style module. Left alone, the platform theme's style hint propagates it to
+        // Quick Controls, which then fails to load. Only override in that specific case, so
+        // other environments still get native platform styling.
+        QQuickStyle::setStyle(QStringLiteral("Fusion"));
     }
 
     auto *iconProvider = new ToolIconProvider;
