@@ -146,6 +146,8 @@ ApplicationWindow {
                     Accessible.name: qsTr("Clear search")
                     onClicked: searchField.clear()
                     background: Item {}
+
+                    HoverHandler { cursorShape: Qt.PointingHandCursor }
                 }
             }
 

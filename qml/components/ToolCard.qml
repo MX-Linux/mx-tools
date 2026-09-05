@@ -27,6 +27,8 @@ Button {
     Keys.onReturnPressed: control.clicked()
     Keys.onEnterPressed: control.clicked()
 
+    HoverHandler { cursorShape: Qt.PointingHandCursor }
+
     scale: down ? 0.985 : 1
     Behavior on scale { NumberAnimation { duration: 90 } }
 

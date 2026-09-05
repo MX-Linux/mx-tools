@@ -20,6 +20,8 @@ Button {
     Keys.onReturnPressed: control.clicked()
     Keys.onEnterPressed: control.clicked()
 
+    HoverHandler { cursorShape: Qt.PointingHandCursor }
+
     contentItem: Text {
         text: control.text
         color: control.selected ? control.accentColor : control.mutedTextColor
