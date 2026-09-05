@@ -98,14 +98,6 @@ Button {
                 font.letterSpacing: 0.7
             }
         }
-
-        Text {
-            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-            text: "›"
-            color: control.hovered ? control.accentColor : control.secondaryTextColor
-            font.pixelSize: control.font.pixelSize + 12
-            font.weight: Font.Light
-        }
     }
 
     ThemeToolTip {
