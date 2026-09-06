@@ -237,14 +237,14 @@ ApplicationWindow {
                     Text {
                         id: sidebarMenuVisibilityLabel
                         Layout.fillWidth: true
-                        text: qsTr("Show tools only in MX Tools.")
+                        text: qsTr("Hide those tools from the system menu")
                         color: root.secondaryTextColor
                         font.pixelSize: Math.max(10, root.baseFontSize - 1)
                         wrapMode: Text.Wrap
                         HoverHandler { id: sidebarMenuVisibilityLabelHover }
                         ThemeToolTip {
                             visible: sidebarMenuVisibilityLabelHover.hovered
-                            text: qsTr("Hide individual tools from the applications menu")
+                            text: qsTr("They'll still be available here in MX Tools")
                         }
                     }
 
@@ -255,10 +255,10 @@ ApplicationWindow {
                         inactiveColor: root.inactiveControlColor
                         knobColor: checked ? systemPalette.highlightedText : systemPalette.button
                         knobBorderColor: Qt.alpha(systemPalette.shadow, 0.25)
-                        Accessible.name: qsTr("Show tools only in MX Tools.")
+                        Accessible.name: qsTr("Hide those tools from the system menu")
                         ThemeToolTip {
                             visible: sidebarMenuVisibilitySwitch.hovered
-                            text: qsTr("Hide individual tools from the applications menu")
+                            text: qsTr("They'll still be available here in MX Tools")
                         }
                         onToggled: root.backend.hideFromMenu = checked
                     }
@@ -457,13 +457,13 @@ ApplicationWindow {
                 Item { Layout.fillWidth: true }
                 Text {
                     id: compactMenuVisibilityLabel
-                    text: qsTr("Show tools only in MX Tools.")
+                    text: qsTr("Hide those tools from the system menu")
                     color: root.secondaryTextColor
                     font.pixelSize: Math.max(10, root.baseFontSize - 1)
                     HoverHandler { id: compactMenuVisibilityLabelHover }
                     ThemeToolTip {
                         visible: compactMenuVisibilityLabelHover.hovered
-                        text: qsTr("Hide individual tools from the applications menu")
+                        text: qsTr("They'll still be available here in MX Tools")
                     }
                 }
                 ModernSwitch {
@@ -473,10 +473,10 @@ ApplicationWindow {
                     inactiveColor: root.inactiveControlColor
                     knobColor: checked ? systemPalette.highlightedText : systemPalette.button
                     knobBorderColor: Qt.alpha(systemPalette.shadow, 0.25)
-                    Accessible.name: qsTr("Show tools only in MX Tools.")
+                    Accessible.name: qsTr("Hide those tools from the system menu")
                     ThemeToolTip {
                         visible: compactMenuVisibilitySwitch.hovered
-                        text: qsTr("Hide individual tools from the applications menu")
+                        text: qsTr("They'll still be available here in MX Tools")
                     }
                     onToggled: root.backend.hideFromMenu = checked
                 }
