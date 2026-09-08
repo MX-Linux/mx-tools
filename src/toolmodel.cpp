@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QLocale>
+#include <QLockFile>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QSaveFile>
@@ -407,6 +408,25 @@ bool ToolModel::hideFromMenu() const
 
 void ToolModel::setHideFromMenu(bool hide)
 {
+    const QString statePath = menuStateFilePath();
+    if (!QDir().mkpath(QFileInfo(statePath).absolutePath())) {
+        emit errorOccurred(tr("Menu setting failed"), tr("Could not create %1.").arg(QFileInfo(statePath).absolutePath()));
+        return;
+    }
+    // Use a separate lock from QSettings' own .lock file, and hold it across
+    // the state refresh, desktop-file changes, and any rollback.
+    QLockFile operationLock(statePath + QStringLiteral(".operation.lock"));
+    operationLock.setStaleLockTime(0);
+    if (!operationLock.tryLock()) {
+        emit errorOccurred(tr("Menu setting failed"), tr("Could not update %1.").arg(statePath));
+        emit hideFromMenuChanged();
+        return;
+    }
+    const bool previousHideFromMenu = m_hideFromMenu;
+    detectMenuVisibility();
+    if (m_hideFromMenu != previousHideFromMenu) {
+        emit hideFromMenuChanged();
+    }
     if (m_hideFromMenu == hide) {
         return;
     }
@@ -676,7 +696,10 @@ void ToolModel::openChangelog()
 
 void ToolModel::detectMenuVisibility()
 {
+    m_hideFromMenu = false;
+    m_legacyMenuState = false;
     QSettings state(menuStateFilePath(), QSettings::IniFormat);
+    state.sync();
     if (state.value(QStringLiteral("active"), false).toBool()) {
         m_hideFromMenu = true;
         return;
