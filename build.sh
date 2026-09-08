@@ -75,24 +75,48 @@ done
 
 # Build Debian package
 if [ "$DEBIAN_BUILD" = true ]; then
+    DEBIAN_SOURCE=$(dpkg-parsechangelog -SSource)
+    DEBIAN_VERSION=$(dpkg-parsechangelog -SVersion)
+    DEBIAN_ARCH=$(dpkg-architecture -qDEB_HOST_ARCH)
+    DEBIAN_ARTIFACT_PREFIX="${DEBIAN_SOURCE}_${DEBIAN_VERSION#*:}_${DEBIAN_ARCH}"
+
     echo "Building Debian package..."
     debuild -us -uc
 
+    # The current build's manifest lists its binary and source artifacts,
+    # including buildinfo. Never sweep unrelated files from the parent directory.
+    DEBIAN_CHANGES="../${DEBIAN_ARTIFACT_PREFIX}.changes"
+    if [ ! -f "$DEBIAN_CHANGES" ]; then
+        echo "Error: expected build manifest not found: $DEBIAN_CHANGES"
+        exit 1
+    fi
+    mapfile -t DEBIAN_ARTIFACTS < <(awk '
+        /^Files:$/ { in_files = 1; next }
+        in_files && /^[^[:space:]]/ { in_files = 0 }
+        in_files && NF == 5 { print $5 }
+    ' "$DEBIAN_CHANGES")
+    for artifact in "${DEBIAN_ARTIFACTS[@]}"; do
+        if [[ "$artifact" == */* || "$artifact" == "." || "$artifact" == ".." || ! -f "../$artifact" ]]; then
+            echo "Error: invalid or missing build artifact: $artifact"
+            exit 1
+        fi
+    done
+
     echo "Creating debs directory and moving debian artifacts..."
     mkdir -p debs
-    mv ../*.deb debs/ 2>/dev/null || true
-    mv ../*.changes debs/ 2>/dev/null || true  
-    mv ../*.dsc debs/ 2>/dev/null || true
-    mv ../*.tar.* debs/ 2>/dev/null || true
-    mv ../*.buildinfo debs/ 2>/dev/null || true
-    mv ../*build* debs/ 2>/dev/null || true
+    for artifact in "${DEBIAN_ARTIFACTS[@]}"; do
+        mv -- "../$artifact" debs/
+    done
+    mv -- "$DEBIAN_CHANGES" debs/
+    if [ -f "../${DEBIAN_ARTIFACT_PREFIX}.build" ]; then
+        mv -- "../${DEBIAN_ARTIFACT_PREFIX}.build" debs/
+    fi
 
     echo "Cleaning build directory and debian artifacts..."
     rm -rf "$BUILD_DIR"
     rm -f debian/*.debhelper.log debian/*.substvars debian/files
     rm -rf debian/.debhelper/ debian/mx-tools/ obj-*/
     rm -f translations/*.qm
-    rm -f ../*build* ../*.buildinfo 2>/dev/null || true
 
     echo "Debian package build completed!"
     echo "Debian artifacts moved to debs/ directory"
@@ -149,7 +173,6 @@ if [ "$CLEAN" = true ]; then
     rm -f debian/*.debhelper.log debian/*.substvars debian/files
     rm -rf debian/.debhelper/ debian/mx-tools/ obj-*/
     rm -f translations/*.qm
-    rm -f ../*build* ../*.buildinfo 2>/dev/null || true
 fi
 
 # Create build directory
