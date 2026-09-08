@@ -146,6 +146,19 @@ QString replaceVisibilityLines(const QString &text, const QStringList &replaceme
     return lines.join(QLatin1Char('\n'));
 }
 
+QByteArray legacyHiddenDesktopEntry(const QByteArray &original)
+{
+    // Reproduce the legacy transformation exactly, including its treatment of
+    // visibility keys outside [Desktop Entry], to recognize unmodified copies.
+    QStringList lines = QString::fromUtf8(original).split(QLatin1Char('\n'));
+    lines.removeIf([](const QString &line) {
+        return line.startsWith(QStringLiteral("NoDisplay=")) || line.startsWith(QStringLiteral("Hidden="));
+    });
+    const qsizetype header = lines.indexOf(QStringLiteral("[Desktop Entry]"));
+    lines.insert(header >= 0 ? header + 1 : 0, QStringLiteral("NoDisplay=true"));
+    return lines.join(QLatin1Char('\n')).toUtf8();
+}
+
 bool writeFileAtomically(const QString &path, const QByteArray &content)
 {
     QSaveFile file(path);
@@ -669,12 +682,24 @@ void ToolModel::detectMenuVisibility()
         return;
     }
 
-    // Compatibility with overrides produced by releases that predate the
-    // state file. Those releases used mx-user.desktop as their state probe.
-    QFile file(QDir::homePath() + QString::fromLatin1(userApplicationsPath) + QStringLiteral("/mx-user.desktop"));
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        m_hideFromMenu = QString::fromUtf8(file.readAll()).contains(QStringLiteral("NoDisplay=true"));
-        m_legacyMenuState = m_hideFromMenu;
+    // Only recognize legacy overrides that can be safely removed. A user's
+    // custom NoDisplay=true entry alone is not evidence of a legacy operation.
+    const QDir directory(QDir::homePath() + QString::fromLatin1(userApplicationsPath));
+    for (const QString &fileName : std::as_const(m_menuFiles)) {
+        QFile currentFile(directory.filePath(QFileInfo(fileName).fileName()));
+        QFile systemFile(fileName);
+        if (!currentFile.open(QIODevice::ReadOnly | QIODevice::Text)
+            || !systemFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            continue;
+        }
+        const QByteArray current = currentFile.readAll();
+        const QByteArray original = systemFile.readAll();
+        if (currentFile.error() == QFileDevice::NoError && systemFile.error() == QFileDevice::NoError
+            && current == legacyHiddenDesktopEntry(original)) {
+            m_hideFromMenu = true;
+            m_legacyMenuState = true;
+            return;
+        }
     }
 }
 
@@ -795,7 +820,29 @@ bool ToolModel::restoreLegacyMenuEntries()
     bool success = true;
     for (const QString &fileName : std::as_const(m_menuFiles)) {
         const QString destination = directory.filePath(QFileInfo(fileName).fileName());
-        if (QFileInfo::exists(destination)) {
+        if (!QFileInfo::exists(destination)) {
+            continue;
+        }
+        QFile currentFile(destination);
+        QFile systemFile(fileName);
+        if (!currentFile.open(QIODevice::ReadOnly | QIODevice::Text)
+            || !systemFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            success = false;
+            continue;
+        }
+        const QByteArray current = currentFile.readAll();
+        const QByteArray original = systemFile.readAll();
+        if (currentFile.error() != QFileDevice::NoError || systemFile.error() != QFileDevice::NoError) {
+            success = false;
+            continue;
+        }
+        currentFile.close();
+
+        // Legacy releases copied the system launcher and applied this exact
+        // transformation, without recording ownership or the user's original.
+        // Preserve anything else: it may contain user customizations, or have
+        // been copied from an older version of the system launcher.
+        if (current == legacyHiddenDesktopEntry(original)) {
             success = QFile::remove(destination) && success;
         }
     }
