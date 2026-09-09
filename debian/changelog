@@ -1,4 +1,4 @@
-mx-tools (26.08) mx; urgency=medium
+mx-tools (26.09) mx; urgency=medium
 
   * Replace the interface with a responsive dashboard featuring searchable
     tool cards, category navigation, and desktop light or dark theme support

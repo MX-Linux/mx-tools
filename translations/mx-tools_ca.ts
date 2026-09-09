@@ -6,365 +6,294 @@
     <message>
         <location filename="../qml/Main.qml" line="20"/>
         <location filename="../qml/Main.qml" line="80"/>
-        <location filename="../qml/Main.qml" line="511"/>
+        <location filename="../qml/Main.qml" line="526"/>
         <source>MX Tools</source>
-        <translation type="unfinished">MX Tools</translation>
+        <translation>Eines de l&apos;MX</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="87"/>
         <source>System dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Consola del sistema</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="133"/>
         <source>Search tools and tasks…</source>
-        <translation type="unfinished"></translation>
+        <translation>Eines de cerca i tasques...</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="108"/>
         <source>Search tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Eines de cerca</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="146"/>
         <source>Clear search</source>
-        <translation type="unfinished"></translation>
+        <translation>Neteja la cerca</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="154"/>
+        <location filename="../qml/Main.qml" line="156"/>
         <source>Manual</source>
-        <translation type="unfinished">Manual</translation>
+        <translation>Manual</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="163"/>
+        <location filename="../qml/Main.qml" line="165"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Quant a </translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="195"/>
+        <location filename="../qml/Main.qml" line="197"/>
         <source>CATEGORIES</source>
-        <translation type="unfinished"></translation>
+        <translation>CATEGORIES</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="237"/>
-        <location filename="../qml/Main.qml" line="250"/>
-        <location filename="../qml/Main.qml" line="449"/>
-        <location filename="../qml/Main.qml" line="461"/>
         <source>Show tools only in MX Tools.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Mostra les eines només a MX Tools.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="253"/>
-        <location filename="../qml/Main.qml" line="464"/>
         <source>Hide individual tools from the applications menu</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Amaga eines individuals del menú d&apos;aplicacions</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="356"/>
+        <location filename="../qml/Main.qml" line="364"/>
         <source>Condensed view</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista condensada</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="371"/>
+        <location filename="../qml/Main.qml" line="379"/>
         <source>Show more tools at once</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra més eines alhora</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="368"/>
+        <location filename="../qml/Main.qml" line="376"/>
         <source>Use condensed tool view</source>
+        <translation>Usa la vista compacta de l&apos;eina</translation>
+    </message>
+    <message>
+        <location filename="../qml/Main.qml" line="240"/>
+        <location filename="../qml/Main.qml" line="258"/>
+        <location filename="../qml/Main.qml" line="460"/>
+        <location filename="../qml/Main.qml" line="476"/>
+        <source>Hide those tools from the system menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="322"/>
+        <location filename="../qml/Main.qml" line="247"/>
+        <location filename="../qml/Main.qml" line="261"/>
+        <location filename="../qml/Main.qml" line="466"/>
+        <location filename="../qml/Main.qml" line="479"/>
+        <source>They&apos;ll still be available here in MX Tools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Main.qml" line="330"/>
         <source>Search results</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/Main.qml" line="324"/>
-        <source>All tools</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/Main.qml" line="331"/>
-        <source>Results matching “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultats de la cerca</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="332"/>
+        <source>All tools</source>
+        <translation>Totes les eines</translation>
+    </message>
+    <message>
+        <location filename="../qml/Main.qml" line="339"/>
+        <source>Results matching “%1”</source>
+        <translation>Resultats que coincideixen amb «%1»</translation>
+    </message>
+    <message>
+        <location filename="../qml/Main.qml" line="340"/>
         <source>Choose a tool to configure or maintain your system</source>
-        <translation type="unfinished"></translation>
+        <translation>Trieu una eina per configurar o mantenir el sistema.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Main.qml" line="341"/>
+        <location filename="../qml/Main.qml" line="349"/>
         <source>%n tool(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n eina</numerusform>
+            <numerusform>%n eines</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="436"/>
+        <location filename="../qml/Main.qml" line="444"/>
         <source>No tools found
 Try a different search or category.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha trobat cap eina.
+Proveu una altra cerca o categoria.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="478"/>
+        <location filename="../qml/Main.qml" line="493"/>
         <source>About MX Tools</source>
-        <translation type="unfinished">Quant a MX Tools </translation>
-    </message>
-    <message>
-        <location filename="../qml/Main.qml" line="518"/>
-        <source>Version %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/Main.qml" line="524"/>
-        <source>A focused collection of configuration and maintenance tools for MX Linux.</source>
-        <translation type="unfinished"></translation>
+        <translation>Quant a MX Tools </translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="533"/>
+        <source>Version %1</source>
+        <translation>Versió %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/Main.qml" line="539"/>
+        <source>A focused collection of configuration and maintenance tools for MX Linux.</source>
+        <translation>Una selecció específica d&apos;eines de configuració i manteniment per a MX Linux.</translation>
+    </message>
+    <message>
+        <location filename="../qml/Main.qml" line="548"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Lloc web</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="541"/>
+        <location filename="../qml/Main.qml" line="556"/>
         <source>License</source>
-        <translation type="unfinished">Llicència</translation>
+        <translation>Llicència</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="549"/>
+        <location filename="../qml/Main.qml" line="564"/>
         <source>Changelog</source>
-        <translation type="unfinished">Registre de canvis</translation>
+        <translation>Registre de canvis</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="559"/>
+        <location filename="../qml/Main.qml" line="574"/>
         <source>Copyright © MX Linux</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MainWindow</name>
-    <message>
-        <source>MX Tools</source>
-        <translation type="vanished">MX Tools</translation>
-    </message>
-    <message>
-        <source>About this application</source>
-        <translation type="vanished">Quant a aquest programa</translation>
-    </message>
-    <message>
-        <source>About...</source>
-        <translation type="vanished">Quant a...</translation>
-    </message>
-    <message>
-        <source>Alt+B</source>
-        <translation type="vanished">Alt+B</translation>
-    </message>
-    <message>
-        <source>Close application</source>
-        <translation type="vanished">Surt de l&apos;aplicació </translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="vanished">Tanca</translation>
-    </message>
-    <message>
-        <source>Alt+N</source>
-        <translation type="vanished">Alt+N</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation type="vanished">Manual</translation>
-    </message>
-    <message>
-        <source>These MX applications save time and effort with important tasks.</source>
-        <translation type="vanished">Aquestes aplicacions de MX estalvien temps i esforç en tasques importants.</translation>
-    </message>
-    <message>
-        <source>Hide individual tools from the menu</source>
-        <translation type="vanished">Amaga les eines individuals del menú</translation>
-    </message>
-    <message>
-        <source>search</source>
-        <translation type="vanished">cerca</translation>
-    </message>
-    <message>
-        <source>About MX Tools</source>
-        <translation type="vanished">Quant a MX Tools </translation>
-    </message>
-    <message>
-        <source>Version: </source>
-        <translation type="vanished">Versió: </translation>
-    </message>
-    <message>
-        <source>Configuration Tools for MX Linux</source>
-        <translation type="vanished">Eines de configuració per a MX Linux </translation>
-    </message>
-    <message>
-        <source>Copyright (c) MX Linux</source>
-        <translation type="vanished">Copyright (c) MX Linux</translation>
-    </message>
-    <message>
-        <source>%1 License</source>
-        <translation type="vanished">Llicència de %1</translation>
-    </message>
-</context>
-<context>
-    <name>QObject</name>
-    <message>
-        <source>License</source>
-        <translation type="vanished">Llicència</translation>
-    </message>
-    <message>
-        <source>Changelog</source>
-        <translation type="vanished">Registre de canvis</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Cancel·la</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation type="vanished">Tan&amp;ca </translation>
+        <translation>Copyright © MX Linux</translation>
     </message>
 </context>
 <context>
     <name>ToolCard</name>
     <message>
-        <location filename="../qml/components/ToolCard.qml" line="79"/>
+        <location filename="../qml/components/ToolCard.qml" line="84"/>
         <source>Open this MX tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Obre aquesta eina de l&apos;MX</translation>
     </message>
 </context>
 <context>
     <name>ToolModel</name>
     <message>
-        <location filename="../src/toolmodel.cpp" line="62"/>
+        <location filename="../src/toolmodel.cpp" line="64"/>
         <source>Live</source>
-        <translation type="unfinished"></translation>
+        <translation>Autònom</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="65"/>
+        <location filename="../src/toolmodel.cpp" line="67"/>
         <source>Maintenance</source>
-        <translation type="unfinished"></translation>
+        <translation>Manteniment</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="68"/>
+        <location filename="../src/toolmodel.cpp" line="70"/>
         <source>Setup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="71"/>
-        <source>Software</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuració</translation>
     </message>
     <message>
         <location filename="../src/toolmodel.cpp" line="73"/>
+        <source>Software</source>
+        <translation>Programari</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="75"/>
         <source>Utilities</source>
-        <translation type="unfinished"></translation>
+        <translation>Utilitats</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="290"/>
+        <location filename="../src/toolmodel.cpp" line="445"/>
         <source>All tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Totes les eines</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="461"/>
-        <location filename="../src/toolmodel.cpp" line="476"/>
-        <location filename="../src/toolmodel.cpp" line="485"/>
+        <location filename="../src/toolmodel.cpp" line="628"/>
+        <location filename="../src/toolmodel.cpp" line="643"/>
+        <location filename="../src/toolmodel.cpp" line="652"/>
         <source>Unable to launch tool</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut iniciar l&apos;eina.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="461"/>
+        <location filename="../src/toolmodel.cpp" line="628"/>
         <source>The selected tool is no longer available.</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;eina seleccionada ja no està disponible.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="467"/>
+        <location filename="../src/toolmodel.cpp" line="634"/>
         <source>Tool already running</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;eina ja s&apos;executa.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="467"/>
+        <location filename="../src/toolmodel.cpp" line="634"/>
         <source>%1 is already running.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ja s&apos;executa.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="476"/>
+        <location filename="../src/toolmodel.cpp" line="643"/>
         <source>The selected tool has no launch command.</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;eina seleccionada no té cap ordre d&apos;execució.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="485"/>
+        <location filename="../src/toolmodel.cpp" line="652"/>
         <source>Could not start %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut iniciar %1.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="494"/>
-        <location filename="../src/toolmodel.cpp" line="518"/>
+        <location filename="../src/toolmodel.cpp" line="661"/>
+        <location filename="../src/toolmodel.cpp" line="685"/>
         <source>Could not open %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut obrir %1.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="500"/>
+        <location filename="../src/toolmodel.cpp" line="667"/>
         <source>Manual unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>Manual no disponible</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="505"/>
+        <location filename="../src/toolmodel.cpp" line="672"/>
         <source>License unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>Llicència no disponible</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="511"/>
+        <location filename="../src/toolmodel.cpp" line="678"/>
         <source>Website unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>Lloc web no disponible</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="511"/>
+        <location filename="../src/toolmodel.cpp" line="678"/>
         <source>Could not open the MX Linux website.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut obrir el lloc web d&apos;MX Linux.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="518"/>
-        <location filename="../src/toolmodel.cpp" line="524"/>
+        <location filename="../src/toolmodel.cpp" line="685"/>
+        <location filename="../src/toolmodel.cpp" line="691"/>
         <source>Changelog unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>Registre de canvis no disponible</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="524"/>
+        <location filename="../src/toolmodel.cpp" line="691"/>
         <source>Could not read the application changelog.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut llegir el registre de canvis de l&apos;aplicació.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="527"/>
+        <location filename="../src/toolmodel.cpp" line="694"/>
         <source>Changelog</source>
-        <translation type="unfinished">Registre de canvis</translation>
+        <translation>Registre de canvis</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="551"/>
-        <location filename="../src/toolmodel.cpp" line="556"/>
-        <location filename="../src/toolmodel.cpp" line="601"/>
-        <location filename="../src/toolmodel.cpp" line="651"/>
-        <location filename="../src/toolmodel.cpp" line="667"/>
+        <location filename="../src/toolmodel.cpp" line="413"/>
+        <location filename="../src/toolmodel.cpp" line="421"/>
+        <location filename="../src/toolmodel.cpp" line="733"/>
+        <location filename="../src/toolmodel.cpp" line="738"/>
+        <location filename="../src/toolmodel.cpp" line="784"/>
+        <location filename="../src/toolmodel.cpp" line="835"/>
+        <location filename="../src/toolmodel.cpp" line="873"/>
         <source>Menu setting failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha fallat la configuració del menú.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="551"/>
-        <location filename="../src/toolmodel.cpp" line="556"/>
+        <location filename="../src/toolmodel.cpp" line="413"/>
+        <location filename="../src/toolmodel.cpp" line="733"/>
+        <location filename="../src/toolmodel.cpp" line="738"/>
         <source>Could not create %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut crear %1.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="601"/>
-        <location filename="../src/toolmodel.cpp" line="651"/>
-        <location filename="../src/toolmodel.cpp" line="667"/>
+        <location filename="../src/toolmodel.cpp" line="421"/>
+        <location filename="../src/toolmodel.cpp" line="784"/>
+        <location filename="../src/toolmodel.cpp" line="835"/>
+        <location filename="../src/toolmodel.cpp" line="873"/>
         <source>Could not update %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>No s&apos;ha pogut actualitzar %1.</translation>
     </message>
 </context>
 </TS>
