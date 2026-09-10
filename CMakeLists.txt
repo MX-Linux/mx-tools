@@ -131,11 +131,27 @@ add_executable(mx-tools
     ${HEADERS}
 )
 
+# The Settings QML type moved from Qt.labs.settings into QtCore in Qt 6.5.
+# On older Qt (e.g. Debian Bookworm's 6.4), QtCore does not provide it yet,
+# so "import QtCore" leaves Main.qml unable to resolve Settings. Only rewrite
+# the import for those older Qt versions; Main.qml is embedded unmodified
+# everywhere else (e.g. Trixie's Qt 6.8).
+set(MX_TOOLS_MAIN_QML qml/Main.qml)
+if(Qt6_VERSION VERSION_LESS 6.5)
+    message(STATUS "Qt ${Qt6_VERSION} < 6.5: using Qt.labs.settings instead of QtCore Settings in Main.qml")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/qml/Main.qml)
+    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/qml/Main.qml MX_TOOLS_MAIN_QML_CONTENT)
+    string(REPLACE "import QtCore" "import Qt.labs.settings" MX_TOOLS_MAIN_QML_CONTENT "${MX_TOOLS_MAIN_QML_CONTENT}")
+    set(MX_TOOLS_MAIN_QML ${CMAKE_CURRENT_BINARY_DIR}/generated-qml/Main.qml)
+    file(WRITE ${MX_TOOLS_MAIN_QML} "${MX_TOOLS_MAIN_QML_CONTENT}")
+    set_source_files_properties(${MX_TOOLS_MAIN_QML} PROPERTIES QT_RESOURCE_ALIAS "qml/Main.qml")
+endif()
+
 qt6_add_qml_module(mx-tools
     URI MxTools
     VERSION 1.0
     QML_FILES
-        qml/Main.qml
+        ${MX_TOOLS_MAIN_QML}
         qml/components/CategoryButton.qml
         qml/components/ModernSwitch.qml
         qml/components/SecondaryButton.qml

@@ -26,5 +26,18 @@ override_dh_auto_install:
 	# Install is handled by debian/install file
 	dh_auto_install
 
+override_dh_gencontrol:
+	# Mirror CMakeLists.txt: Settings moved from Qt.labs.settings into QtCore
+	# in Qt 6.5, so the package must depend on whichever module the build
+	# actually embedded into Main.qml.
+	QT6_VERSION=$$(dpkg-query -W -f='$${Version}' qt6-base-dev); \
+	if dpkg --compare-versions "$$QT6_VERSION" ge 6.5; then \
+		SETTINGS_DEP=qml6-module-qtcore; \
+	else \
+		SETTINGS_DEP=qml6-module-qt-labs-settings; \
+	fi; \
+	echo "qml:SettingsDepends=$$SETTINGS_DEP" >> debian/mx-tools.substvars; \
+	dh_gencontrol
+
 %:
 	dh $@ --buildsystem=cmake+ninja --no-automatic-dbgsym
