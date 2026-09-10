@@ -191,107 +191,107 @@ Proveu una altra cerca o categoria.</translation>
         <translation>Utilitats</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="445"/>
+        <location filename="../src/toolmodel.cpp" line="454"/>
         <source>All tools</source>
         <translation>Totes les eines</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="628"/>
-        <location filename="../src/toolmodel.cpp" line="643"/>
-        <location filename="../src/toolmodel.cpp" line="652"/>
+        <location filename="../src/toolmodel.cpp" line="642"/>
+        <location filename="../src/toolmodel.cpp" line="657"/>
+        <location filename="../src/toolmodel.cpp" line="666"/>
         <source>Unable to launch tool</source>
         <translation>No s&apos;ha pogut iniciar l&apos;eina.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="628"/>
+        <location filename="../src/toolmodel.cpp" line="642"/>
         <source>The selected tool is no longer available.</source>
         <translation>L&apos;eina seleccionada ja no està disponible.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="634"/>
+        <location filename="../src/toolmodel.cpp" line="648"/>
         <source>Tool already running</source>
         <translation>L&apos;eina ja s&apos;executa.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="634"/>
+        <location filename="../src/toolmodel.cpp" line="648"/>
         <source>%1 is already running.</source>
         <translation>%1 ja s&apos;executa.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="643"/>
+        <location filename="../src/toolmodel.cpp" line="657"/>
         <source>The selected tool has no launch command.</source>
         <translation>L&apos;eina seleccionada no té cap ordre d&apos;execució.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="652"/>
+        <location filename="../src/toolmodel.cpp" line="666"/>
         <source>Could not start %1.</source>
         <translation>No s&apos;ha pogut iniciar %1.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="661"/>
-        <location filename="../src/toolmodel.cpp" line="685"/>
+        <location filename="../src/toolmodel.cpp" line="675"/>
+        <location filename="../src/toolmodel.cpp" line="699"/>
         <source>Could not open %1.</source>
         <translation>No s&apos;ha pogut obrir %1.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="667"/>
+        <location filename="../src/toolmodel.cpp" line="681"/>
         <source>Manual unavailable</source>
         <translation>Manual no disponible</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="672"/>
+        <location filename="../src/toolmodel.cpp" line="686"/>
         <source>License unavailable</source>
         <translation>Llicència no disponible</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="678"/>
+        <location filename="../src/toolmodel.cpp" line="692"/>
         <source>Website unavailable</source>
         <translation>Lloc web no disponible</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="678"/>
+        <location filename="../src/toolmodel.cpp" line="692"/>
         <source>Could not open the MX Linux website.</source>
         <translation>No s&apos;ha pogut obrir el lloc web d&apos;MX Linux.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="685"/>
-        <location filename="../src/toolmodel.cpp" line="691"/>
+        <location filename="../src/toolmodel.cpp" line="699"/>
+        <location filename="../src/toolmodel.cpp" line="705"/>
         <source>Changelog unavailable</source>
         <translation>Registre de canvis no disponible</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="691"/>
+        <location filename="../src/toolmodel.cpp" line="705"/>
         <source>Could not read the application changelog.</source>
         <translation>No s&apos;ha pogut llegir el registre de canvis de l&apos;aplicació.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="694"/>
+        <location filename="../src/toolmodel.cpp" line="708"/>
         <source>Changelog</source>
         <translation>Registre de canvis</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="413"/>
-        <location filename="../src/toolmodel.cpp" line="421"/>
-        <location filename="../src/toolmodel.cpp" line="733"/>
-        <location filename="../src/toolmodel.cpp" line="738"/>
-        <location filename="../src/toolmodel.cpp" line="784"/>
-        <location filename="../src/toolmodel.cpp" line="835"/>
-        <location filename="../src/toolmodel.cpp" line="873"/>
+        <location filename="../src/toolmodel.cpp" line="422"/>
+        <location filename="../src/toolmodel.cpp" line="430"/>
+        <location filename="../src/toolmodel.cpp" line="747"/>
+        <location filename="../src/toolmodel.cpp" line="752"/>
+        <location filename="../src/toolmodel.cpp" line="798"/>
+        <location filename="../src/toolmodel.cpp" line="849"/>
+        <location filename="../src/toolmodel.cpp" line="887"/>
         <source>Menu setting failed</source>
         <translation>Ha fallat la configuració del menú.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="413"/>
-        <location filename="../src/toolmodel.cpp" line="733"/>
-        <location filename="../src/toolmodel.cpp" line="738"/>
+        <location filename="../src/toolmodel.cpp" line="422"/>
+        <location filename="../src/toolmodel.cpp" line="747"/>
+        <location filename="../src/toolmodel.cpp" line="752"/>
         <source>Could not create %1.</source>
         <translation>No s&apos;ha pogut crear %1.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="421"/>
-        <location filename="../src/toolmodel.cpp" line="784"/>
-        <location filename="../src/toolmodel.cpp" line="835"/>
-        <location filename="../src/toolmodel.cpp" line="873"/>
+        <location filename="../src/toolmodel.cpp" line="430"/>
+        <location filename="../src/toolmodel.cpp" line="798"/>
+        <location filename="../src/toolmodel.cpp" line="849"/>
+        <location filename="../src/toolmodel.cpp" line="887"/>
         <source>Could not update %1.</source>
         <translation>No s&apos;ha pogut actualitzar %1.</translation>
     </message>

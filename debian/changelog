@@ -1,3 +1,10 @@
+mx-tools (26.09.1) mx; urgency=medium
+
+  * Keep the application and tool icons visible when a desktop theme does not provide them
+  * Allow MX Tools to start on older Qt 6 systems such as Debian Bookworm
+
+ -- Adrian <adrian@mxlinux.org>  Thu, 10 Sep 2026 08:09:28 -0400
+
 mx-tools (26.09) mx; urgency=medium
 
   * Replace the interface with a responsive dashboard featuring searchable
