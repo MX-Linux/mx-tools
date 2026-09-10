@@ -311,8 +311,17 @@ void ToolIconProvider::insert(const QString &key, const QIcon &icon)
 
 QPixmap ToolIconProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    const QSize target = requestedSize.isValid() ? requestedSize : QSize(48, 48);
+    const QSize target = requestedSize.isEmpty() ? QSize(48, 48) : requestedSize;
     QPixmap pixmap = m_icons.value(id).pixmap(target);
+    if (pixmap.isNull()) {
+        pixmap = ToolModel::fallbackIcon().pixmap(target);
+    }
+    if (pixmap.isNull()) {
+        // Guarantee a valid pixmap even if the bundled fallback icon itself
+        // could not be rendered, so the image provider never reports failure.
+        pixmap = QPixmap(target);
+        pixmap.fill(Qt::transparent);
+    }
     if (size != nullptr) {
         *size = pixmap.size();
     }
@@ -616,8 +625,13 @@ std::optional<QIcon> ToolModel::lookupIcon(const QString &iconName)
 
 QIcon ToolModel::fallbackIcon()
 {
-    static const QIcon icon = QIcon::fromTheme(QStringLiteral("applications-utilities"),
-                                               QIcon(QStringLiteral(":/qt/qml/MxTools/icons/logo.svg")));
+    static const QIcon icon = []() {
+        const auto themeName = QStringLiteral("applications-utilities");
+        if (QIcon::hasThemeIcon(themeName)) {
+            return QIcon::fromTheme(themeName);
+        }
+        return QIcon(QStringLiteral(":/qt/qml/MxTools/icons/logo.svg"));
+    }();
     return icon;
 }
 

@@ -40,14 +40,18 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(QStringLiteral("mx-tools"));
     QApplication::setApplicationDisplayName(QStringLiteral("MX Tools"));
     QApplication::setApplicationVersion(QStringLiteral(VERSION));
-    const auto bundledIcon =
+    const auto windowIconName = QStringLiteral("mx-tools");
+    if (QIcon::hasThemeIcon(windowIconName)) {
+        QApplication::setWindowIcon(QIcon::fromTheme(windowIconName));
+    } else {
+        const auto bundledIcon =
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-        QStringLiteral(":/qt/qml/MxTools/icons/logo.svg");
+            QStringLiteral(":/qt/qml/MxTools/icons/logo.svg");
 #else
-        QStringLiteral(":/MxTools/icons/logo.svg");
+            QStringLiteral(":/MxTools/icons/logo.svg");
 #endif
-    QApplication::setWindowIcon(
-        QIcon::fromTheme(QStringLiteral("mx-tools"), QIcon(bundledIcon)));
+        QApplication::setWindowIcon(QIcon(bundledIcon));
+    }
 
     QTranslator qtTranslator;
     if (qtTranslator.load(QStringLiteral("qt_") + QLocale::system().name(),

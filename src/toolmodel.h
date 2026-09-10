@@ -47,6 +47,8 @@ public:
 
     explicit ToolModel(ToolIconProvider *iconProvider, QObject *parent = nullptr);
 
+    [[nodiscard]] static QIcon fallbackIcon();
+
     [[nodiscard]] int rowCount(const QModelIndex &parent = {}) const override;
     [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
     [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
@@ -110,6 +112,5 @@ private:
     [[nodiscard]] static QStringList desktopFilesForCategory(const QStringList &tokens);
     [[nodiscard]] static bool visibleInCurrentEnvironment(const QString &text);
     [[nodiscard]] static std::optional<QIcon> lookupIcon(const QString &iconName);
-    [[nodiscard]] static QIcon fallbackIcon();
     static void openLocalOrReport(const QString &path, ToolModel *model, const QString &title);
 };
