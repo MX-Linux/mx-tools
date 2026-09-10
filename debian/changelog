@@ -1,4 +1,4 @@
-mx-tools (26.09.1) mx; urgency=medium
+mx-tools (26.09.2) mx; urgency=medium
 
   * Keep the application and tool icons visible when a desktop theme does not provide them
   * Allow MX Tools to start on older Qt 6 systems such as Debian Bookworm
