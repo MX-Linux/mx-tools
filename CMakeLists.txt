@@ -53,8 +53,17 @@ else()
     endif()
 endif()
 
+# CMake's project() only accepts a dot-separated numeric version, but
+# debian/changelog may carry a non-numeric distro suffix (e.g. "26.09.5mx25"
+# for MX-25/Trixie builds), so strip it here; the full string with the
+# suffix is still used below for the version shown in the app.
+string(REGEX MATCH "^[0-9]+(\\.[0-9]+)*" PROJECT_VERSION_NUMERIC "${PROJECT_VERSION_FROM_CHANGELOG}")
+if(NOT PROJECT_VERSION_NUMERIC)
+    message(FATAL_ERROR "Could not extract a numeric version from '${PROJECT_VERSION_FROM_CHANGELOG}'")
+endif()
+
 project(mx-tools
-    VERSION ${PROJECT_VERSION_FROM_CHANGELOG}
+    VERSION ${PROJECT_VERSION_NUMERIC}
     DESCRIPTION "MX Tools - Dashboard application for configuration tools in MX Linux"
     LANGUAGES CXX
 )
@@ -192,7 +201,7 @@ endif()
 target_compile_definitions(mx-tools PRIVATE
     QT_DEPRECATED_WARNINGS
     QT_DISABLE_DEPRECATED_BEFORE=0x060000
-    VERSION="${PROJECT_VERSION}"
+    VERSION="${PROJECT_VERSION_FROM_CHANGELOG}"
 )
 
 # Release-specific optimizations

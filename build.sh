@@ -76,12 +76,21 @@ done
 # Build Debian package
 if [ "$DEBIAN_BUILD" = true ]; then
     DEBIAN_SOURCE=$(dpkg-parsechangelog -SSource)
-    DEBIAN_VERSION=$(dpkg-parsechangelog -SVersion)
     DEBIAN_ARCH=$(dpkg-architecture -qDEB_HOST_ARCH)
-    DEBIAN_ARTIFACT_PREFIX="${DEBIAN_SOURCE}_${DEBIAN_VERSION#*:}_${DEBIAN_ARCH}"
+
+    # debian/rules may append a distro release suffix (e.g. "mx25" on Trixie)
+    # to debian/changelog's version while building, so the artifact prefix
+    # can only be known once debuild has run. Only restore the changelog
+    # afterwards if it was pristine beforehand, so any pre-existing
+    # uncommitted edit to it is never discarded.
+    CHANGELOG_WAS_CLEAN=true
+    git diff --quiet -- debian/changelog || CHANGELOG_WAS_CLEAN=false
 
     echo "Building Debian package..."
     debuild -us -uc
+
+    DEBIAN_VERSION=$(dpkg-parsechangelog -SVersion)
+    DEBIAN_ARTIFACT_PREFIX="${DEBIAN_SOURCE}_${DEBIAN_VERSION#*:}_${DEBIAN_ARCH}"
 
     # The current build's manifest lists its binary and source artifacts,
     # including buildinfo. Never sweep unrelated files from the parent directory.
@@ -117,6 +126,9 @@ if [ "$DEBIAN_BUILD" = true ]; then
     rm -f debian/*.debhelper.log debian/*.substvars debian/files
     rm -rf debian/.debhelper/ debian/mx-tools/ obj-*/
     rm -f translations/*.qm
+    if [ "$CHANGELOG_WAS_CLEAN" = true ]; then
+        git checkout -- debian/changelog
+    fi
 
     echo "Debian package build completed!"
     echo "Debian artifacts moved to debs/ directory"

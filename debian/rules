@@ -1,7 +1,14 @@
 #!/usr/bin/make -f
 export QT_SELECT=6
 
+# MX Linux releases are named after their base Debian codename (e.g. MX 25 is
+# based on Trixie); OBS builds the same source for multiple Debian repos, so
+# append that release suffix to the version here on Trixie builds only.
 override_dh_auto_configure:
+	if [ "$$(sed -n 's/^VERSION_CODENAME=//p' /etc/os-release 2>/dev/null)" = "trixie" ] && \
+	   ! grep -q 'mx25)' debian/changelog; then \
+		sed -i '1s/^\(mx-tools ([^)]*\))/\1mx25)/' debian/changelog; \
+	fi
 	dh_auto_configure -- \
 		-G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
