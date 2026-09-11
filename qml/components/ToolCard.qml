@@ -15,7 +15,7 @@ Button {
     property color surfaceColor: systemPalette.base
     property color hoverSurfaceColor: Qt.tint(systemPalette.base, Qt.alpha(systemPalette.highlight, 0.08))
     property color primaryTextColor: systemPalette.text
-    property color secondaryTextColor: Qt.alpha(systemPalette.text, 0.68)
+    property color secondaryTextColor: Qt.alpha(systemPalette.text, 0.82)
     property color accentColor: systemPalette.highlight
     property color borderColor: Qt.alpha(systemPalette.text, 0.18)
 

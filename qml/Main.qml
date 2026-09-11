@@ -24,7 +24,7 @@ ApplicationWindow {
     readonly property color surfaceColor: systemPalette.base
     readonly property color raisedSurfaceColor: Qt.tint(systemPalette.base, Qt.alpha(systemPalette.highlight, 0.08))
     readonly property color primaryTextColor: systemPalette.text
-    readonly property color secondaryTextColor: Qt.alpha(systemPalette.text, 0.68)
+    readonly property color secondaryTextColor: Qt.alpha(systemPalette.text, 0.82)
     readonly property color borderColor: Qt.alpha(systemPalette.text, 0.18)
     readonly property color accentColor: systemPalette.highlight
     readonly property color accentWash: Qt.alpha(systemPalette.highlight, 0.13)
