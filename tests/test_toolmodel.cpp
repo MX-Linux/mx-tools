@@ -35,7 +35,7 @@ private slots:
     void init();
     void cleanup();
     void discoversAndFiltersTools();
-    void launchTracksAlreadyRunningToolsAndReapsZombies();
+    void launchBlocksRelaunchOnlyWhileRunning();
 
 private:
     QScopedPointer<QTemporaryDir> m_home;
@@ -53,6 +53,9 @@ void TestToolModel::init()
     qputenv("XDG_CONFIG_HOME", (m_home->path() + QStringLiteral("/.config")).toUtf8());
     qunsetenv("XDG_CURRENT_DESKTOP");
     qunsetenv("XDG_SESSION_DESKTOP");
+    // Pin the live/installed state instead of inheriting it from the root
+    // filesystem, which is an overlay mount inside build containers.
+    qputenv("MX_TOOLS_TEST_FORCE_LIVE", "0");
 
     QVERIFY(QDir().mkpath(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)));
 }
@@ -60,6 +63,7 @@ void TestToolModel::init()
 void TestToolModel::cleanup()
 {
     QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)).removeRecursively();
+    qunsetenv("MX_TOOLS_TEST_FORCE_LIVE");
     m_home.reset();
 }
 
@@ -87,10 +91,10 @@ void TestToolModel::discoversAndFiltersTools()
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
 
-    // The test process never runs on a live (aufs/overlay) root filesystem,
-    // so MX-OnlyLive is excluded and MX-OnlyInstalled is kept; NotShowIn=XFCE
-    // and OnlyShowIn=KDE both exclude their entries under XDG_CURRENT_DESKTOP=XFCE.
-    // Only "Utility Tool" and "Installed Only Tool" should survive.
+    // MX_TOOLS_TEST_FORCE_LIVE=0 means MX-OnlyLive is excluded and
+    // MX-OnlyInstalled is kept; NotShowIn=XFCE and OnlyShowIn=KDE both exclude
+    // their entries under XDG_CURRENT_DESKTOP=XFCE, so only "Utility Tool" and
+    // "Installed Only Tool" should survive.
     QCOMPARE(model.totalCount(), 2);
     QCOMPARE(model.categories(), QStringList({QStringLiteral("All tools"), QStringLiteral("Maintenance"),
                                                QStringLiteral("Utilities")}));
@@ -109,9 +113,16 @@ void TestToolModel::discoversAndFiltersTools()
     model.setSearch(QStringLiteral("installed"));
     QCOMPARE(model.rowCount(), 1);
     QCOMPARE(model.data(model.index(0), ToolModel::CategoryRole).toString(), QStringLiteral("Maintenance"));
+
+    // On a live session the MX-OnlyLive/MX-OnlyInstalled pair swaps over.
+    qputenv("MX_TOOLS_TEST_FORCE_LIVE", "1");
+    ToolModel liveModel(&iconProvider);
+    QCOMPARE(liveModel.totalCount(), 2);
+    QCOMPARE(liveModel.categories(), QStringList({QStringLiteral("All tools"), QStringLiteral("Live"),
+                                                   QStringLiteral("Utilities")}));
 }
 
-void TestToolModel::launchTracksAlreadyRunningToolsAndReapsZombies()
+void TestToolModel::launchBlocksRelaunchOnlyWhileRunning()
 {
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
     writeDesktopFile(applications, QStringLiteral("sleeper.desktop"),
@@ -128,8 +139,10 @@ void TestToolModel::launchTracksAlreadyRunningToolsAndReapsZombies()
     QCOMPARE(errors.count(), 1);
     QCOMPARE(errors.constFirst().at(0).toString(), QStringLiteral("Tool already running"));
 
-    // Once the detached /bin/sleep 0.2 has exited, launching again must not
-    // be blocked by a lingering zombie /proc entry for its old pid.
+    // Once the detached /bin/sleep 0.2 has exited, launching again must be
+    // allowed. Note this does not exercise the zombie branch of
+    // isProcessRunning(): QProcess::startDetached double-forks, so the child
+    // is reparented to init and reaped as soon as it exits.
     QTest::qWait(600);
     model.launch(fileName);
     QCOMPARE(errors.count(), 1);

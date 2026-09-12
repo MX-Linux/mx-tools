@@ -58,6 +58,15 @@ QStringList currentDesktops()
 
 bool isLiveEnvironment()
 {
+#ifdef MX_TOOLS_TESTING
+    // The test suite must not depend on the build host's root filesystem: a
+    // container root is an overlay mount, which would otherwise be detected
+    // as a live session and silently invert the environment filtering.
+    const QByteArray forcedLive = qgetenv("MX_TOOLS_TEST_FORCE_LIVE");
+    if (!forcedLive.isEmpty()) {
+        return forcedLive != "0";
+    }
+#endif
     const QByteArray fileSystem = QStorageInfo(QStringLiteral("/")).fileSystemType();
     return fileSystem == "aufs" || fileSystem == "overlay";
 }

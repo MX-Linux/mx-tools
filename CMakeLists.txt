@@ -272,6 +272,7 @@ if(BUILD_TESTING)
     endif()
     target_compile_definitions(test-toolmodel PRIVATE
         MX_TOOLS_APPLICATIONS_PATH="${CMAKE_CURRENT_BINARY_DIR}/test-applications"
+        MX_TOOLS_TESTING
     )
     target_include_directories(test-toolmodel PRIVATE src)
     add_test(NAME toolmodel COMMAND test-toolmodel)
