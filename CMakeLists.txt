@@ -68,6 +68,8 @@ project(mx-tools
     LANGUAGES CXX
 )
 
+include(CTest)
+
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -104,6 +106,10 @@ find_package(Qt6 REQUIRED COMPONENTS
     QuickControls2
     LinguistTools
 )
+
+if(BUILD_TESTING)
+    find_package(Qt6 REQUIRED COMPONENTS Test)
+endif()
 
 # These policies were introduced after the minimum Qt version available on
 # some supported distributions. Only set them when the installed Qt knows
@@ -241,3 +247,33 @@ set_target_properties(mx-tools PROPERTIES
 install(TARGETS mx-tools
     RUNTIME DESTINATION bin
 )
+
+if(BUILD_TESTING)
+    add_executable(test-toolmodel
+        tests/test_toolmodel.cpp
+        src/toolmodel.cpp
+        src/toolmodel.h
+    )
+    target_link_libraries(test-toolmodel PRIVATE
+        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Qml Qt6::Quick Qt6::Test
+    )
+    target_compile_options(test-toolmodel PRIVATE
+        -Wpedantic
+        -pedantic
+        -Werror=return-type
+        -Werror=switch
+        -Werror=uninitialized
+        -Werror
+    )
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR USE_CLANG)
+        target_compile_options(test-toolmodel PRIVATE -Werror=return-stack-address)
+    else()
+        target_compile_options(test-toolmodel PRIVATE -Werror=return-local-addr)
+    endif()
+    target_compile_definitions(test-toolmodel PRIVATE
+        MX_TOOLS_APPLICATIONS_PATH="${CMAKE_CURRENT_BINARY_DIR}/test-applications"
+    )
+    target_include_directories(test-toolmodel PRIVATE src)
+    add_test(NAME toolmodel COMMAND test-toolmodel)
+    set_tests_properties(toolmodel PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()

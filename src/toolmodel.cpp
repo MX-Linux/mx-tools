@@ -25,7 +25,11 @@
 
 namespace
 {
+#ifdef MX_TOOLS_APPLICATIONS_PATH
+constexpr auto applicationsPath = MX_TOOLS_APPLICATIONS_PATH;
+#else
 constexpr auto applicationsPath = "/usr/share/applications";
+#endif
 constexpr auto userApplicationsPath = "/.local/share/applications";
 constexpr auto manualPath = "/usr/share/mx-docs/mxum_en.pdf";
 constexpr auto licensePath = "/usr/share/doc/mx-tools/license.html";
@@ -56,6 +60,21 @@ bool isLiveEnvironment()
 {
     const QByteArray fileSystem = QStorageInfo(QStringLiteral("/")).fileSystemType();
     return fileSystem == "aufs" || fileSystem == "overlay";
+}
+
+bool isProcessRunning(qint64 pid)
+{
+    QFile statFile(QStringLiteral("/proc/%1/stat").arg(pid));
+    if (!statFile.open(QFile::ReadOnly | QFile::Text)) {
+        return false;
+    }
+    const QString stat = QString::fromLocal8Bit(statFile.readAll());
+    const int closingParen = stat.lastIndexOf(QLatin1Char(')'));
+    if (closingParen < 0 || closingParen + 2 >= stat.size()) {
+        return false;
+    }
+    const QChar state = stat.at(closingParen + 2);
+    return state != QLatin1Char('Z') && state != QLatin1Char('X');
 }
 
 QString translatedCategory(const QString &category)
@@ -643,8 +662,7 @@ void ToolModel::launch(const QString &fileName)
         return;
     }
     const qint64 runningProcessId = m_runningTools.value(fileName);
-    if (runningProcessId > 0
-        && QFileInfo::exists(QStringLiteral("/proc/%1").arg(runningProcessId))) {
+    if (runningProcessId > 0 && isProcessRunning(runningProcessId)) {
         emit errorOccurred(tr("Tool already running"), tr("%1 is already running.").arg(iterator->name));
         return;
     }
