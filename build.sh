@@ -77,20 +77,30 @@ done
 if [ "$DEBIAN_BUILD" = true ]; then
     DEBIAN_SOURCE=$(dpkg-parsechangelog -SSource)
     DEBIAN_ARCH=$(dpkg-architecture -qDEB_HOST_ARCH)
+    # Captured before debuild runs: debian/rules appends a distro release
+    # suffix (e.g. "mx25" on Trixie) to debian/changelog mid-build, but
+    # dpkg-buildpackage itself fixes the genbuildinfo/genchanges output
+    # filenames at invocation start, before that mutation happens. Reading
+    # the version after debuild would pick up the mutated changelog and
+    # compute an artifact prefix that doesn't match what was actually produced.
+    DEBIAN_VERSION=$(dpkg-parsechangelog -SVersion)
+    DEBIAN_ARTIFACT_PREFIX="${DEBIAN_SOURCE}_${DEBIAN_VERSION#*:}_${DEBIAN_ARCH}"
 
     # debian/rules may append a distro release suffix (e.g. "mx25" on Trixie)
-    # to debian/changelog's version while building, so the artifact prefix
-    # can only be known once debuild has run. Only restore the changelog
+    # to debian/changelog while building. Only restore the changelog
     # afterwards if it was pristine beforehand, so any pre-existing
     # uncommitted edit to it is never discarded.
     CHANGELOG_WAS_CLEAN=true
     git diff --quiet -- debian/changelog || CHANGELOG_WAS_CLEAN=false
 
+    # Binary-only build: debian/rules appends a distro suffix (e.g. "mx25")
+    # to debian/changelog mid-build for OBS multi-distro packaging. That
+    # only stays consistent for a binary-only build - a full source+binary
+    # build runs dpkg-source before the suffix is added and dpkg-genbuildinfo
+    # after, so the two disagree on the version and the build fails looking
+    # for a .dsc that was never produced under the suffixed name.
     echo "Building Debian package..."
-    debuild -us -uc
-
-    DEBIAN_VERSION=$(dpkg-parsechangelog -SVersion)
-    DEBIAN_ARTIFACT_PREFIX="${DEBIAN_SOURCE}_${DEBIAN_VERSION#*:}_${DEBIAN_ARCH}"
+    debuild -us -uc -b
 
     # The current build's manifest lists its binary and source artifacts,
     # including buildinfo. Never sweep unrelated files from the parent directory.
