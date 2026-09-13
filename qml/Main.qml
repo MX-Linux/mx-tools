@@ -32,6 +32,7 @@ ApplicationWindow {
     readonly property real baseFontSize: Application.font.pixelSize > 0 ? Application.font.pixelSize : 13
     readonly property bool compactNavigation: width < 900
     property bool condensedView: false
+    property bool hideCategories: false
     required property var backend
     required property string version
 
@@ -42,6 +43,15 @@ ApplicationWindow {
         property alias windowWidth: root.width
         property alias windowHeight: root.height
         property alias condensedView: root.condensedView
+        property alias hideCategories: root.hideCategories
+    }
+
+    // Hiding the category list also hides the only way back to "All tools",
+    // so drop any active filter instead of stranding the user in a subset.
+    onHideCategoriesChanged: {
+        if (root.hideCategories) {
+            root.backend.selectedCategory = ""
+        }
     }
 
     header: Rectangle {
@@ -178,7 +188,7 @@ ApplicationWindow {
         spacing: 24
 
         Rectangle {
-            visible: !root.compactNavigation
+            visible: !root.compactNavigation && !root.hideCategories
             Layout.preferredWidth: 218
             Layout.fillHeight: true
             radius: 6
@@ -273,7 +283,7 @@ ApplicationWindow {
 
             Flickable {
                 id: compactCategoriesFlickable
-                visible: root.compactNavigation
+                visible: root.compactNavigation && !root.hideCategories
                 Layout.fillWidth: true
                 Layout.preferredHeight: 46
                 contentWidth: compactCategories.implicitWidth
@@ -380,6 +390,36 @@ ApplicationWindow {
                     }
                     onToggled: root.condensedView = checked
                 }
+
+                Rectangle {
+                    Layout.preferredWidth: 1
+                    Layout.preferredHeight: 24
+                    Layout.leftMargin: 5
+                    Layout.rightMargin: 5
+                    color: root.borderColor
+                }
+
+                Text {
+                    Layout.maximumWidth: 130
+                    text: qsTr("Hide categories")
+                    color: root.secondaryTextColor
+                    font.pixelSize: Math.max(10, root.baseFontSize - 1)
+                    elide: Text.ElideRight
+                }
+                ModernSwitch {
+                    id: hideCategoriesSwitch
+                    checked: root.hideCategories
+                    accentColor: root.accentColor
+                    inactiveColor: root.inactiveControlColor
+                    knobColor: checked ? systemPalette.highlightedText : systemPalette.button
+                    knobBorderColor: Qt.alpha(systemPalette.shadow, 0.25)
+                    Accessible.name: qsTr("Hide the category list")
+                    ThemeToolTip {
+                        visible: hideCategoriesSwitch.hovered
+                        text: qsTr("Use the whole window for tools")
+                    }
+                    onToggled: root.hideCategories = checked
+                }
             }
 
             GridView {
@@ -450,7 +490,7 @@ ApplicationWindow {
             }
 
             RowLayout {
-                visible: root.compactNavigation
+                visible: root.compactNavigation || root.hideCategories
                 Layout.fillWidth: true
                 spacing: 7
 
