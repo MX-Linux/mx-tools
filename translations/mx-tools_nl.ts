@@ -8,57 +8,57 @@
         <location filename="../qml/Main.qml" line="80"/>
         <location filename="../qml/Main.qml" line="526"/>
         <source>MX Tools</source>
-        <translation type="unfinished">MX Tools</translation>
+        <translation>MX Tools</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="87"/>
         <source>System dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Systeemdashboard</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="133"/>
         <source>Search tools and tasks…</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoek gereedschappen en taken…</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="108"/>
         <source>Search tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoek gereedschappen</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="146"/>
         <source>Clear search</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoekresultaten wissen</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="156"/>
         <source>Manual</source>
-        <translation type="unfinished">Handleiding</translation>
+        <translation>Handleiding</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="165"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Over</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="197"/>
         <source>CATEGORIES</source>
-        <translation type="unfinished"></translation>
+        <translation>CATEGORIEËN</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="364"/>
         <source>Condensed view</source>
-        <translation type="unfinished"></translation>
+        <translation>Beknopt overzicht</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="379"/>
         <source>Show more tools at once</source>
-        <translation type="unfinished"></translation>
+        <translation>Meer tools tegelijk weergeven</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="376"/>
         <source>Use condensed tool view</source>
-        <translation type="unfinished"></translation>
+        <translation>Gebruik de beknopte toolweergave</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="240"/>
@@ -66,7 +66,7 @@
         <location filename="../qml/Main.qml" line="460"/>
         <location filename="../qml/Main.qml" line="476"/>
         <source>Hide those tools from the system menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Verberg die tools uit het systeemmenu</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="247"/>
@@ -74,162 +74,77 @@
         <location filename="../qml/Main.qml" line="466"/>
         <location filename="../qml/Main.qml" line="479"/>
         <source>They&apos;ll still be available here in MX Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Ze blijven hier beschikbaar in MX Tools</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="330"/>
         <source>Search results</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoekresultaten</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="332"/>
         <source>All tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle gereedschappen</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="339"/>
         <source>Results matching “%1”</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultaten die overeenkomen met “%1”</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="340"/>
         <source>Choose a tool to configure or maintain your system</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies een hulpmiddel om uw systeem te configureren of te onderhouden</translation>
     </message>
     <message numerus="yes">
         <location filename="../qml/Main.qml" line="349"/>
         <source>%n tool(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n gereedschap(pen)</numerusform>
+            <numerusform>%n gereedschap(pen)</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="444"/>
         <source>No tools found
 Try a different search or category.</source>
-        <translation type="unfinished"></translation>
+        <translation>Er zijn geen gereedschappen gevonden
+Probeer een andere zoekopdracht of categorie.</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="493"/>
         <source>About MX Tools</source>
-        <translation type="unfinished">Over MX Gereedschappen</translation>
+        <translation>Over MX Gereedschappen</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="533"/>
         <source>Version %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Versie %1</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="539"/>
         <source>A focused collection of configuration and maintenance tools for MX Linux.</source>
-        <translation type="unfinished"></translation>
+        <translation>Een gerichte verzameling configuratie- en onderhoudstools voor MX Linux.</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="548"/>
         <source>Website</source>
-        <translation type="unfinished"></translation>
+        <translation>Website</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="556"/>
         <source>License</source>
-        <translation type="unfinished">Licentie</translation>
+        <translation>Licentie</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="564"/>
         <source>Changelog</source>
-        <translation type="unfinished">Changelog</translation>
+        <translation>Changelog</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="574"/>
         <source>Copyright © MX Linux</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MainWindow</name>
-    <message>
-        <source>MX Tools</source>
-        <translation type="vanished">MX Tools</translation>
-    </message>
-    <message>
-        <source>About this application</source>
-        <translation type="vanished">Over deze toepassing</translation>
-    </message>
-    <message>
-        <source>About...</source>
-        <translation type="vanished">Over...</translation>
-    </message>
-    <message>
-        <source>Alt+B</source>
-        <translation type="vanished">Alt+B</translation>
-    </message>
-    <message>
-        <source>Close application</source>
-        <translation type="vanished">Sluit applicatie</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="vanished">Sluiten</translation>
-    </message>
-    <message>
-        <source>Alt+N</source>
-        <translation type="vanished">Alt+N</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation type="vanished">Handleiding</translation>
-    </message>
-    <message>
-        <source>These MX applications save time and effort with important tasks.</source>
-        <translation type="vanished">Deze MX toepassingen besparen tijd en moeite met belangrijke taken.</translation>
-    </message>
-    <message>
-        <source>Hide individual tools from the menu</source>
-        <translation type="vanished">Verberg individuele gereedschappen van het menu</translation>
-    </message>
-    <message>
-        <source>search</source>
-        <translation type="vanished">zoeken</translation>
-    </message>
-    <message>
-        <source>About MX Tools</source>
-        <translation type="vanished">Over MX Gereedschappen</translation>
-    </message>
-    <message>
-        <source>Version: </source>
-        <translation type="vanished">Versie:</translation>
-    </message>
-    <message>
-        <source>Configuration Tools for MX Linux</source>
-        <translation type="vanished">Configuratiegereedschappen voor MX Linux</translation>
-    </message>
-    <message>
-        <source>Copyright (c) MX Linux</source>
-        <translation type="vanished">Copyright (c) MX Linux</translation>
-    </message>
-    <message>
-        <source>%1 License</source>
-        <translation type="vanished">%1 Licentie</translation>
-    </message>
-</context>
-<context>
-    <name>QObject</name>
-    <message>
-        <source>License</source>
-        <translation type="vanished">Licentie</translation>
-    </message>
-    <message>
-        <source>Changelog</source>
-        <translation type="vanished">Changelog</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Ongedaan maken</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation type="vanished">&amp;Sluiten</translation>
+        <translation>Copyright © MX Linux</translation>
     </message>
 </context>
 <context>
@@ -237,140 +152,140 @@ Try a different search or category.</source>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="84"/>
         <source>Open this MX tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Open dit MX-gereedschap</translation>
     </message>
 </context>
 <context>
     <name>ToolModel</name>
     <message>
-        <location filename="../src/toolmodel.cpp" line="64"/>
+        <location filename="../src/toolmodel.cpp" line="92"/>
         <source>Live</source>
-        <translation type="unfinished"></translation>
+        <translation>Live</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="67"/>
+        <location filename="../src/toolmodel.cpp" line="95"/>
         <source>Maintenance</source>
-        <translation type="unfinished"></translation>
+        <translation>Onderhoud</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="70"/>
+        <location filename="../src/toolmodel.cpp" line="98"/>
         <source>Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Instellingen</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="73"/>
+        <location filename="../src/toolmodel.cpp" line="101"/>
         <source>Software</source>
-        <translation type="unfinished"></translation>
+        <translation>Software</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="75"/>
+        <location filename="../src/toolmodel.cpp" line="103"/>
         <source>Utilities</source>
-        <translation type="unfinished"></translation>
+        <translation>Hulpprogramma’s</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="454"/>
+        <location filename="../src/toolmodel.cpp" line="482"/>
         <source>All tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle gereedschappen</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="642"/>
-        <location filename="../src/toolmodel.cpp" line="657"/>
-        <location filename="../src/toolmodel.cpp" line="666"/>
+        <location filename="../src/toolmodel.cpp" line="670"/>
+        <location filename="../src/toolmodel.cpp" line="684"/>
+        <location filename="../src/toolmodel.cpp" line="693"/>
         <source>Unable to launch tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Het programma kan niet worden gestart</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="642"/>
+        <location filename="../src/toolmodel.cpp" line="670"/>
         <source>The selected tool is no longer available.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="648"/>
-        <source>Tool already running</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="648"/>
-        <source>%1 is already running.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="657"/>
-        <source>The selected tool has no launch command.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="666"/>
-        <source>Could not start %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Het geselecteerde gereedschap is niet langer beschikbaar.</translation>
     </message>
     <message>
         <location filename="../src/toolmodel.cpp" line="675"/>
-        <location filename="../src/toolmodel.cpp" line="699"/>
+        <source>Tool already running</source>
+        <translation>Tool is al actief</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="675"/>
+        <source>%1 is already running.</source>
+        <translation>%1 is al actief.</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="684"/>
+        <source>The selected tool has no launch command.</source>
+        <translation>Het geselecteerde hulpprogramma heeft geen startopdracht.</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="693"/>
+        <source>Could not start %1.</source>
+        <translation>%1 kon niet worden gestart.</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="702"/>
+        <location filename="../src/toolmodel.cpp" line="726"/>
         <source>Could not open %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="681"/>
-        <source>Manual unavailable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="686"/>
-        <source>License unavailable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="692"/>
-        <source>Website unavailable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="692"/>
-        <source>Could not open the MX Linux website.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="699"/>
-        <location filename="../src/toolmodel.cpp" line="705"/>
-        <source>Changelog unavailable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/toolmodel.cpp" line="705"/>
-        <source>Could not read the application changelog.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kon niet worden geopend.</translation>
     </message>
     <message>
         <location filename="../src/toolmodel.cpp" line="708"/>
+        <source>Manual unavailable</source>
+        <translation>Handleiding niet beschikbaar</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="713"/>
+        <source>License unavailable</source>
+        <translation>Licentie niet beschikbaar</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="719"/>
+        <source>Website unavailable</source>
+        <translation>Website niet beschikbaar</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="719"/>
+        <source>Could not open the MX Linux website.</source>
+        <translation>De MX Linux-website kon niet worden geopend.</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="726"/>
+        <location filename="../src/toolmodel.cpp" line="732"/>
+        <source>Changelog unavailable</source>
+        <translation>Wijzigingslogboek niet beschikbaar</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="732"/>
+        <source>Could not read the application changelog.</source>
+        <translation>De changelog van de applicatie kon niet worden gelezen.</translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="735"/>
         <source>Changelog</source>
-        <translation type="unfinished">Changelog</translation>
+        <translation>Changelog</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="422"/>
-        <location filename="../src/toolmodel.cpp" line="430"/>
-        <location filename="../src/toolmodel.cpp" line="747"/>
-        <location filename="../src/toolmodel.cpp" line="752"/>
-        <location filename="../src/toolmodel.cpp" line="798"/>
-        <location filename="../src/toolmodel.cpp" line="849"/>
-        <location filename="../src/toolmodel.cpp" line="887"/>
+        <location filename="../src/toolmodel.cpp" line="450"/>
+        <location filename="../src/toolmodel.cpp" line="458"/>
+        <location filename="../src/toolmodel.cpp" line="774"/>
+        <location filename="../src/toolmodel.cpp" line="779"/>
+        <location filename="../src/toolmodel.cpp" line="825"/>
+        <location filename="../src/toolmodel.cpp" line="876"/>
+        <location filename="../src/toolmodel.cpp" line="914"/>
         <source>Menu setting failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Het instellen van het menu is mislukt</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="422"/>
-        <location filename="../src/toolmodel.cpp" line="747"/>
-        <location filename="../src/toolmodel.cpp" line="752"/>
+        <location filename="../src/toolmodel.cpp" line="450"/>
+        <location filename="../src/toolmodel.cpp" line="774"/>
+        <location filename="../src/toolmodel.cpp" line="779"/>
         <source>Could not create %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kon niet worden aangemaakt.</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="430"/>
-        <location filename="../src/toolmodel.cpp" line="798"/>
-        <location filename="../src/toolmodel.cpp" line="849"/>
-        <location filename="../src/toolmodel.cpp" line="887"/>
+        <location filename="../src/toolmodel.cpp" line="458"/>
+        <location filename="../src/toolmodel.cpp" line="825"/>
+        <location filename="../src/toolmodel.cpp" line="876"/>
+        <location filename="../src/toolmodel.cpp" line="914"/>
         <source>Could not update %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kon niet worden bijgewerkt.</translation>
     </message>
 </context>
 </TS>

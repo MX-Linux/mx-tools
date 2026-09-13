@@ -1,6 +1,14 @@
+mx-tools (26.09.6) mx; urgency=medium
+
+  * Fix a tool that could no longer be started again after it was closed
+  * Darken the smaller descriptive text so it is easier to read
+
+ -- Adrian <adrian@mxlinux.org>  Sun, 13 Sep 2026 09:10:36 -0400
+
 mx-tools (26.09.5) mx; urgency=medium
 
-  * Keep the application and tool icons visible when a desktop theme does not provide them
+  * Keep the application and tool icons visible when a desktop theme does not
+    provide them
   * Allow MX Tools to start on older Qt 6 systems such as Debian Bookworm
 
  -- Adrian <adrian@mxlinux.org>  Thu, 10 Sep 2026 08:09:28 -0400
