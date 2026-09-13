@@ -1,3 +1,10 @@
+mx-tools (26.09.7) mx; urgency=medium
+
+  * Add an option to hide the category list so tools use the full window
+    width, remembered the next time MX Tools starts
+
+ -- Adrian <adrian@mxlinux.org>  Sun, 13 Sep 2026 16:24:33 -0400
+
 mx-tools (26.09.6) mx; urgency=medium
 
   * Fix a tool that could no longer be started again after it was closed
