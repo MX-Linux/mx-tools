@@ -45,9 +45,13 @@ package() { cd "${srcdir}/${_srcdir}"; ... }
 
 Two things to keep in mind:
 
-- **`pkgver` names the tarball**, so it has to track `debian/changelog`.
-  `release.sh` already seds `^pkgver=` in `aur/PKGBUILD`; it should do the same
-  here.
+- **`pkgver` names the tarball**, so it has to track `debian/changelog`. The
+  `obs` fish function keeps it in step automatically: before it regenerates
+  `debs/`, it rewrites `^pkgver=` in `arch/PKGBUILD` to the changelog version
+  and says so, leaving the change for you to commit alongside the tarball it
+  describes. It reads the version before any release suffix is stamped, since
+  `mx25` marks a Debian release and means nothing on Arch. Repositories without
+  an `arch/PKGBUILD` are left alone.
 - **The tarball must contain everything `package()` installs.** `debs/*.tar.xz`
   is only regenerated when you run `obs`, so adding a new file to the repo and
   installing it from the PKGBUILD fails until the next release build refreshes
@@ -174,7 +178,8 @@ stale index and silently get no updates.
 
 1. Copy `arch/PKGBUILD` from `mx-tools`, adjust `pkgname`, `depends`,
    `makedepends`, `build()` and `package()`.
-2. Check `pkgver` matches `debian/changelog`.
+2. `pkgver` is handled for you from then on, but set it to the current
+   `debian/changelog` version the first time so the initial build works.
 3. Commit and **push** - the service pulls `master`, so an unpushed PKGBUILD
    does not exist as far as OBS is concerned.
 4. Add `<param name="extract">arch/PKGBUILD</param>` to the package's `_service`.
@@ -209,6 +214,17 @@ stale index and silently get no updates.
   because `debs/mx-tools_26.09.7.tar.xz` on master predates `data/menu/`. The
   next `obs` run refreshes it. This is the "tarball must contain everything
   package() installs" gotcha above, and it resolves itself at the next release.
+
+## Release workflow
+
+```
+obs                   # or obs --mx25; regenerates debs/, syncs arch/PKGBUILD pkgver
+git add debs/ arch/PKGBUILD debian/changelog && git commit && git push
+```
+
+OBS picks the push up on its own; `osc service remoterun home:mx-packaging <app>`
+forces it. One run produces the Debian packages for 12/13/Testing across four
+architectures and the Arch package for x86_64, all from the same tarball.
 
 ## History
 
