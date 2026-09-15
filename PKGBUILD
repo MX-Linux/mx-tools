@@ -1,6 +1,6 @@
 # Maintainer: Adrian <adrian@mxlinux.org>
 pkgname=mx-tools
-pkgver=${PKGVER:-25.4}
+pkgver=${PKGVER:-26.09.8}
 pkgrel=1
 pkgdesc="MX Tools - Dashboard application launcher for various MX tools"
 arch=('x86_64' 'i686')
