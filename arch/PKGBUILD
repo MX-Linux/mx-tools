@@ -57,8 +57,10 @@ package() {
     install -Dm644 icons/mx-tools.png "${pkgdir}/usr/share/icons/hicolor/96x96/apps/mx-tools.png"
     install -Dm644 icons/mx-tools.svg "${pkgdir}/usr/share/icons/hicolor/scalable/apps/mx-tools.svg"
 
-    install -dm755 "${pkgdir}/usr/share/man/man1"
-    install -Dm644 -t "${pkgdir}/usr/share/man/man1/" help/*.1 2>/dev/null || true
+    # Already correct with -t, which creates man1/ itself; the separate
+    # install -dm755 was redundant and the "|| true" only stood to hide a real
+    # failure.
+    install -Dm644 -t "${pkgdir}/usr/share/man/man1/" help/*.1
 
     install -dm755 "${pkgdir}/usr/share/doc/mx-tools"
     for f in help/*.html help/*.css help/*.jpg help/*.png; do
