@@ -1,3 +1,9 @@
+mx-tools (26.09.8) mx; urgency=medium
+
+  * Fix missing MX apps from menu in Arch
+
+ -- Adrian <adrian@mxlinux.org>  Mon, 14 Sep 2026 23:30:46 -0400
+
 mx-tools (26.09.7) mx; urgency=medium
 
   * Add an option to hide the category list so tools use the full window

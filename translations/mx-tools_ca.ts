@@ -46,14 +46,6 @@
         <translation>CATEGORIES</translation>
     </message>
     <message>
-        <source>Show tools only in MX Tools.</source>
-        <translation type="vanished">Mostra les eines només a MX Tools.</translation>
-    </message>
-    <message>
-        <source>Hide individual tools from the applications menu</source>
-        <translation type="vanished">Amaga eines individuals del menú d&apos;aplicacions</translation>
-    </message>
-    <message>
         <location filename="../qml/Main.qml" line="374"/>
         <source>Condensed view</source>
         <translation>Vista condensada</translation>
@@ -74,7 +66,7 @@
         <location filename="../qml/Main.qml" line="500"/>
         <location filename="../qml/Main.qml" line="516"/>
         <source>Hide those tools from the system menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Amaga aquestes eines al menú del sistema</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="257"/>
@@ -82,7 +74,7 @@
         <location filename="../qml/Main.qml" line="506"/>
         <location filename="../qml/Main.qml" line="519"/>
         <source>They&apos;ll still be available here in MX Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Encara estaran disponibles aquí, a les Eines MX</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="340"/>
@@ -115,17 +107,17 @@
     <message>
         <location filename="../qml/Main.qml" line="404"/>
         <source>Hide categories</source>
-        <translation type="unfinished"></translation>
+        <translation>Amaga les categories</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="416"/>
         <source>Hide the category list</source>
-        <translation type="unfinished"></translation>
+        <translation>Amaga la llista de categories</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="419"/>
         <source>Use the whole window for tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Us la finestra sencera per les eines</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="484"/>
