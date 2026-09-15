@@ -215,6 +215,86 @@ stale index and silently get no updates.
   next `obs` run refreshes it. This is the "tarball must contain everything
   package() installs" gotcha above, and it resolves itself at the next release.
 
+## Migration checklist
+
+Inventory taken 2026-09-15 from `build-iso-mx/Deb/Arch` (10), `build-iso-mx/Deb/ArchKDE`
+(4) and the AUR packages maintained by AdrianTM (26). 40 packages, and the two
+sets are disjoint: the ISO carries data and defaults packages that are not in
+AUR, AUR carries the apps.
+
+### Priority 1 - on the ISO, not in AUR (13)
+
+These are why the repository exists: nothing can update them today. None has an
+OBS package yet, and spot checks show these repos have `debian/` but no
+committed `debs/*.tar.xz`, so each needs the `obs` workflow established first.
+Several already carry a root `PKGBUILD` that builds from the working tree with
+`cd "$startdir"` - that cannot work on OBS, so they need an `arch/PKGBUILD`
+variant like the one in this repo.
+
+Per package: run `obs` once and commit `debs/`, create the OBS package and its
+`_service`, add `arch/PKGBUILD`, enable the Arch repository.
+
+- [ ] desktop-defaults-mx-common
+- [ ] desktop-defaults-mx-kde (KDE)
+- [ ] conky-toggle-mx
+- [ ] gazelle-installer-data-mx
+- [ ] grub-themes-mx
+- [ ] mx-conky-data
+- [ ] mx-skel-fish-config
+- [ ] mx-tweak
+- [ ] mx25-artwork
+- [ ] papirus-mxblue
+- [ ] plasma-look-and-feel-theme-mx (KDE)
+- [ ] plasma-modified-defaults-mx (KDE)
+- [ ] quark-splash-dark (KDE)
+
+### Priority 2 - in AUR, OBS package already exists (17)
+
+Cheapest group: the OBS package and its `_service` are already there, so it is
+`arch/PKGBUILD` + one `extract` line + one `<enable repository="Arch"/>`.
+Migrating these is optional - AUR already gives users an update path - but it
+means MX-Arch users get prebuilt binaries instead of compiling Qt apps, and the
+version matches what shipped on the ISO.
+
+- [x] mx-tools - done 2026-09-15
+- [ ] custom-toolbox
+- [ ] formatusb
+- [ ] job-scheduler
+- [ ] mx-boot-options
+- [ ] mx-cleanup
+- [ ] mx-conky
+- [ ] mx-datetime
+- [ ] mx-live-usb-maker
+- [ ] mx-locale
+- [ ] mx-packageinstaller
+- [ ] mx-samba-config
+- [ ] mx-service-manager
+- [ ] mx-snapshot
+- [ ] mx-user
+- [ ] quick-system-info-gui
+- [ ] uefi-manager
+- [ ] xdelta3-gui
+
+### Priority 3 - in AUR, no OBS package yet (7)
+
+As Priority 2, plus creating the OBS package and `_service` first.
+
+- [ ] arch-remaster
+- [ ] flags-common
+- [ ] gazelle-installer
+- [ ] mx-boot-repair
+- [ ] mx-iso-template-arch
+- [ ] system-keyboard-qt
+- [ ] update-notifier-qt
+
+### Not migrating
+
+- **paru** - a third-party AUR helper, shipped on the ISO only so users can
+  install AUR packages. It is a foreign package and updates itself from AUR.
+- **uefi-manager-git** - a VCS package that tracks git HEAD. A binary repository
+  would freeze it to whatever snapshot happened to build, which defeats the point
+  of a `-git` package. Leave it in AUR.
+
 ## Release workflow
 
 ```
