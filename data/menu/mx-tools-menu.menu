@@ -1,0 +1,37 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+          "http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+<!--
+  Groups the MX tools into an "MX Tools" submenu. Installed on Arch only, by
+  the PKGBUILD in this repository; on Debian the same menu comes from
+  desktop-defaults-mx-common, which owns mx-tools.menu and mx-tools.directory.
+
+  The file names here deliberately differ from that package's, so both can be
+  installed without a pacman file conflict: menus sharing a <Name> are merged
+  and their <Include> rules accumulate, so this supplements whatever is already
+  present rather than replacing it. Keep the category list in step with
+  desktop-defaults-mx-common/xdg/menus/applications-merged/mx-tools.menu.
+
+  Both spellings of every category are listed because MX desktop files use
+  MX-Foo and X-MX-Foo interchangeably.
+-->
+<Menu>
+  <Name>Applications</Name>
+  <Menu>
+    <Name>mx-tools</Name>
+    <Directory>mx-tools-menu.directory</Directory>
+    <Include>
+      <Category>X-MX-Software</Category>
+      <Category>X-MX-Maintenance</Category>
+      <Category>X-MX-Setup</Category>
+      <Category>X-MX-Live</Category>
+      <Category>X-MX-Utilities</Category>
+      <Category>MX-Software</Category>
+      <Category>MX-Maintenance</Category>
+      <Category>MX-Setup</Category>
+      <Category>MX-Live</Category>
+      <Category>MX-Utilities</Category>
+      <Category>X-antiX</Category>
+      <Filename>mx-tools.desktop</Filename>
+    </Include>
+  </Menu>
+</Menu>
