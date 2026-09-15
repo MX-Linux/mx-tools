@@ -1,0 +1,70 @@
+# Maintainer: Adrian <adrian@mxlinux.org>
+
+# PKGBUILD for building on the Open Build Service.
+#
+# OBS build VMs have no network, so every source has to be present in the
+# package's OBS sources before the build starts. This consumes the Debian
+# native tarball that release builds commit to debs/ - it carries the complete
+# source tree - instead of fetching a GitHub tarball the way aur/PKGBUILD does.
+#
+# Keep pkgver in step with debian/changelog: it names the tarball.
+
+pkgname=mx-tools
+pkgver=26.09.7
+pkgrel=1
+pkgdesc="MX Tools - Dashboard application launcher for various MX tools"
+arch=('x86_64')
+url="https://mxlinux.org"
+license=('GPL3')
+depends=('qt6-base' 'qt6-declarative')
+makedepends=('cmake' 'ninja' 'qt6-declarative' 'qt6-tools')
+source=("${pkgname}_${pkgver}.tar.xz")
+sha256sums=('SKIP')
+
+# dpkg-source packed this tarball from a directory called "src", so that - not
+# ${pkgname}-${pkgver} - is what it unpacks to.
+_srcdir="src"
+
+build() {
+    cd "${srcdir}/${_srcdir}"
+
+    cmake -G Ninja \
+        -B build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DPROJECT_VERSION_OVERRIDE="${pkgver}"
+
+    cmake --build build --parallel
+}
+
+package() {
+    cd "${srcdir}/${_srcdir}"
+
+    install -Dm755 build/mx-tools "${pkgdir}/usr/bin/mx-tools"
+
+    install -dm755 "${pkgdir}/usr/share/mx-tools/locale"
+    install -Dm644 -t "${pkgdir}/usr/share/mx-tools/locale/" build/*.qm 2>/dev/null || true
+
+    install -Dm644 data/mx-tools.desktop "${pkgdir}/usr/share/applications/mx-tools.desktop"
+
+    # The "MX Tools" submenu. See data/menu/mx-tools-menu.menu for why the file
+    # names differ from desktop-defaults-mx-common's.
+    install -Dm644 data/menu/mx-tools-menu.directory \
+        "${pkgdir}/usr/share/desktop-directories/mx-tools-menu.directory"
+    install -Dm644 data/menu/mx-tools-menu.menu \
+        "${pkgdir}/etc/xdg/menus/applications-merged/mx-tools-menu.menu"
+
+    install -Dm644 icons/mx-tools.png "${pkgdir}/usr/share/icons/hicolor/96x96/apps/mx-tools.png"
+    install -Dm644 icons/mx-tools.svg "${pkgdir}/usr/share/icons/hicolor/scalable/apps/mx-tools.svg"
+
+    install -dm755 "${pkgdir}/usr/share/man/man1"
+    install -Dm644 -t "${pkgdir}/usr/share/man/man1/" help/*.1 2>/dev/null || true
+
+    install -dm755 "${pkgdir}/usr/share/doc/mx-tools"
+    for f in help/*.html help/*.css help/*.jpg help/*.png; do
+        [ -f "$f" ] && install -Dm644 "$f" "${pkgdir}/usr/share/doc/mx-tools/$(basename "$f")"
+    done
+    gzip -c debian/changelog > "${pkgdir}/usr/share/doc/mx-tools/changelog.gz"
+
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
