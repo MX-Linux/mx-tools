@@ -252,6 +252,7 @@ if(BUILD_TESTING)
     target_compile_definitions(test-toolmodel PRIVATE
         MX_TOOLS_APPLICATIONS_PATH="${CMAKE_CURRENT_BINARY_DIR}/test-applications"
         MX_TOOLS_CHANGELOG_PATH="${CMAKE_CURRENT_BINARY_DIR}/test-changelog.gz"
+        MX_TOOLS_FAKE_XFCONF_QUERY="${CMAKE_CURRENT_SOURCE_DIR}/tests/fake-xfconf-query"
         MX_TOOLS_TESTING
     )
     target_include_directories(test-toolmodel PRIVATE src)

@@ -133,8 +133,10 @@ void TestToolModel::initTestCase()
     // Put the fake first in PATH so no test reaches a real xfce4-panel.
     // tests/fake-xfconf-query documents how it stores the panel properties.
     QVERIFY(m_fakeBin.isValid());
-    const QString source = QFINDTESTDATA("fake-xfconf-query");
-    QVERIFY(!source.isEmpty());
+    // An absolute path from CMake: QFINDTESTDATA relies on __FILE__, which Debian's
+    // -ffile-prefix-map turns into a relative path it can't resolve.
+    const QString source = QStringLiteral(MX_TOOLS_FAKE_XFCONF_QUERY);
+    QVERIFY2(QFileInfo::exists(source), qPrintable(source));
     const QString script = m_fakeBin.filePath(QStringLiteral("xfconf-query"));
     QVERIFY(QFile::copy(source, script));
     QVERIFY(QFile::setPermissions(script, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
