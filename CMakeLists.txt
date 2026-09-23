@@ -297,6 +297,12 @@ if(BUILD_TESTING)
     if(NOT MX_TOOLS_QMLTESTRUNNER)
         list(APPEND MX_TOOLS_QML_TEST_MISSING qmltestrunner)
     endif()
+    # Main.qml shows the SVG logo, and a missing image plugin would fail the test's
+    # no-warnings check.
+    file(GLOB MX_TOOLS_SVG_IMAGE_PLUGIN "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_PLUGINS}/imageformats/*qsvg*")
+    if(NOT MX_TOOLS_SVG_IMAGE_PLUGIN)
+        list(APPEND MX_TOOLS_QML_TEST_MISSING "the SVG image plugin")
+    endif()
     if(NOT MX_TOOLS_QML_TEST_MISSING)
         if(Qt6_VERSION VERSION_GREATER_EQUAL 6.5)
             set(MX_TOOLS_MAIN_QML_URL "file://${CMAKE_CURRENT_SOURCE_DIR}/qml/Main.qml")

@@ -41,14 +41,19 @@ override_dh_dwz:
 override_dh_gencontrol:
 	# Mirror CMakeLists.txt: Settings moved from Qt.labs.settings into QtCore
 	# in Qt 6.5, so the package must depend on whichever module the build
-	# actually embedded into Main.qml.
+	# actually embedded into Main.qml. The SVG image plugin, which draws the
+	# bundled logo, ships in libqt6svg6 with Qt 6.4 and in qt6-svg-plugins
+	# after that.
 	QT6_VERSION=$$(dpkg-query -W -f='$${Version}' qt6-base-dev); \
 	if dpkg --compare-versions "$$QT6_VERSION" ge 6.5; then \
 		SETTINGS_DEP=qml6-module-qtcore; \
+		SVG_DEP=qt6-svg-plugins; \
 	else \
 		SETTINGS_DEP=qml6-module-qt-labs-settings; \
+		SVG_DEP=libqt6svg6; \
 	fi; \
 	echo "qml:SettingsDepends=$$SETTINGS_DEP" >> debian/mx-tools.substvars; \
+	echo "qml:SvgDepends=$$SVG_DEP" >> debian/mx-tools.substvars; \
 	dh_gencontrol $(DH_GENCONTROL_ARGS)
 
 %:

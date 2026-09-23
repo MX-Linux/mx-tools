@@ -637,6 +637,7 @@ ApplicationWindow {
         }
     }
 
-    Shortcut { sequence: StandardKey.Find; onActivated: searchField.forceActiveFocus() }
+    // StandardKey.Find can map to several key combinations; sequences binds them all.
+    Shortcut { sequences: [StandardKey.Find]; onActivated: searchField.forceActiveFocus() }
     Shortcut { sequence: "Escape"; onActivated: searchField.text.length > 0 ? searchField.clear() : root.close() }
 }

@@ -39,7 +39,8 @@ jobs:
           # Main.qml imports Settings from QtCore on Qt >= 6.5 and from Qt.labs.settings
           # before that, and the packages don't track that split (Ubuntu 24.04's Qt 6.4
           # has a qml6-module-qtcore too), so install whichever of them apt offers.
-          for module in qml6-module-qtcore qml6-module-qt-labs-settings; do
+          # The SVG image plugin is in qt6-svg-plugins from Qt 6.5 on and in libqt6svg6 before.
+          for module in qml6-module-qtcore qml6-module-qt-labs-settings qt6-svg-plugins libqt6svg6; do
             if apt-cache show "$module" > /dev/null 2>&1; then
               sudo apt-get install -y "$module"
             fi
