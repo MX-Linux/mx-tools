@@ -88,6 +88,9 @@ private slots:
     void cleanup();
     void discoversAndFiltersTools();
     void launchBlocksRelaunchOnlyWhileRunning();
+    void readsOnlyTheDesktopEntryGroup();
+    void listsMultiCategoryToolOnce();
+    void launchExpandsExecFieldCodes();
     void restoreReinsertsDroppedWhiskerFavorite();
     void failedPluginQueryKeepsFavoritesSnapshot();
     void legacyScalarFavoritesAreRestoredAsArray();
@@ -170,22 +173,22 @@ void TestToolModel::discoversAndFiltersTools()
     writeDesktopFile(applications, QStringLiteral("software-wrong-desktop.desktop"),
                       desktopFileContent(QStringLiteral("KDE-only Software"), QStringLiteral("X-MX-Software"),
                                          QStringLiteral("OnlyShowIn=KDE;\n")));
-    writeDesktopFile(applications, QStringLiteral("live-only.desktop"),
-                      desktopFileContent(QStringLiteral("Live Only Tool"), QStringLiteral("MX-Live"),
-                                         QStringLiteral("MX-OnlyLive=true\n")));
-    writeDesktopFile(applications, QStringLiteral("installed-only.desktop"),
-                      desktopFileContent(QStringLiteral("Installed Only Tool"), QStringLiteral("MX-Maintenance"),
-                                         QStringLiteral("MX-OnlyInstalled=true\n")));
+    writeDesktopFile(applications, QStringLiteral("mx-remastercc.desktop"),
+                      desktopFileContent(QStringLiteral("Live Only Tool"), QStringLiteral("MX-Live")));
+    // Mentioning a marker in the text no longer hides a tool.
+    writeDesktopFile(applications, QStringLiteral("installed.desktop"),
+                      desktopFileContent(QStringLiteral("Installed Tool"), QStringLiteral("MX-Maintenance"),
+                                         QStringLiteral("Keywords=MX-OnlyLive;\n")));
 
     qputenv("XDG_CURRENT_DESKTOP", "XFCE");
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
 
-    // MX_TOOLS_TEST_FORCE_LIVE=0 means MX-OnlyLive is excluded and
-    // MX-OnlyInstalled is kept; NotShowIn=XFCE and OnlyShowIn=KDE both exclude
-    // their entries under XDG_CURRENT_DESKTOP=XFCE, so only "Utility Tool" and
-    // "Installed Only Tool" should survive.
+    // MX_TOOLS_TEST_FORCE_LIVE=0 means the live-only launcher is excluded;
+    // NotShowIn=XFCE and OnlyShowIn=KDE both exclude their entries under
+    // XDG_CURRENT_DESKTOP=XFCE, so only "Utility Tool" and "Installed Tool"
+    // should survive.
     QCOMPARE(model.totalCount(), 2);
     QCOMPARE(model.categories(), QStringList({QStringLiteral("All tools"), QStringLiteral("Maintenance"),
                                                QStringLiteral("Utilities")}));
@@ -205,12 +208,12 @@ void TestToolModel::discoversAndFiltersTools()
     QCOMPARE(model.rowCount(), 1);
     QCOMPARE(model.data(model.index(0), ToolModel::CategoryRole).toString(), QStringLiteral("Maintenance"));
 
-    // On a live session the MX-OnlyLive/MX-OnlyInstalled pair swaps over.
+    // A live session adds the live-only launcher.
     qputenv("MX_TOOLS_TEST_FORCE_LIVE", "1");
     ToolModel liveModel(&iconProvider);
-    QCOMPARE(liveModel.totalCount(), 2);
+    QCOMPARE(liveModel.totalCount(), 3);
     QCOMPARE(liveModel.categories(), QStringList({QStringLiteral("All tools"), QStringLiteral("Live"),
-                                                   QStringLiteral("Utilities")}));
+                                                   QStringLiteral("Maintenance"), QStringLiteral("Utilities")}));
 }
 
 void TestToolModel::launchBlocksRelaunchOnlyWhileRunning()
@@ -237,6 +240,115 @@ void TestToolModel::launchBlocksRelaunchOnlyWhileRunning()
     QTest::qWait(600);
     model.launch(fileName);
     QCOMPARE(errors.count(), 1);
+}
+
+void TestToolModel::readsOnlyTheDesktopEntryGroup()
+{
+    // Keys from other groups must not fill in missing ones, spacing around '='
+    // is allowed, and values are unescaped.
+    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("parsed.desktop"),
+                     QStringLiteral("# Comment=Not a comment\n"
+                                    "[Desktop Entry]\n"
+                                    "Type=Application\n"
+                                    "Name = Parsed\\sTool\n"
+                                    "Exec=/bin/true\n"
+                                    "Categories = System;X-MX-Utilities;\n"
+                                    "Keywords=semi\\;colon;other;\n"
+                                    "[Desktop Action extra]\n"
+                                    "Name=Extra\n"
+                                    "Comment=Action comment\n"));
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QCOMPARE(model.totalCount(), 1);
+    QCOMPARE(model.data(model.index(0), ToolModel::NameRole).toString(), QStringLiteral("Parsed Tool"));
+    QCOMPARE(model.data(model.index(0), ToolModel::CommentRole).toString(), QString());
+
+    model.setSearch(QStringLiteral("semi;colon other"));
+    QCOMPARE(model.rowCount(), 1);
+    model.setSearch(QStringLiteral("Action comment"));
+    QCOMPARE(model.rowCount(), 0);
+}
+
+void TestToolModel::listsMultiCategoryToolOnce()
+{
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    writeDesktopFile(applications, QStringLiteral("both.desktop"),
+                     desktopFileContent(QStringLiteral("Both"), QStringLiteral("X-MX-Utilities;MX-Setup;")));
+    writeDesktopFile(applications, QStringLiteral("setup.desktop"),
+                     desktopFileContent(QStringLiteral("Setup Only"), QStringLiteral("X-MX-Setup;")));
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QCOMPARE(model.totalCount(), 2);
+    QCOMPARE(model.rowCount(), 2);
+    QCOMPARE(model.categories(), QStringList({QStringLiteral("All tools"), QStringLiteral("Setup"),
+                                               QStringLiteral("Utilities")}));
+
+    // Listed under each of its categories, labelled with the first one in MX order.
+    model.setSelectedCategory(QStringLiteral("Utilities"));
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(model.data(model.index(0), ToolModel::NameRole).toString(), QStringLiteral("Both"));
+    QCOMPARE(model.data(model.index(0), ToolModel::CategoryRole).toString(), QStringLiteral("Setup"));
+    model.setSelectedCategory(QStringLiteral("Setup"));
+    QCOMPARE(model.rowCount(), 2);
+
+    model.setSelectedCategory({});
+    model.setSearch(QStringLiteral("Both"));
+    QCOMPARE(model.rowCount(), 1);
+}
+
+void TestToolModel::launchExpandsExecFieldCodes()
+{
+    // A launcher that records its arguments, one per line, renaming the file
+    // into place so the test never reads a partial write.
+    const QString recorder = m_home->filePath(QStringLiteral("record-arguments"));
+    const QString argumentsFile = m_home->filePath(QStringLiteral("arguments"));
+    {
+        QFile script(recorder);
+        QVERIFY(script.open(QFile::WriteOnly | QFile::Text));
+        script.write("#!/bin/sh\nfor argument in \"$@\"; do printf '%s\\n' \"$argument\"; done > \"$ARGUMENTS_FILE.tmp\"\n"
+                     "mv \"$ARGUMENTS_FILE.tmp\" \"$ARGUMENTS_FILE\"\n");
+    }
+    QVERIFY(QFile::setPermissions(recorder, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+    qputenv("ARGUMENTS_FILE", argumentsFile.toUtf8());
+
+    // File codes are dropped, %% %c %i %k expand, and quotes group arguments
+    // with backslash escapes; \\ in the file is the string-level escape.
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    const QString desktopFile = applications.filePath(QStringLiteral("recorder.desktop"));
+    writeDesktopFile(applications, QStringLiteral("recorder.desktop"),
+                     QStringLiteral("[Desktop Entry]\nType=Application\nName=MX Recorder\nIcon=recorder-icon\n"
+                                    "Categories=X-MX-Utilities;\nExec=\"%1\" %F \"quoted arg\" 100%% --name=%c %i %k "
+                                    "\"say \\\\\"hi\\\\\"\" \"\" \"100%% done\" %d%m\n")
+                         .arg(recorder));
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QSignalSpy errors(&model, &ToolModel::errorOccurred);
+    model.launch(desktopFile);
+    QCOMPARE(errors.count(), 0);
+    QTRY_VERIFY(QFileInfo::exists(argumentsFile));
+    QFile recorded(argumentsFile);
+    QVERIFY(recorded.open(QFile::ReadOnly | QFile::Text));
+    QCOMPARE(QString::fromUtf8(recorded.readAll()).split(QLatin1Char('\n')),
+             QStringList({QStringLiteral("quoted arg"), QStringLiteral("100%"), QStringLiteral("--name=MX Recorder"),
+                          QStringLiteral("--icon"), QStringLiteral("recorder-icon"), desktopFile,
+                          QStringLiteral("say \"hi\""), QString(), QStringLiteral("100% done"), QString()}));
+
+    // The spec forbids running a command with an unknown field code.
+    QFile::remove(argumentsFile);
+    writeDesktopFile(applications, QStringLiteral("invalid.desktop"),
+                     QStringLiteral("[Desktop Entry]\nType=Application\nName=Invalid\n"
+                                    "Categories=X-MX-Utilities;\nExec=\"%1\" --mode=%Z\n")
+                         .arg(recorder));
+    ToolModel invalidModel(&iconProvider);
+    QSignalSpy invalidErrors(&invalidModel, &ToolModel::errorOccurred);
+    invalidModel.launch(applications.filePath(QStringLiteral("invalid.desktop")));
+    QCOMPARE(invalidErrors.count(), 1);
+    QTest::qWait(300);
+    QVERIFY(!QFileInfo::exists(argumentsFile));
+    qunsetenv("ARGUMENTS_FILE");
 }
 
 void TestToolModel::restoreReinsertsDroppedWhiskerFavorite()

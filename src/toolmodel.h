@@ -45,6 +45,9 @@ public:
     };
     Q_ENUM(Role)
 
+    // The keys of a .desktop file's [Desktop Entry] group, with raw (still escaped) values.
+    using DesktopEntry = QHash<QString, QString>;
+
     explicit ToolModel(ToolIconProvider *iconProvider, QObject *parent = nullptr);
 
     [[nodiscard]] static QIcon fallbackIcon();
@@ -82,8 +85,9 @@ private:
         QString comment;
         QString keywords;
         QString iconSource;
-        QString exec;
-        QString category;
+        std::optional<QStringList> arguments; // The expanded Exec command, program first; nullopt if invalid.
+        QString category; // The first of categories, shown on the card.
+        QStringList categories;
         QString searchText;
         bool runInTerminal = false;
     };
@@ -107,10 +111,10 @@ private:
     [[nodiscard]] bool restoreLegacyMenuEntries();
     void snapshotWhiskerMenuFavorites(QSettings &state);
     [[nodiscard]] bool reconcileWhiskerMenuFavorites(QSettings &state);
-    [[nodiscard]] static QString value(const QString &text, const QString &key);
-    [[nodiscard]] static QString translatedValue(const QString &text, const QString &key);
-    [[nodiscard]] static QStringList desktopFilesForCategory(const QStringList &tokens);
-    [[nodiscard]] static bool visibleInCurrentEnvironment(const QString &text);
+    [[nodiscard]] static DesktopEntry parseDesktopEntry(const QString &text);
+    [[nodiscard]] static QString value(const DesktopEntry &entry, const QString &key);
+    [[nodiscard]] static QString translatedKey(const DesktopEntry &entry, const QString &key);
+    [[nodiscard]] static bool visibleInCurrentEnvironment(const DesktopEntry &entry, const QStringList &desktops);
     [[nodiscard]] static std::optional<QIcon> lookupIcon(const QString &iconName);
     static void openLocalOrReport(const QString &path, ToolModel *model, const QString &title);
 };

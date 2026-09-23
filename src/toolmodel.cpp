@@ -37,6 +37,10 @@ constexpr auto licensePath = "/usr/share/doc/mx-tools/license.html";
 constexpr auto changelogPath = "/usr/share/doc/mx-tools/changelog.gz";
 constexpr auto menuStateFileName = "menu-visibility.ini";
 
+// Tools that only make sense on a live system, hidden once MX is installed.
+const QStringList liveOnlyDesktopIds {QStringLiteral("mx-remastercc.desktop"),
+                                      QStringLiteral("live-kernel-updater.desktop")};
+
 const QList<QPair<QString, QStringList>> categoryDefinitions {
     {QStringLiteral("Live"), {QStringLiteral("MX-Live"), QStringLiteral("X-MX-Live")}},
     {QStringLiteral("Maintenance"), {QStringLiteral("MX-Maintenance"), QStringLiteral("X-MX-Maintenance")}},
@@ -104,19 +108,151 @@ QString translatedCategory(const QString &category)
     return ToolModel::tr("Utilities");
 }
 
-QStringList listValue(const QString &text, const QString &key)
+// Unescapes a Desktop Entry value (\s, \n, \t, \r, \\). For lists, also splits on
+// unescaped semicolons, keeping \; as a literal semicolon.
+QStringList unescapeValue(const QString &value, bool isList)
 {
-    const QString prefix = key + QLatin1Char('=');
-    for (const QString &line : text.split(QLatin1Char('\n'))) {
-        if (line.startsWith(prefix, Qt::CaseInsensitive)) {
-            QStringList result = line.mid(prefix.size()).split(QLatin1Char(';'), Qt::SkipEmptyParts);
-            for (QString &item : result) {
-                item = item.trimmed().toUpper();
+    QStringList items;
+    QString current;
+    for (qsizetype index = 0; index < value.size(); ++index) {
+        const QChar character = value.at(index);
+        if (character == QLatin1Char('\\') && index + 1 < value.size()) {
+            const QChar escaped = value.at(++index);
+            switch (escaped.unicode()) {
+            case 's':
+                current += QLatin1Char(' ');
+                break;
+            case 'n':
+                current += QLatin1Char('\n');
+                break;
+            case 't':
+                current += QLatin1Char('\t');
+                break;
+            case 'r':
+                current += QLatin1Char('\r');
+                break;
+            case '\\':
+                current += QLatin1Char('\\');
+                break;
+            case ';':
+                if (isList) {
+                    current += QLatin1Char(';');
+                    break;
+                }
+                [[fallthrough]];
+            default:
+                current += character;
+                current += escaped;
             }
-            return result;
+        } else if (isList && character == QLatin1Char(';')) {
+            items.append(current);
+            current.clear();
+        } else {
+            current += character;
         }
     }
-    return {};
+    if (!isList || !current.isEmpty()) {
+        items.append(current);
+    }
+    return items;
+}
+
+QStringList listValue(const ToolModel::DesktopEntry &entry, const QString &key)
+{
+    QStringList result = unescapeValue(entry.value(key), true);
+    result.removeAll(QString());
+    return result;
+}
+
+QStringList upperCaseListValue(const ToolModel::DesktopEntry &entry, const QString &key)
+{
+    QStringList result = listValue(entry, key);
+    for (QString &item : result) {
+        item = item.trimmed().toUpper();
+    }
+    return result;
+}
+
+// Splits an unescaped Exec value into arguments as the Desktop Entry spec describes:
+// double quotes group an argument, and inside them a backslash escapes the next
+// character. %% is a literal percent everywhere; other field codes are expanded outside
+// quotes, with file, URL and deprecated codes dropped since tools are launched without
+// files. The spec says a command with an unknown field code must not be run, so that
+// returns nullopt.
+std::optional<QStringList> execArguments(const QString &exec, const QString &name, const QString &icon,
+                                         const QString &fileName)
+{
+    static const QString droppedCodes = QStringLiteral("fFuUdDnNvm");
+    QStringList arguments;
+    QString current;
+    bool inArgument = false;
+    bool quoted = false;
+    bool hadQuotes = false;
+    bool iconCode = false;
+    const auto finishArgument = [&] {
+        if (iconCode && current.isEmpty() && !hadQuotes) {
+            if (!icon.isEmpty()) {
+                arguments << QStringLiteral("--icon") << icon;
+            }
+        } else if (!current.isEmpty() || hadQuotes) {
+            arguments.append(current);
+        }
+        current.clear();
+        inArgument = hadQuotes = iconCode = false;
+    };
+    for (qsizetype index = 0; index < exec.size(); ++index) {
+        const QChar character = exec.at(index);
+        if (quoted) {
+            if (character == QLatin1Char('\\') && index + 1 < exec.size()) {
+                current += exec.at(++index);
+            } else if (character == QLatin1Char('"')) {
+                quoted = false;
+            } else if (character == QLatin1Char('%') && index + 1 < exec.size()
+                       && exec.at(index + 1) == QLatin1Char('%')) {
+                current += QLatin1Char('%');
+                ++index;
+            } else {
+                current += character;
+            }
+        } else if (character == QLatin1Char('"')) {
+            quoted = inArgument = hadQuotes = true;
+        } else if (character.isSpace()) {
+            if (inArgument) {
+                finishArgument();
+            }
+        } else if (character == QLatin1Char('%')) {
+            if (index + 1 >= exec.size()) {
+                return std::nullopt;
+            }
+            inArgument = true;
+            const QChar code = exec.at(++index);
+            switch (code.unicode()) {
+            case '%':
+                current += QLatin1Char('%');
+                break;
+            case 'c':
+                current += name;
+                break;
+            case 'k':
+                current += fileName;
+                break;
+            case 'i':
+                iconCode = true;
+                break;
+            default:
+                if (!droppedCodes.contains(code)) {
+                    return std::nullopt;
+                }
+            }
+        } else {
+            current += character;
+            inArgument = true;
+        }
+    }
+    if (inArgument) {
+        finishArgument();
+    }
+    return arguments;
 }
 
 QString menuStateFilePath()
@@ -493,70 +629,84 @@ void ToolModel::setHideFromMenu(bool hide)
 void ToolModel::loadTools()
 {
     m_categories = {tr("All tools")};
+    const bool live = isLiveEnvironment();
+    const QStringList desktops = currentDesktops();
+    // Tools grouped by their first MX category, in categoryDefinitions order.
+    QVector<QVector<ToolInfo>> toolsByCategory(categoryDefinitions.size());
+    QVector<bool> categoryHasTools(categoryDefinitions.size(), false);
     int iconNumber = 0;
-    for (const auto &[category, tokens] : categoryDefinitions) {
-        const QString categoryName = translatedCategory(category);
-        QStringList files = desktopFilesForCategory(tokens);
-        m_menuFiles.append(files);
-        QVector<ToolInfo> categoryTools;
-        for (const QString &fileName : std::as_const(files)) {
-            QFile file(fileName);
-            if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                continue;
-            }
-            const QString text = QString::fromUtf8(file.readAll());
-            if (!visibleInCurrentEnvironment(text)) {
-                continue;
-            }
-            if (!isLiveEnvironment()
-                && (QFileInfo(fileName).fileName() == QLatin1String("mx-remastercc.desktop")
-                    || QFileInfo(fileName).fileName() == QLatin1String("live-kernel-updater.desktop"))) {
-                continue;
-            }
 
-            ToolInfo tool;
-            tool.fileName = fileName;
-            const QString englishName = value(text, QStringLiteral("Name"));
-            tool.name = translatedValue(text, QStringLiteral("Name"));
-            if (tool.name.isEmpty()) {
-                tool.name = englishName;
-            }
-            tool.name.remove(QRegularExpression(QStringLiteral("^MX ")));
-            const QString englishComment = value(text, QStringLiteral("Comment"));
-            tool.comment = translatedValue(text, QStringLiteral("Comment"));
-            if (tool.comment.isEmpty()) {
-                tool.comment = englishComment;
-            }
-            const QString englishKeywords = value(text, QStringLiteral("Keywords"));
-            tool.keywords = translatedValue(text, QStringLiteral("Keywords"));
-            if (tool.keywords.isEmpty()) {
-                tool.keywords = englishKeywords;
-            }
-            tool.exec = value(text, QStringLiteral("Exec"));
-            tool.exec.remove(QRegularExpression(QStringLiteral(R"( %[a-zA-Z])")));
-            tool.category = categoryName;
-            tool.runInTerminal = value(text, QStringLiteral("Terminal")).compare(QStringLiteral("true"), Qt::CaseInsensitive) == 0;
-
-            // Always keep the English strings searchable alongside the
-            // localized ones, so a tool can be found by its English name
-            // even when a translation replaces it in the UI.
-            tool.searchText = QStringList {tool.name, englishName, tool.comment, englishComment,
-                                           tool.keywords, englishKeywords, tool.category, category}
-                                  .join(QLatin1Char(' '));
-
-            const QString iconName = value(text, QStringLiteral("Icon"));
-            const QString iconKey = QString::number(iconNumber++);
-            m_iconProvider->insert(iconKey, lookupIcon(iconName).value_or(fallbackIcon()));
-            tool.iconSource = QStringLiteral("image://toolicons/") + iconKey;
-            categoryTools.append(tool);
+    QDirIterator iterator(QString::fromLatin1(applicationsPath), {QStringLiteral("*.desktop")}, QDir::Files,
+                          QDirIterator::Subdirectories);
+    while (iterator.hasNext()) {
+        const QString fileName = iterator.next();
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            continue;
         }
+        const DesktopEntry entry = parseDesktopEntry(QString::fromUtf8(file.readAll()));
+        const QStringList fileCategories = listValue(entry, QStringLiteral("Categories"));
+        QList<qsizetype> memberCategories;
+        for (qsizetype index = 0; index < categoryDefinitions.size(); ++index) {
+            const QStringList &tokens = categoryDefinitions.at(index).second;
+            if (std::ranges::any_of(tokens, [&](const QString &token) { return fileCategories.contains(token); })) {
+                memberCategories.append(index);
+            }
+        }
+        if (memberCategories.isEmpty()) {
+            continue;
+        }
+        m_menuFiles.append(fileName);
+        if (!visibleInCurrentEnvironment(entry, desktops)
+            || (!live && liveOnlyDesktopIds.contains(QFileInfo(fileName).fileName()))) {
+            continue;
+        }
+
+        ToolInfo tool;
+        tool.fileName = fileName;
+        const QString englishName = value(entry, QStringLiteral("Name"));
+        tool.name = value(entry, translatedKey(entry, QStringLiteral("Name")));
+        static const QRegularExpression mxPrefix(QStringLiteral("^MX "));
+        tool.name.remove(mxPrefix);
+        const QString englishComment = value(entry, QStringLiteral("Comment"));
+        tool.comment = value(entry, translatedKey(entry, QStringLiteral("Comment")));
+        const QString englishKeywords = listValue(entry, QStringLiteral("Keywords")).join(QLatin1Char(' '));
+        tool.keywords = listValue(entry, translatedKey(entry, QStringLiteral("Keywords"))).join(QLatin1Char(' '));
+        tool.runInTerminal = value(entry, QStringLiteral("Terminal")).compare(QStringLiteral("true"), Qt::CaseInsensitive) == 0;
+        QStringList englishCategories;
+        for (const qsizetype index : std::as_const(memberCategories)) {
+            englishCategories.append(categoryDefinitions.at(index).first);
+            tool.categories.append(translatedCategory(categoryDefinitions.at(index).first));
+            categoryHasTools[index] = true;
+        }
+        tool.category = tool.categories.constFirst();
+
+        // Always keep the English strings searchable alongside the
+        // localized ones, so a tool can be found by its English name
+        // even when a translation replaces it in the UI.
+        tool.searchText = (QStringList {tool.name, englishName, tool.comment, englishComment, tool.keywords,
+                                        englishKeywords}
+                           + tool.categories + englishCategories)
+                              .join(QLatin1Char(' '));
+
+        const QString iconName = value(entry, QStringLiteral("Icon"));
+        // %c is the translated Name as written, before the "MX " prefix is dropped for display.
+        tool.arguments = execArguments(value(entry, QStringLiteral("Exec")),
+                                       value(entry, translatedKey(entry, QStringLiteral("Name"))), iconName, fileName);
+        const QString iconKey = QString::number(iconNumber++);
+        m_iconProvider->insert(iconKey, lookupIcon(iconName).value_or(fallbackIcon()));
+        tool.iconSource = QStringLiteral("image://toolicons/") + iconKey;
+        toolsByCategory[memberCategories.constFirst()].append(tool);
+    }
+
+    for (qsizetype index = 0; index < categoryDefinitions.size(); ++index) {
+        QVector<ToolInfo> &categoryTools = toolsByCategory[index];
         std::ranges::sort(categoryTools, {}, &ToolInfo::name);
-        if (!categoryTools.isEmpty()) {
-            m_categories.append(categoryName);
-            m_allTools.append(categoryTools);
+        m_allTools.append(categoryTools);
+        if (categoryHasTools.at(index)) {
+            m_categories.append(translatedCategory(categoryDefinitions.at(index).first));
         }
     }
-    m_menuFiles.removeDuplicates();
 }
 
 void ToolModel::refilter()
@@ -568,7 +718,7 @@ void ToolModel::refilter()
         const ToolInfo &tool = m_allTools.at(i);
         const bool categoryMatches = !m_search.trimmed().isEmpty() || m_selectedCategory.isEmpty()
                                      || m_selectedCategory == allTools
-                                     || tool.category == m_selectedCategory;
+                                     || tool.categories.contains(m_selectedCategory);
         const bool textMatches = m_search.trimmed().isEmpty()
                                  || tool.searchText.contains(m_search, Qt::CaseInsensitive);
         if (categoryMatches && textMatches) {
@@ -578,63 +728,58 @@ void ToolModel::refilter()
     endResetModel();
 }
 
-QString ToolModel::value(const QString &text, const QString &key)
+ToolModel::DesktopEntry ToolModel::parseDesktopEntry(const QString &text)
 {
-    const QRegularExpression expression(QStringLiteral("^") + QRegularExpression::escape(key)
-                                        + QStringLiteral("=(.*)$"), QRegularExpression::MultilineOption);
-    return expression.match(text).captured(1).trimmed();
+    DesktopEntry entry;
+    bool inDesktopEntry = false;
+    for (const QString &line : text.split(QLatin1Char('\n'))) {
+        const QString trimmed = line.trimmed();
+        if (trimmed.isEmpty() || trimmed.startsWith(QLatin1Char('#'))) {
+            continue;
+        }
+        if (trimmed.startsWith(QLatin1Char('['))) {
+            inDesktopEntry = trimmed.compare(QStringLiteral("[Desktop Entry]"), Qt::CaseInsensitive) == 0;
+            continue;
+        }
+        const qsizetype separator = trimmed.indexOf(QLatin1Char('='));
+        if (!inDesktopEntry || separator <= 0) {
+            continue;
+        }
+        // The spec forbids duplicate keys; keep the first, as the menus do.
+        const QString key = trimmed.left(separator).trimmed();
+        if (!entry.contains(key)) {
+            entry.insert(key, trimmed.mid(separator + 1).trimmed());
+        }
+    }
+    return entry;
 }
 
-QString ToolModel::translatedValue(const QString &text, const QString &key)
+QString ToolModel::value(const DesktopEntry &entry, const QString &key)
+{
+    return unescapeValue(entry.value(key), false).constFirst();
+}
+
+QString ToolModel::translatedKey(const DesktopEntry &entry, const QString &key)
 {
     const QLocale locale;
     const QStringList localeNames {locale.name(), locale.name().section(QLatin1Char('_'), 0, 0)};
     for (const QString &localeName : localeNames) {
-        const QRegularExpression expression(QStringLiteral("^") + QRegularExpression::escape(key)
-                                            + QStringLiteral("\\[") + QRegularExpression::escape(localeName)
-                                            + QStringLiteral("\\]=(.*)$"), QRegularExpression::MultilineOption);
-        const QString result = expression.match(text).captured(1).trimmed();
-        if (!result.isEmpty()) {
-            return result;
+        const QString localizedKey = key + QLatin1Char('[') + localeName + QLatin1Char(']');
+        if (!entry.value(localizedKey).isEmpty()) {
+            return localizedKey;
         }
     }
-    return {};
+    return key;
 }
 
-QStringList ToolModel::desktopFilesForCategory(const QStringList &tokens)
+bool ToolModel::visibleInCurrentEnvironment(const DesktopEntry &entry, const QStringList &desktops)
 {
-    QStringList matchingFiles;
-    QDirIterator iterator(QString::fromLatin1(applicationsPath), {QStringLiteral("*.desktop")}, QDir::Files,
-                          QDirIterator::Subdirectories);
-    while (iterator.hasNext()) {
-        const QString path = iterator.next();
-        QFile file(path);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            continue;
-        }
-        const QString categories = value(QString::fromUtf8(file.readAll()), QStringLiteral("Categories"));
-        const QStringList entries = categories.split(QLatin1Char(';'), Qt::SkipEmptyParts);
-        if (std::ranges::any_of(tokens, [&entries](const QString &token) { return entries.contains(token); })) {
-            matchingFiles.append(path);
-        }
-    }
-    return matchingFiles;
-}
-
-bool ToolModel::visibleInCurrentEnvironment(const QString &text)
-{
-    const bool live = isLiveEnvironment();
-    if ((live && text.contains(QStringLiteral("MX-OnlyInstalled"), Qt::CaseInsensitive))
-        || (!live && text.contains(QStringLiteral("MX-OnlyLive"), Qt::CaseInsensitive))) {
-        return false;
-    }
-    const QStringList desktops = currentDesktops();
-    const QStringList onlyShowIn = listValue(text, QStringLiteral("OnlyShowIn"));
+    const QStringList onlyShowIn = upperCaseListValue(entry, QStringLiteral("OnlyShowIn"));
     if (!onlyShowIn.isEmpty()
         && std::ranges::none_of(onlyShowIn, [&desktops](const QString &desktop) { return desktops.contains(desktop); })) {
         return false;
     }
-    const QStringList notShowIn = listValue(text, QStringLiteral("NotShowIn"));
+    const QStringList notShowIn = upperCaseListValue(entry, QStringLiteral("NotShowIn"));
     return std::ranges::none_of(notShowIn, [&desktops](const QString &desktop) { return desktops.contains(desktop); });
 }
 
@@ -690,16 +835,23 @@ void ToolModel::launch(const QString &fileName)
     }
     m_runningTools.remove(fileName);
 
-    QString commandText = iterator->runInTerminal ? QStringLiteral("x-terminal-emulator -e ") + iterator->exec
-                                                   : iterator->exec;
-    QStringList arguments = QProcess::splitCommand(commandText);
+    if (!iterator->arguments) {
+        emit errorOccurred(tr("Unable to launch tool"), tr("Could not start %1.").arg(iterator->name));
+        return;
+    }
+    QStringList arguments = *iterator->arguments;
     if (arguments.isEmpty()) {
         emit errorOccurred(tr("Unable to launch tool"), tr("The selected tool has no launch command."));
         return;
     }
-    const QString program = arguments.takeFirst();
+    QString program = arguments.takeFirst();
     if (!arguments.isEmpty() && arguments.constLast() == QLatin1String("&")) {
         arguments.removeLast();
+    }
+    if (iterator->runInTerminal) {
+        arguments.prepend(program);
+        program = QStringLiteral("x-terminal-emulator");
+        arguments.prepend(QStringLiteral("-e"));
     }
     qint64 processId = 0;
     if (!QProcess::startDetached(program, arguments, {}, &processId)) {
