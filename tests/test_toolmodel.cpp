@@ -1,3 +1,4 @@
+#include <QAbstractItemModelTester>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -115,6 +116,9 @@ private slots:
     void changelogIsReadInTheBackground();
     void pluginTypesComeFromOneListing();
     void menuChangesRunInTheBackground();
+    void searchMatchesEveryWord();
+    void sortsNamesForTheLocale();
+    void filteringMovesRowsWithoutReset();
 
 private:
     void writeMenuTool();
@@ -766,6 +770,106 @@ void TestToolModel::menuChangesRunInTheBackground()
     QVERIFY(model.hideFromMenu());
     QCOMPARE(visibilityChanges.count(), 2);
     QVERIFY(QFileInfo::exists(m_home->filePath(QStringLiteral(".local/share/applications/tool.desktop"))));
+}
+
+void TestToolModel::searchMatchesEveryWord()
+{
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    writeDesktopFile(applications, QStringLiteral("backup.desktop"),
+                     desktopFileContent(QStringLiteral("Backup"), QStringLiteral("X-MX-Utilities")));
+    writeDesktopFile(applications, QStringLiteral("cleanup.desktop"),
+                     desktopFileContent(QStringLiteral("Cleanup"), QStringLiteral("X-MX-Maintenance")));
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    // Surrounding and repeated whitespace is ignored, and words match in any order.
+    model.setSearch(QStringLiteral(" backup  "));
+    QCOMPARE(model.rowCount(), 1);
+    model.setSearch(QStringLiteral("comment\tbackup"));
+    QCOMPARE(model.rowCount(), 1);
+    model.setSearch(QStringLiteral("utilities backup"));
+    QCOMPARE(model.rowCount(), 1);
+    model.setSearch(QStringLiteral("backup maintenance"));
+    QCOMPARE(model.rowCount(), 0);
+    // Blank searches show everything, and the category filter applies again.
+    model.setSelectedCategory(QStringLiteral("Maintenance"));
+    model.setSearch(QStringLiteral("   "));
+    QCOMPARE(model.rowCount(), 1);
+}
+
+void TestToolModel::sortsNamesForTheLocale()
+{
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    const QStringList names {QStringLiteral("Zeta"), QStringLiteral("\u00c9dition"), QStringLiteral("beta"),
+                             QStringLiteral("Tool 10"), QStringLiteral("Tool 9"), QStringLiteral("Alpha")};
+    for (qsizetype index = 0; index < names.size(); ++index) {
+        writeDesktopFile(applications, QStringLiteral("tool%1.desktop").arg(index),
+                         desktopFileContent(names.at(index), QStringLiteral("X-MX-Utilities")));
+    }
+
+    const QLocale previous;
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QLocale::setDefault(previous);
+    QStringList sorted;
+    for (int row = 0; row < model.rowCount(); ++row) {
+        sorted.append(model.data(model.index(row), ToolModel::NameRole).toString());
+    }
+    QCOMPARE(sorted, QStringList({QStringLiteral("Alpha"), QStringLiteral("beta"), QStringLiteral("\u00c9dition"),
+                                  QStringLiteral("Tool 9"), QStringLiteral("Tool 10"), QStringLiteral("Zeta")}));
+}
+
+void TestToolModel::filteringMovesRowsWithoutReset()
+{
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    const QList<QPair<QString, QString>> tools {
+        {QStringLiteral("Alpha"), QStringLiteral("X-MX-Utilities")}, {QStringLiteral("Beta"), QStringLiteral("X-MX-Setup")},
+        {QStringLiteral("Gamma"), QStringLiteral("X-MX-Utilities")}, {QStringLiteral("Delta"), QStringLiteral("X-MX-Maintenance")},
+        {QStringLiteral("Epsilon"), QStringLiteral("X-MX-Setup")}};
+    for (const auto &[name, category] : tools) {
+        writeDesktopFile(applications, name.toLower() + QStringLiteral(".desktop"), desktopFileContent(name, category));
+    }
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    // Fails the test on any inconsistent insert/remove signal.
+    QAbstractItemModelTester tester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+    QSignalSpy resets(&model, &QAbstractItemModel::modelReset);
+    QSignalSpy removals(&model, &QAbstractItemModel::rowsRemoved);
+    QSignalSpy insertions(&model, &QAbstractItemModel::rowsInserted);
+    const auto names = [&model] {
+        QStringList result;
+        for (int row = 0; row < model.rowCount(); ++row) {
+            result.append(model.data(model.index(row), ToolModel::NameRole).toString());
+        }
+        return result;
+    };
+
+    QCOMPARE(names(), QStringList({QStringLiteral("Delta"), QStringLiteral("Beta"), QStringLiteral("Epsilon"),
+                                   QStringLiteral("Alpha"), QStringLiteral("Gamma")}));
+    model.setSelectedCategory(QStringLiteral("Utilities"));
+    QCOMPARE(names(), QStringList({QStringLiteral("Alpha"), QStringLiteral("Gamma")}));
+    model.setSelectedCategory(QStringLiteral("Setup"));
+    QCOMPARE(names(), QStringList({QStringLiteral("Beta"), QStringLiteral("Epsilon")}));
+    // A search ignores the category.
+    model.setSearch(QStringLiteral("a"));
+    QCOMPARE(names(), QStringList({QStringLiteral("Delta"), QStringLiteral("Beta"), QStringLiteral("Alpha"),
+                                   QStringLiteral("Gamma")}));
+    model.setSearch({});
+    QCOMPARE(names(), QStringList({QStringLiteral("Beta"), QStringLiteral("Epsilon")}));
+    model.setSelectedCategory({});
+    QCOMPARE(model.rowCount(), 5);
+
+    QCOMPARE(resets.count(), 0);
+    QVERIFY(!removals.isEmpty());
+    QVERIFY(!insertions.isEmpty());
+
+    // Changing the category while searching changes nothing, so it signals nothing.
+    model.setSearch(QStringLiteral("a"));
+    const qsizetype changes = removals.count() + insertions.count();
+    model.setSelectedCategory(QStringLiteral("Setup"));
+    QCOMPARE(removals.count() + insertions.count(), changes);
 }
 
 QTEST_MAIN(TestToolModel)

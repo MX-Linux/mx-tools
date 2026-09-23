@@ -7,6 +7,7 @@
 
 #include <algorithm>
 
+#include <QCollator>
 #include <QDesktopServices>
 #include <QDir>
 #include <QDirIterator>
@@ -784,9 +785,15 @@ void ToolModel::loadTools()
         toolsByCategory[memberCategories.constFirst()].append(tool);
     }
 
+    // Sort as the user's language does, so accented or lower-case names don't land after "Z".
+    QCollator collator;
+    collator.setCaseSensitivity(Qt::CaseInsensitive);
+    collator.setNumericMode(true);
     for (qsizetype index = 0; index < categoryDefinitions.size(); ++index) {
         QVector<ToolInfo> &categoryTools = toolsByCategory[index];
-        std::ranges::sort(categoryTools, {}, &ToolInfo::name);
+        std::ranges::sort(categoryTools, [&collator](const ToolInfo &left, const ToolInfo &right) {
+            return collator.compare(left.name, right.name) < 0;
+        });
         m_allTools.append(categoryTools);
         if (categoryHasTools.at(index)) {
             m_categories.append(translatedCategory(categoryDefinitions.at(index).first));
@@ -796,21 +803,55 @@ void ToolModel::loadTools()
 
 void ToolModel::refilter()
 {
-    beginResetModel();
-    m_visibleRows.clear();
+    QVector<int> visibleRows;
     const QString allTools = m_categories.value(0);
+    // Every word must match somewhere, in any order, so "backup " and "tool backup" work.
+    const QStringList terms = m_search.simplified().split(QLatin1Char(' '), Qt::SkipEmptyParts);
     for (int i = 0; i < m_allTools.size(); ++i) {
         const ToolInfo &tool = m_allTools.at(i);
-        const bool categoryMatches = !m_search.trimmed().isEmpty() || m_selectedCategory.isEmpty()
+        const bool categoryMatches = !terms.isEmpty() || m_selectedCategory.isEmpty()
                                      || m_selectedCategory == allTools
                                      || tool.categories.contains(m_selectedCategory);
-        const bool textMatches = m_search.trimmed().isEmpty()
-                                 || tool.searchText.contains(m_search, Qt::CaseInsensitive);
+        const bool textMatches = std::ranges::all_of(terms, [&tool](const QString &term) {
+            return tool.searchText.contains(term, Qt::CaseInsensitive);
+        });
         if (categoryMatches && textMatches) {
-            m_visibleRows.append(i);
+            visibleRows.append(i);
         }
     }
-    endResetModel();
+
+    // Apply the change as row removals and insertions instead of a reset, so the view
+    // keeps its delegates and focus and can animate. Both lists hold ascending indexes
+    // into m_allTools, so removing first leaves the old list a subsequence of the new.
+    for (qsizetype last = m_visibleRows.size() - 1; last >= 0; --last) {
+        if (std::ranges::binary_search(visibleRows, m_visibleRows.at(last))) {
+            continue;
+        }
+        qsizetype first = last;
+        while (first > 0 && !std::ranges::binary_search(visibleRows, m_visibleRows.at(first - 1))) {
+            --first;
+        }
+        beginRemoveRows({}, static_cast<int>(first), static_cast<int>(last));
+        m_visibleRows.remove(first, last - first + 1);
+        endRemoveRows();
+        last = first;
+    }
+    for (qsizetype first = 0; first < visibleRows.size(); ++first) {
+        if (first < m_visibleRows.size() && m_visibleRows.at(first) == visibleRows.at(first)) {
+            continue;
+        }
+        qsizetype last = first;
+        while (last + 1 < visibleRows.size()
+               && !std::ranges::binary_search(m_visibleRows, visibleRows.at(last + 1))) {
+            ++last;
+        }
+        beginInsertRows({}, static_cast<int>(first), static_cast<int>(last));
+        for (qsizetype row = first; row <= last; ++row) {
+            m_visibleRows.insert(row, visibleRows.at(row));
+        }
+        endInsertRows();
+        first = last;
+    }
 }
 
 ToolModel::DesktopEntry ToolModel::parseDesktopEntry(const QString &text)
