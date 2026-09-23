@@ -203,8 +203,7 @@ constexpr auto whiskerMenuFavoritesProperty = QLatin1String("favorites");
 
 bool xfconfQueryAvailable()
 {
-    static const bool available = !QStandardPaths::findExecutable(QStringLiteral("xfconf-query")).isEmpty();
-    return available;
+    return !QStandardPaths::findExecutable(QStringLiteral("xfconf-query")).isEmpty();
 }
 
 struct XfconfResult {
@@ -282,7 +281,15 @@ std::optional<QStringList> readXfconfArray(int instance, const QString &property
     const auto headerIt = std::ranges::find_if(
         lines, [](const QString &line) { return line.startsWith(QStringLiteral("Value is an array")); });
     if (headerIt == lines.cend()) {
-        return std::nullopt;
+        // Earlier releases wrote a single favorite as a plain string; read it as a one-item array.
+        QString scalar = result.output;
+        if (scalar.endsWith(QLatin1Char('\n'))) {
+            scalar.chop(1);
+        }
+        if (scalar.isEmpty() || scalar.contains(QLatin1Char('\n'))) {
+            return std::nullopt;
+        }
+        return QStringList {scalar};
     }
     QStringList items;
     for (auto it = std::next(headerIt); it != lines.cend(); ++it) {
@@ -297,14 +304,17 @@ bool writeXfconfArray(int instance, const QString &property, const QStringList &
 {
     const QString propertyPath = QStringLiteral("/plugins/plugin-%1/%2").arg(instance).arg(property);
 
-    runXfconfQuery({QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"), propertyPath,
-                    QStringLiteral("-r")});
-
+    // xfconf-query can't store an empty array, so resetting is the only way to empty it.
     if (values.isEmpty()) {
-        return true;
+        const XfconfResult result = runXfconfQuery({QStringLiteral("-c"), xfconfPanelChannel,
+                                                    QStringLiteral("-p"), propertyPath, QStringLiteral("-r")});
+        return result.success && result.exitCode == 0;
     }
+    // Replace the array in a single --set so a failure leaves the old favorites in place.
+    // -n is needed by older xfconf-query releases to create a missing property, and -a
+    // keeps a single value an array.
     QStringList arguments {QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"),
-                           propertyPath, QStringLiteral("-n")};
+                           propertyPath, QStringLiteral("-n"), QStringLiteral("-a")};
     for (const QString &value : values) {
         arguments << QStringLiteral("-t") << QStringLiteral("string") << QStringLiteral("-s") << value;
     }
@@ -312,12 +322,12 @@ bool writeXfconfArray(int instance, const QString &property, const QStringList &
     return result.success && result.exitCode == 0;
 }
 
-void reconcileOneWhiskerMenuArray(int instance, const QString &property, const QStringList &before,
+bool reconcileOneWhiskerMenuArray(int instance, const QString &property, const QStringList &before,
                                   const QSet<QString> &ourDesktopIds)
 {
     const std::optional<QStringList> currentOpt = readXfconfArray(instance, property);
     if (!currentOpt) {
-        return;
+        return false;
     }
     QStringList current = *currentOpt;
     bool changed = false;
@@ -329,9 +339,7 @@ void reconcileOneWhiskerMenuArray(int instance, const QString &property, const Q
         current.insert(std::min(index, static_cast<int>(current.size())), id);
         changed = true;
     }
-    if (changed) {
-        writeXfconfArray(instance, property, current);
-    }
+    return !changed || writeXfconfArray(instance, property, current);
 }
 }
 
@@ -874,11 +882,13 @@ bool ToolModel::restoreMenuEntries()
         }
     }
     state.endGroup();
-    if (success) {
-        reconcileWhiskerMenuFavorites(state);
+    // Keep the state file, the only snapshot of the favorites, if they could not be restored.
+    if (success && reconcileWhiskerMenuFavorites(state)) {
         state.clear();
         state.sync();
         success = state.status() == QSettings::NoError;
+    } else {
+        success = false;
     }
     if (!success) {
         emit errorOccurred(tr("Menu setting failed"), tr("Could not update %1.").arg(menuStateFilePath()));
@@ -949,16 +959,13 @@ void ToolModel::snapshotWhiskerMenuFavorites(QSettings &state)
     state.endGroup();
 }
 
-void ToolModel::reconcileWhiskerMenuFavorites(QSettings &state)
+bool ToolModel::reconcileWhiskerMenuFavorites(QSettings &state)
 {
-    if (!xfconfQueryAvailable()) {
-        return;
-    }
     state.beginGroup(QStringLiteral("WhiskerMenu"));
     const QStringList instanceStrings = state.value(QStringLiteral("instances")).toStringList();
     state.endGroup();
     if (instanceStrings.isEmpty()) {
-        return;
+        return true;
     }
 
     QSet<QString> ourDesktopIds;
@@ -966,6 +973,7 @@ void ToolModel::reconcileWhiskerMenuFavorites(QSettings &state)
         ourDesktopIds.insert(QFileInfo(fileName).fileName());
     }
 
+    bool success = true;
     for (const QString &instanceString : instanceStrings) {
         state.beginGroup(QStringLiteral("WhiskerMenu"));
         state.beginGroup(instanceString);
@@ -973,17 +981,35 @@ void ToolModel::reconcileWhiskerMenuFavorites(QSettings &state)
         state.endGroup();
         state.endGroup();
 
+        // Nothing of ours to put back, so a query failure can't lose anything.
+        if (std::ranges::none_of(beforeFavorites, [&](const QString &id) { return ourDesktopIds.contains(id); })) {
+            continue;
+        }
+        // The snapshot outlives this process, so keep it until xfconf-query is back.
+        if (!xfconfQueryAvailable()) {
+            success = false;
+            continue;
+        }
+
         const int instance = instanceString.toInt();
 
         const XfconfResult typeCheck = runXfconfQuery(
             {QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"),
              QStringLiteral("/plugins/plugin-%1").arg(instance)});
-        if (!typeCheck.success || typeCheck.exitCode != 0
-            || typeCheck.output.trimmed() != QStringLiteral("whiskermenu")) {
+        if (!typeCheck.success
+            || (typeCheck.exitCode != 0 && !typeCheck.errorOutput.contains(QStringLiteral("does not exist")))) {
+            // The query itself failed; keep the snapshot so a later restore can retry.
+            success = false;
+            continue;
+        }
+        // A removed plugin, or one replaced by another plugin type, has no favorites to restore.
+        if (typeCheck.exitCode != 0 || typeCheck.output.trimmed() != QStringLiteral("whiskermenu")) {
             continue;
         }
 
-        reconcileOneWhiskerMenuArray(instance, whiskerMenuFavoritesProperty, beforeFavorites,
-                                     ourDesktopIds);
+        success = reconcileOneWhiskerMenuArray(instance, whiskerMenuFavoritesProperty, beforeFavorites,
+                                               ourDesktopIds)
+                  && success;
     }
+    return success;
 }
