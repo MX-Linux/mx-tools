@@ -1,0 +1,122 @@
+// Configured by CMake into the build tree; @MX_TOOLS_MAIN_QML_URL@ is a Main.qml file next
+// to its components directory (see CMakeLists.txt).
+import QtQuick
+import QtTest
+
+TestCase {
+    id: test
+    name: "Main"
+    when: windowShown
+
+    Component {
+        id: backendComponent
+        // A stand-in for ToolModel: the grid uses the backend as its model.
+        ListModel {
+            property string search: ""
+            property string selectedCategory: ""
+            property var categories: ["All tools", "Setup", "Utilities"]
+            property int totalCount: count
+            property bool hideFromMenu: false
+            property bool menuBusy: false
+            property string launched: ""
+            signal errorOccurred(string title, string message)
+            signal documentReady(string title, string content)
+            function launch(fileName) {
+                launched = fileName
+            }
+        }
+    }
+
+    property var backend
+    property var window
+
+    function init() {
+        // qmltestrunner sets no organization name, which only the Settings type reports.
+        failOnWarning(/^(?!.*QML Settings: )/)
+        backend = backendComponent.createObject(test)
+        for (let index = 0; index < 40; ++index) {
+            backend.append({ name: "Tool " + index, comment: "Comment " + index, category: "Setup",
+                             fileName: "/tmp/tool" + index + ".desktop", iconSource: "" })
+        }
+        const component = Qt.createComponent("@MX_TOOLS_MAIN_QML_URL@")
+        compare(component.status, Component.Ready, component.errorString())
+        window = component.createObject(null, { backend: backend, version: "test" })
+        verify(window)
+        window.requestActivate()
+        tryVerify(() => window.active)
+    }
+
+    function cleanup() {
+        window.destroy()
+        backend.destroy()
+    }
+
+    function find(item, predicate) {
+        if (predicate(item))
+            return item
+        const children = item.data || []
+        for (let index = 0; index < children.length; ++index) {
+            const found = find(children[index], predicate)
+            if (found)
+                return found
+        }
+        return null
+    }
+
+    function test_loadsInBothLayouts() {
+        window.width = 1080
+        wait(50)
+        window.width = 800
+        wait(50)
+    }
+
+    function test_errorsQueueInOrder() {
+        const dialog = find(window.contentItem, item => item.pending !== undefined)
+        verify(dialog)
+        const shown = []
+        dialog.aboutToShow.connect(() => shown.push(dialog.message))
+        backend.errorOccurred("t", "A")
+        backend.errorOccurred("t", "B")
+        tryVerify(() => dialog.opened)
+        dialog.close()
+        // Arrives after the close, before the queued error is reopened.
+        backend.errorOccurred("t", "C")
+        tryVerify(() => dialog.opened && shown.length === 2)
+        dialog.close()
+        tryVerify(() => dialog.opened && shown.length === 3)
+        dialog.close()
+        tryVerify(() => !dialog.visible)
+        compare(shown, ["A", "B", "C"])
+    }
+
+    function tabUntilCard() {
+        for (let step = 0; step < 20; ++step) {
+            keyClick(Qt.Key_Tab)
+            if (window.activeFocusItem && window.activeFocusItem.toolName !== undefined)
+                return true
+        }
+        return false
+    }
+
+    function test_keyboardReachesEveryCard() {
+        const grid = find(window.contentItem, item => item.cellWidth !== undefined && item.contentY !== undefined)
+        verify(grid)
+        // The grid is a single Tab stop that lands on its current card.
+        verify(tabUntilCard())
+        compare(window.activeFocusItem.toolName, "Tool 0")
+        keyClick(Qt.Key_Tab)
+        verify(window.activeFocusItem.toolName === undefined)
+        verify(tabUntilCard())
+
+        // The arrow keys reach cards that weren't instantiated and scroll to them.
+        for (let step = 0; step < 15; ++step)
+            keyClick(Qt.Key_Down)
+        keyClick(Qt.Key_Right)
+        compare(grid.currentIndex, 31)
+        compare(window.activeFocusItem.toolName, "Tool 31")
+        tryVerify(() => grid.currentItem.y >= grid.contentY
+                        && grid.currentItem.y + grid.currentItem.height <= grid.contentY + grid.height)
+        keyClick(Qt.Key_Return)
+        compare(backend.launched, "/tmp/tool31.desktop")
+    }
+}

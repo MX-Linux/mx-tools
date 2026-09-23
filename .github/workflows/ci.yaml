@@ -25,8 +25,24 @@ jobs:
             qt6-base-dev \
             qt6-base-dev-tools \
             qt6-declarative-dev \
+            qt6-declarative-dev-tools \
             qt6-tools-dev \
-            qt6-tools-dev-tools
+            qt6-tools-dev-tools \
+            qml6-module-qttest \
+            qml6-module-qtquick \
+            qml6-module-qtquick-controls \
+            qml6-module-qtquick-layouts \
+            qml6-module-qtquick-templates \
+            qml6-module-qtquick-window \
+            qml6-module-qtqml-workerscript
+          # Main.qml imports Settings from QtCore on Qt >= 6.5 and from Qt.labs.settings
+          # before that, and the packages don't track that split (Ubuntu 24.04's Qt 6.4
+          # has a qml6-module-qtcore too), so install whichever of them apt offers.
+          for module in qml6-module-qtcore qml6-module-qt-labs-settings; do
+            if apt-cache show "$module" > /dev/null 2>&1; then
+              sudo apt-get install -y "$module"
+            fi
+          done
 
       - name: Install GCC 14
         if: matrix.compiler == 'gcc'
@@ -41,6 +57,7 @@ jobs:
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
+            -DMX_TOOLS_REQUIRE_QML_TEST=ON \
             -DCMAKE_C_COMPILER=gcc-14 \
             -DCMAKE_CXX_COMPILER=g++-14
 
@@ -49,11 +66,19 @@ jobs:
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
+            -DMX_TOOLS_REQUIRE_QML_TEST=ON \
             -DCMAKE_C_COMPILER=clang \
             -DCMAKE_CXX_COMPILER=clang++
 
       - name: Build
         run: cmake --build build --parallel
+
+      - name: Lint QML
+        run: cmake --build build --target mx-tools_qmllint
+
+      # Includes the QML test, which loads Main.qml offscreen and fails on QML warnings.
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
 
   debian-package-check:
     name: debian package build canary

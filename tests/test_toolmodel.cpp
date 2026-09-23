@@ -1,8 +1,10 @@
 #include <QAbstractItemModelTester>
 #include <QDir>
+#include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
 #include <QProcess>
+#include <QScopeGuard>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QStandardPaths>
@@ -11,6 +13,8 @@
 #include <QTextStream>
 
 #include "toolmodel.h"
+
+#include <optional>
 
 #include <unistd.h>
 
@@ -119,6 +123,12 @@ private slots:
     void searchMatchesEveryWord();
     void sortsNamesForTheLocale();
     void filteringMovesRowsWithoutReset();
+    void userOverrideSurvivesRoundTrip();
+    void editsMadeWhileHiddenAreKept();
+    void legacyOverrideIsRestoredButUserOverrideIsNot();
+    void failedHideRollsBack();
+    void localizedNoisyXfconfQueryIsParsed();
+    void showsTranslationsAndSearchesEnglish();
 
 private:
     void writeMenuTool();
@@ -176,6 +186,7 @@ void TestToolModel::cleanup()
     QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)).removeRecursively();
     qunsetenv("MX_TOOLS_TEST_FORCE_LIVE");
     qunsetenv("FAKE_XFCONF_DIR");
+    qunsetenv("FAKE_XFCONF_NOISY");
     qputenv("PATH", m_path);
     m_home.reset();
 }
@@ -872,6 +883,206 @@ void TestToolModel::filteringMovesRowsWithoutReset()
     const qsizetype changes = removals.count() + insertions.count();
     model.setSelectedCategory(QStringLiteral("Setup"));
     QCOMPARE(removals.count() + insertions.count(), changes);
+}
+
+namespace
+{
+QByteArray readFile(const QString &path)
+{
+    QFile file(path);
+    return file.open(QFile::ReadOnly) ? file.readAll() : QByteArray();
+}
+
+bool writeFile(const QString &path, const QByteArray &content)
+{
+    QFile file(path);
+    return QDir().mkpath(QFileInfo(path).absolutePath()) && file.open(QFile::WriteOnly)
+           && file.write(content) == content.size();
+}
+}
+
+void TestToolModel::userOverrideSurvivesRoundTrip()
+{
+    writeMenuTool();
+    const QString override = m_home->filePath(QStringLiteral(".local/share/applications/tool.desktop"));
+    const QByteArray userOverride = "[Desktop Entry]\nType=Application\nName=My Tool\nNoDisplay=false\n"
+                                    "Exec=/bin/true\n\n[Desktop Action extra]\nNoDisplay=true\n";
+    QVERIFY(writeFile(override, userOverride));
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QVERIFY(setHideFromMenu(model, true));
+    const QByteArray hidden = readFile(override);
+    QVERIFY(hidden.contains("NoDisplay=true\nType=Application\nName=My Tool"));
+    QVERIFY(!hidden.contains("NoDisplay=false"));
+
+    QVERIFY(setHideFromMenu(model, false));
+    QCOMPARE(readFile(override), userOverride);
+}
+
+void TestToolModel::editsMadeWhileHiddenAreKept()
+{
+    writeMenuTool();
+    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("second.desktop"),
+                     desktopFileContent(QStringLiteral("Second"), QStringLiteral("X-MX-Setup")));
+    const QDir overrides(m_home->filePath(QStringLiteral(".local/share/applications")));
+    // tool.desktop starts with the user's own override; second.desktop has none.
+    QVERIFY(writeFile(overrides.filePath(QStringLiteral("tool.desktop")),
+                      "[Desktop Entry]\nType=Application\nName=Tool\nHidden=false\nExec=/bin/true\n"));
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QVERIFY(setHideFromMenu(model, true));
+
+    // The user edits both overrides while the tools are hidden.
+    for (const QString &name : {QStringLiteral("tool.desktop"), QStringLiteral("second.desktop")}) {
+        const QString path = overrides.filePath(name);
+        QVERIFY(writeFile(path, readFile(path) + "Comment=Edited\n"));
+    }
+
+    QVERIFY(setHideFromMenu(model, false));
+    const QByteArray tool = readFile(overrides.filePath(QStringLiteral("tool.desktop")));
+    QVERIFY(tool.contains("Comment=Edited"));
+    QVERIFY(tool.contains("Hidden=false"));
+    QVERIFY(!tool.contains("NoDisplay"));
+    // Our own override is kept once edited, without the visibility lines we added.
+    const QByteArray second = readFile(overrides.filePath(QStringLiteral("second.desktop")));
+    QVERIFY(second.contains("Comment=Edited"));
+    QVERIFY(!second.contains("NoDisplay"));
+}
+
+void TestToolModel::legacyOverrideIsRestoredButUserOverrideIsNot()
+{
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    const QString legacyContent = desktopFileContent(QStringLiteral("Legacy"), QStringLiteral("X-MX-Setup"));
+    const QString userContent = desktopFileContent(QStringLiteral("Mine"), QStringLiteral("X-MX-Setup"));
+    writeDesktopFile(applications, QStringLiteral("legacy.desktop"), legacyContent);
+    writeDesktopFile(applications, QStringLiteral("mine.desktop"), userContent);
+    const QDir overrides(m_home->filePath(QStringLiteral(".local/share/applications")));
+    // Old releases copied the launcher with NoDisplay=true right after the group header.
+    QVERIFY(writeFile(overrides.filePath(QStringLiteral("legacy.desktop")),
+                      QString(legacyContent)
+                          .replace(QStringLiteral("[Desktop Entry]\n"), QStringLiteral("[Desktop Entry]\nNoDisplay=true\n"))
+                          .toUtf8()));
+    // The user's own hiding override differs from that transformation.
+    const QByteArray userOverride = "[Desktop Entry]\nType=Application\nName=Mine\nNoDisplay=true\n";
+    QVERIFY(writeFile(overrides.filePath(QStringLiteral("mine.desktop")), userOverride));
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QVERIFY(model.hideFromMenu());
+    QVERIFY(setHideFromMenu(model, false));
+    QVERIFY(!model.hideFromMenu());
+    QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("legacy.desktop"))));
+    QCOMPARE(readFile(overrides.filePath(QStringLiteral("mine.desktop"))), userOverride);
+
+    // With only the user's override left, nothing looks hidden by us.
+    ToolModel restarted(&iconProvider);
+    QVERIFY(!restarted.hideFromMenu());
+}
+
+void TestToolModel::failedHideRollsBack()
+{
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    writeDesktopFile(applications, QStringLiteral("first.desktop"),
+                     desktopFileContent(QStringLiteral("First"), QStringLiteral("X-MX-Setup")));
+    writeDesktopFile(applications, QStringLiteral("second.desktop"),
+                     desktopFileContent(QStringLiteral("Second"), QStringLiteral("X-MX-Setup")));
+    // Make the launcher processed last fail: a directory where its override goes can't
+    // be read or replaced. Discovery walks the directory in this same order.
+    QStringList order;
+    QDirIterator iterator(applications.path(), {QStringLiteral("*.desktop")}, QDir::Files);
+    while (iterator.hasNext()) {
+        order.append(QFileInfo(iterator.next()).fileName());
+    }
+    QCOMPARE(order.size(), 2);
+    const QDir overrides(m_home->filePath(QStringLiteral(".local/share/applications")));
+    QVERIFY(overrides.mkpath(order.constLast()));
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QSignalSpy errors(&model, &ToolModel::errorOccurred);
+    QVERIFY(setHideFromMenu(model, true));
+    QVERIFY(!model.hideFromMenu());
+    QCOMPARE(errors.count(), 1);
+    // The override written before the failure was rolled back, and no state remains.
+    QVERIFY(!QFileInfo::exists(overrides.filePath(order.constFirst())));
+    QVERIFY(!menuStateActive());
+}
+
+void TestToolModel::localizedNoisyXfconfQueryIsParsed()
+{
+    writeMenuTool();
+    setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")});
+    // A German session whose xfconf-query also prints GLib warnings. LC_ALL must be
+    // German too: builders such as dh_auto_test export LC_ALL=C.UTF-8, which would keep
+    // the fake in English even without the override in runXfconfQuery.
+    const QList<QByteArray> localeVariables {"LC_ALL", "LANGUAGE", "LANG"};
+    QList<std::optional<QByteArray>> previous;
+    for (const QByteArray &name : localeVariables) {
+        previous.append(qEnvironmentVariableIsSet(name.constData()) ? std::optional(qgetenv(name.constData()))
+                                                                    : std::nullopt);
+    }
+    const auto restoreLocale = qScopeGuard([&] {
+        for (qsizetype index = 0; index < localeVariables.size(); ++index) {
+            if (previous.at(index)) {
+                qputenv(localeVariables.at(index).constData(), *previous.at(index));
+            } else {
+                qunsetenv(localeVariables.at(index).constData());
+            }
+        }
+    });
+    qputenv("LC_ALL", "de_DE.UTF-8");
+    qputenv("LANGUAGE", "de");
+    qputenv("LANG", "de_DE.UTF-8");
+    qputenv("FAKE_XFCONF_NOISY", "1");
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QVERIFY(setHideFromMenu(model, true));
+    QVERIFY(model.hideFromMenu());
+    setFavorites({QStringLiteral("other.desktop")});
+    QVERIFY(setHideFromMenu(model, false));
+    QVERIFY(!model.hideFromMenu());
+    QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
+}
+
+void TestToolModel::showsTranslationsAndSearchesEnglish()
+{
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    writeDesktopFile(applications, QStringLiteral("cleanup.desktop"),
+                     desktopFileContent(QStringLiteral("MX Cleanup"), QStringLiteral("X-MX-Maintenance"),
+                                        QStringLiteral("Name[de]=MX Aufräumen\nComment[de]=Speicher freigeben\n"
+                                                       "Keywords=disk;\nKeywords[de]=Platte;\n")));
+    writeDesktopFile(applications, QStringLiteral("untranslated.desktop"),
+                     desktopFileContent(QStringLiteral("Untranslated"), QStringLiteral("X-MX-Setup")));
+
+    const QLocale previous;
+    const auto restoreLocale = qScopeGuard([&previous] { QLocale::setDefault(previous); });
+    ToolIconProvider iconProvider;
+    // de_AT has no entries of its own, so it falls back to the de ones.
+    for (const QLocale &locale : {QLocale(QLocale::German, QLocale::Germany), QLocale(QLocale::German, QLocale::Austria)}) {
+        QLocale::setDefault(locale);
+        ToolModel model(&iconProvider);
+        QCOMPARE(model.totalCount(), 2);
+        model.setSearch(QStringLiteral("Aufräumen"));
+        QCOMPARE(model.rowCount(), 1);
+        // The "MX " prefix is dropped from the translated name as well.
+        QCOMPARE(model.data(model.index(0), ToolModel::NameRole).toString(), QStringLiteral("Aufräumen"));
+        QCOMPARE(model.data(model.index(0), ToolModel::CommentRole).toString(), QStringLiteral("Speicher freigeben"));
+        // The English name, comment and keywords still find it, as do the German keywords.
+        for (const QString &search : {QStringLiteral("cleanup"), QStringLiteral("Cleanup comment"),
+                                      QStringLiteral("disk"), QStringLiteral("Platte")}) {
+            model.setSearch(search);
+            QCOMPARE(model.rowCount(), 1);
+            QCOMPARE(model.data(model.index(0), ToolModel::FileNameRole).toString(),
+                     applications.filePath(QStringLiteral("cleanup.desktop")));
+        }
+        // Without a translation the English text is shown.
+        model.setSearch(QStringLiteral("Untranslated"));
+        QCOMPARE(model.rowCount(), 1);
+        QCOMPARE(model.data(model.index(0), ToolModel::CommentRole).toString(), QStringLiteral("Untranslated comment"));
+    }
 }
 
 QTEST_MAIN(TestToolModel)

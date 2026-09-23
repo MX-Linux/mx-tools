@@ -272,4 +272,44 @@ if(BUILD_TESTING)
     target_include_directories(test-toolmodel PRIVATE src)
     add_test(NAME toolmodel COMMAND test-toolmodel)
     set_tests_properties(toolmodel PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+    # Loads Main.qml offscreen against a stub backend and fails on QML warnings. Importing
+    # MxTools doesn't work outside the binary, because the build tree's qmldir files prefer
+    # the embedded resources, so the test opens a Main.qml file by path: the source one, or
+    # for Qt < 6.5 the build tree's copy of the generated one (with no qmldir beside it).
+    # Build chroots usually lack the runtime QML modules, so only register the test when
+    # every module it loads is installed. CI turns on MX_TOOLS_REQUIRE_QML_TEST so that a
+    # missing module fails the configure step instead of skipping the test.
+    option(MX_TOOLS_REQUIRE_QML_TEST "Fail if the QML test can't be registered" OFF)
+    find_program(MX_TOOLS_QMLTESTRUNNER qmltestrunner HINTS "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_BINS}")
+    set(MX_TOOLS_QML_TEST_MODULES QtTest QtQuick QtQuick/Controls QtQuick/Layouts QtQml/WorkerScript)
+    if(Qt6_VERSION VERSION_GREATER_EQUAL 6.5)
+        list(APPEND MX_TOOLS_QML_TEST_MODULES QtCore)
+    else()
+        list(APPEND MX_TOOLS_QML_TEST_MODULES Qt/labs/settings)
+    endif()
+    set(MX_TOOLS_QML_TEST_MISSING "")
+    foreach(module IN LISTS MX_TOOLS_QML_TEST_MODULES)
+        if(NOT EXISTS "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_QML}/${module}/qmldir")
+            list(APPEND MX_TOOLS_QML_TEST_MISSING ${module})
+        endif()
+    endforeach()
+    if(NOT MX_TOOLS_QMLTESTRUNNER)
+        list(APPEND MX_TOOLS_QML_TEST_MISSING qmltestrunner)
+    endif()
+    if(NOT MX_TOOLS_QML_TEST_MISSING)
+        if(Qt6_VERSION VERSION_GREATER_EQUAL 6.5)
+            set(MX_TOOLS_MAIN_QML_URL "file://${CMAKE_CURRENT_SOURCE_DIR}/qml/Main.qml")
+        else()
+            set(MX_TOOLS_MAIN_QML_URL "file://${CMAKE_CURRENT_BINARY_DIR}/MxTools/qml/Main.qml")
+        endif()
+        configure_file(tests/tst_main.qml.in qml-tests/tst_main.qml @ONLY)
+        add_test(NAME qml-main COMMAND ${MX_TOOLS_QMLTESTRUNNER} -input ${CMAKE_CURRENT_BINARY_DIR}/qml-tests)
+        set_tests_properties(qml-main PROPERTIES ENVIRONMENT
+            "QT_QPA_PLATFORM=offscreen;XDG_CONFIG_HOME=${CMAKE_CURRENT_BINARY_DIR}/qml-tests/config")
+    elseif(MX_TOOLS_REQUIRE_QML_TEST)
+        message(FATAL_ERROR "The QML test is required, but these are missing: ${MX_TOOLS_QML_TEST_MISSING}")
+    else()
+        message(STATUS "Skipping the QML test; missing: ${MX_TOOLS_QML_TEST_MISSING}")
+    endif()
 endif()
