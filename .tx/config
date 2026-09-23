@@ -1,0 +1,9 @@
+[main]
+host = https://www.transifex.com
+
+[o:anticapitalista:p:antix-development:r:mx-tools]
+file_filter = translations/mx-tools_<lang>.ts
+source_file = translations/mx-tools_en.ts
+source_lang = en
+type        = ts
+minimum_perc = 25

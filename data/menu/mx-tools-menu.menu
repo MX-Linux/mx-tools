@@ -2,7 +2,7 @@
           "http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
 <!--
   Groups the MX tools into an "MX Tools" submenu. Installed on Arch only, by
-  the PKGBUILD in this repository; on Debian the same menu comes from
+  arch/PKGBUILD in this repository; on Debian the same menu comes from
   desktop-defaults-mx-common, which owns mx-tools.menu and mx-tools.directory.
 
   The file names here deliberately differ from that package's, so both can be

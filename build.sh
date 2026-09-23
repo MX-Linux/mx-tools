@@ -148,25 +148,22 @@ if [ "$ARCH_BUILD" = true ]; then
     fi
     echo "Using version ${ARCH_VERSION} from debian/changelog"
 
-    ARCH_BUILDDIR=$(mktemp -d -p "$PWD" archpkgbuild.XXXXXX)
+    # Build arch/PKGBUILD - the same file OBS uses - from a tarball of the working tree,
+    # in a scratch directory, so makepkg's src/ and pkg/ never meet the repository's own
+    # src/ or build/. The tarball unpacks to src/, as the dpkg-source one OBS gets does.
+    ARCH_BUILDDIR=$(mktemp -d)
     trap 'rm -rf "$ARCH_BUILDDIR"' EXIT
-
-    # Clean previous build artifacts
-    rm -rf pkg *.pkg.tar.zst
+    git ls-files -z --cached --others --exclude-standard \
+        | while IFS= read -r -d '' file; do [ -e "$file" ] && printf '%s\0' "$file"; done \
+        | tar --null -T - --transform 's,^,src/,' -cJf "$ARCH_BUILDDIR/mx-tools_${ARCH_VERSION}.tar.xz"
+    sed "s/^pkgver=.*/pkgver=${ARCH_VERSION}/" arch/PKGBUILD > "$ARCH_BUILDDIR/PKGBUILD"
 
     PKG_DEST_DIR="$PWD/build"
     mkdir -p "$PKG_DEST_DIR"
-
-    # Build package (without --clean to preserve directories)
-    BUILDDIR="$ARCH_BUILDDIR" PKGDEST="$PKG_DEST_DIR" PKGVER="$ARCH_VERSION" makepkg -f
-
-    # Clean makepkg artifacts
-    echo "Cleaning makepkg artifacts..."
-    rm -rf pkg
+    (cd "$ARCH_BUILDDIR" && PKGDEST="$PKG_DEST_DIR" makepkg -f)
 
     echo "Arch Linux package build completed!"
-    echo "Package: $(ls build/*.pkg.tar.zst 2>/dev/null || echo 'not found')"
-    echo "Binary available at: build/mx-tools"
+    echo "Package: $(ls "$PKG_DEST_DIR"/mx-tools-"${ARCH_VERSION}"-*.pkg.tar.zst 2>/dev/null || echo 'not found')"
     exit 0
 fi
 

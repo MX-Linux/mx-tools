@@ -223,8 +223,6 @@ qt6_add_translations(mx-tools
     QM_FILES_OUTPUT_VARIABLE qm_files
 )
 
-
-
 # Set target properties
 set_target_properties(mx-tools PROPERTIES
     OUTPUT_NAME "mx-tools"
@@ -233,11 +231,25 @@ set_target_properties(mx-tools PROPERTIES
 
 
 
-# Install target (required by Debian build system)
-# Other files are handled by debian/install
-install(TARGETS mx-tools
-    RUNTIME DESTINATION bin
-)
+# Install everything here, so that every packager gets the same files from
+# 'cmake --install' (dh_auto_install on Debian).
+include(GNUInstallDirs)
+# The "MX Tools" submenu; Debian gets it from desktop-defaults-mx-common instead.
+option(MX_TOOLS_INSTALL_MENU "Install the MX Tools menu directory and merge file" OFF)
+
+install(TARGETS mx-tools RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES ${qm_files} DESTINATION ${CMAKE_INSTALL_DATADIR}/mx-tools/locale)
+install(FILES data/mx-tools.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+install(FILES icons/mx-tools.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/96x96/apps)
+install(FILES icons/mx-tools.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
+install(FILES help/license.html help/custom.css DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(FILES help/mx-tools.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
+if(MX_TOOLS_INSTALL_MENU)
+    install(FILES data/menu/mx-tools-menu.directory DESTINATION ${CMAKE_INSTALL_DATADIR}/desktop-directories)
+    # FULL_SYSCONFDIR is /etc for a /usr prefix, where the relative form would give /usr/etc.
+    install(FILES data/menu/mx-tools-menu.menu
+            DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/xdg/menus/applications-merged)
+endif()
 
 if(BUILD_TESTING)
     add_executable(test-toolmodel

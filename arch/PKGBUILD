@@ -15,7 +15,7 @@ pkgrel=1
 pkgdesc="MX Tools - Dashboard application launcher for various MX tools"
 arch=('x86_64')
 url="https://mxlinux.org"
-license=('GPL3')
+license=('GPL-3.0-or-later')
 depends=('qt6-base' 'qt6-declarative')
 makedepends=('cmake' 'ninja' 'qt6-declarative' 'qt6-tools')
 source=("${pkgname}_${pkgver}.tar.xz")
@@ -32,6 +32,7 @@ build() {
         -B build \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr \
+        -DMX_TOOLS_INSTALL_MENU=ON \
         -DPROJECT_VERSION_OVERRIDE="${pkgver}"
 
     cmake --build build --parallel
@@ -40,33 +41,8 @@ build() {
 package() {
     cd "${srcdir}/${_srcdir}"
 
-    install -Dm755 build/mx-tools "${pkgdir}/usr/bin/mx-tools"
-
-    install -dm755 "${pkgdir}/usr/share/mx-tools/locale"
-    install -Dm644 -t "${pkgdir}/usr/share/mx-tools/locale/" build/*.qm 2>/dev/null || true
-
-    install -Dm644 data/mx-tools.desktop "${pkgdir}/usr/share/applications/mx-tools.desktop"
-
-    # The "MX Tools" submenu. See data/menu/mx-tools-menu.menu for why the file
-    # names differ from desktop-defaults-mx-common's.
-    install -Dm644 data/menu/mx-tools-menu.directory \
-        "${pkgdir}/usr/share/desktop-directories/mx-tools-menu.directory"
-    install -Dm644 data/menu/mx-tools-menu.menu \
-        "${pkgdir}/etc/xdg/menus/applications-merged/mx-tools-menu.menu"
-
-    install -Dm644 icons/mx-tools.png "${pkgdir}/usr/share/icons/hicolor/96x96/apps/mx-tools.png"
-    install -Dm644 icons/mx-tools.svg "${pkgdir}/usr/share/icons/hicolor/scalable/apps/mx-tools.svg"
-
-    # Already correct with -t, which creates man1/ itself; the separate
-    # install -dm755 was redundant and the "|| true" only stood to hide a real
-    # failure.
-    install -Dm644 -t "${pkgdir}/usr/share/man/man1/" help/*.1
-
-    install -dm755 "${pkgdir}/usr/share/doc/mx-tools"
-    for f in help/*.html help/*.css help/*.jpg help/*.png; do
-        [ -f "$f" ] && install -Dm644 "$f" "${pkgdir}/usr/share/doc/mx-tools/$(basename "$f")"
-    done
-    gzip -c debian/changelog > "${pkgdir}/usr/share/doc/mx-tools/changelog.gz"
-
+    # CMake installs the application's files; only Arch's own locations are added here.
+    DESTDIR="${pkgdir}" cmake --install build
     install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+    gzip -c debian/changelog > "${pkgdir}/usr/share/doc/${pkgname}/changelog.gz"
 }
