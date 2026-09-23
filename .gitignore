@@ -39,6 +39,19 @@ ui_*.h
 # An in-source build's binary, not every path named mx-tools.
 /mx-tools
 
+# Build trees, so they never end up in build.sh --arch's tarball of the working tree.
+/build/
+/obj-*/
+/pkg/
+
+# What a Debian package build leaves in debian/.
+/debian/mx-tools/
+/debian/.debhelper/
+/debian/debhelper-build-stamp
+/debian/files
+/debian/*.debhelper.log
+/debian/*.substvars
+
 # The translation workflows need these, so keep them even where a global ignore file
 # excludes Makefiles or Transifex directories.
 !/translations-desktop-file/Makefile
