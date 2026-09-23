@@ -84,12 +84,26 @@ if [ "$DEBIAN_BUILD" = true ]; then
     DEBIAN_VERSION=$(dpkg-parsechangelog -SVersion)
     DEBIAN_ARTIFACT_PREFIX="${DEBIAN_SOURCE}_${DEBIAN_VERSION#*:}_${DEBIAN_ARCH}"
 
+    # Build from an export of the repository's files, not from the checkout: dpkg-source
+    # packs a native package's whole directory, so build trees, editor state or a makepkg
+    # pkg/ lying around would end up in the source tarball. debs/, the earlier release
+    # artifacts, is left out too. Only files Git knows about are exported (with their
+    # uncommitted edits), so git add a new file before building. The export is called src
+    # because the tarball's top directory is named after it, and arch/PKGBUILD (OBS)
+    # unpacks it from src/.
+    DEBIAN_BUILDDIR=$(mktemp -d)
+    trap 'rm -rf "$DEBIAN_BUILDDIR"' EXIT
+    mkdir "$DEBIAN_BUILDDIR/src"
+    git ls-files -z --cached -- . ':!debs' \
+        | while IFS= read -r -d '' file; do [ -e "$file" ] && printf '%s\0' "$file"; done \
+        | tar --null -T - -c | tar -x -C "$DEBIAN_BUILDDIR/src"
+
     echo "Building Debian package..."
-    debuild -us -uc
+    (cd "$DEBIAN_BUILDDIR/src" && debuild -us -uc)
 
     # The current build's manifest lists its binary and source artifacts,
     # including buildinfo. Never sweep unrelated files from the parent directory.
-    DEBIAN_CHANGES="../${DEBIAN_ARTIFACT_PREFIX}.changes"
+    DEBIAN_CHANGES="$DEBIAN_BUILDDIR/${DEBIAN_ARTIFACT_PREFIX}.changes"
     if [ ! -f "$DEBIAN_CHANGES" ]; then
         echo "Error: expected build manifest not found: $DEBIAN_CHANGES"
         exit 1
@@ -100,7 +114,7 @@ if [ "$DEBIAN_BUILD" = true ]; then
         in_files && NF == 5 { print $5 }
     ' "$DEBIAN_CHANGES")
     for artifact in "${DEBIAN_ARTIFACTS[@]}"; do
-        if [[ "$artifact" == */* || "$artifact" == "." || "$artifact" == ".." || ! -f "../$artifact" ]]; then
+        if [[ "$artifact" == */* || "$artifact" == "." || "$artifact" == ".." || ! -f "$DEBIAN_BUILDDIR/$artifact" ]]; then
             echo "Error: invalid or missing build artifact: $artifact"
             exit 1
         fi
@@ -109,18 +123,12 @@ if [ "$DEBIAN_BUILD" = true ]; then
     echo "Creating debs directory and moving debian artifacts..."
     mkdir -p debs
     for artifact in "${DEBIAN_ARTIFACTS[@]}"; do
-        mv -- "../$artifact" debs/
+        mv -- "$DEBIAN_BUILDDIR/$artifact" debs/
     done
     mv -- "$DEBIAN_CHANGES" debs/
-    if [ -f "../${DEBIAN_ARTIFACT_PREFIX}.build" ]; then
-        mv -- "../${DEBIAN_ARTIFACT_PREFIX}.build" debs/
+    if [ -f "$DEBIAN_BUILDDIR/${DEBIAN_ARTIFACT_PREFIX}.build" ]; then
+        mv -- "$DEBIAN_BUILDDIR/${DEBIAN_ARTIFACT_PREFIX}.build" debs/
     fi
-
-    echo "Cleaning build directory and debian artifacts..."
-    rm -rf "$BUILD_DIR"
-    rm -f debian/*.debhelper.log debian/*.substvars debian/files
-    rm -rf debian/.debhelper/ debian/mx-tools/ obj-*/
-    rm -f translations/*.qm
 
     echo "Debian package build completed!"
     echo "Debian artifacts moved to debs/ directory"
@@ -149,17 +157,19 @@ if [ "$ARCH_BUILD" = true ]; then
     echo "Using version ${ARCH_VERSION} from debian/changelog"
 
     # Build arch/PKGBUILD - the same file OBS uses - from a tarball of the working tree,
-    # in a scratch directory, so makepkg's src/ and pkg/ never meet the repository's own
-    # src/ or build/. The tarball unpacks to src/, as the dpkg-source one OBS gets does.
-    ARCH_BUILDDIR=$(mktemp -d)
+    # in a scratch directory under build/, so makepkg's src/ and pkg/ never land in the
+    # repository root or meet its own src/. The tarball unpacks to src/, as the
+    # dpkg-source one OBS gets does. Only files Git knows about are packed (with their
+    # uncommitted edits), so git add a new file before building.
+    mkdir -p build
+    ARCH_BUILDDIR=$(mktemp -d -p "$PWD/build" arch.XXXXXX)
     trap 'rm -rf "$ARCH_BUILDDIR"' EXIT
-    git ls-files -z --cached --others --exclude-standard \
+    git ls-files -z --cached -- . ':!debs' \
         | while IFS= read -r -d '' file; do [ -e "$file" ] && printf '%s\0' "$file"; done \
         | tar --null -T - --transform 's,^,src/,' -cJf "$ARCH_BUILDDIR/mx-tools_${ARCH_VERSION}.tar.xz"
     sed "s/^pkgver=.*/pkgver=${ARCH_VERSION}/" arch/PKGBUILD > "$ARCH_BUILDDIR/PKGBUILD"
 
     PKG_DEST_DIR="$PWD/build"
-    mkdir -p "$PKG_DEST_DIR"
     (cd "$ARCH_BUILDDIR" && PKGDEST="$PKG_DEST_DIR" makepkg -f)
 
     echo "Arch Linux package build completed!"

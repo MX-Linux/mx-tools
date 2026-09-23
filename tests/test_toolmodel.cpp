@@ -282,7 +282,8 @@ void TestToolModel::launchBlocksRelaunchOnlyWhileRunning()
         QVERIFY(script.write("#!/bin/sh\nwhile [ ! -e \"$1\" ]; do sleep 0.05; done\n") > 0);
     }
     QVERIFY(QFile::setPermissions(waiter, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
-    const auto releaseTool = qScopeGuard([&release] { QFile(release).open(QFile::WriteOnly); });
+    // Best effort: nothing more can be done here if even this write fails.
+    const auto releaseTool = qScopeGuard([&release] { static_cast<void>(QFile(release).open(QFile::WriteOnly)); });
 
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
     QVERIFY(writeDesktopFile(applications, QStringLiteral("waiter.desktop"),
