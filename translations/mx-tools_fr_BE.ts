@@ -94,25 +94,25 @@
     <message numerus="yes">
         <location filename="../qml/Main.qml" line="334"/>
         <source>%n tool(s)</source>
-        <translation>
-            <numerusform>%n outil</numerusform>
-            <numerusform>%n outils</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="375"/>
         <source>Hide categories</source>
-        <translation type="unfinished"></translation>
+        <translation>Masquer les catégories</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="383"/>
         <source>Hide the category list</source>
-        <translation type="unfinished"></translation>
+        <translation>Masquer la liste des catégories</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="386"/>
         <source>Use the whole window for tools</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliser toute la fenêtre pour les outils</translation>
     </message>
     <message>
         <location filename="../qml/Main.qml" line="462"/>

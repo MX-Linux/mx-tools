@@ -94,9 +94,9 @@
     <message numerus="yes">
         <location filename="../qml/Main.qml" line="334"/>
         <source>%n tool(s)</source>
-        <translation>
-            <numerusform>%n verktyg ( )</numerusform>
-            <numerusform>%n verktyg ( )</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>

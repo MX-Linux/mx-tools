@@ -1,4 +1,4 @@
-mx-tools (26.09.9) mx; urgency=medium
+mx-tools (26.09.10) mx; urgency=medium
 
   * Keep your Whisker Menu favorites when hiding MX tools from the system menu
     and showing them again, including on non-English systems, and never add
