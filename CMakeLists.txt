@@ -182,7 +182,6 @@ add_library(mx-tools-warnings INTERFACE)
 target_compile_options(mx-tools-warnings INTERFACE
     -Wall
     -Wextra
-    -Wshadow
     -Wpedantic
     -pedantic
     -Werror=return-type
@@ -196,6 +195,9 @@ else()
     target_compile_options(mx-tools-warnings INTERFACE -Werror=return-local-addr)
 endif()
 target_link_libraries(mx-tools PRIVATE mx-tools-warnings)
+# -Wshadow only for our own sources: Qt 6.4's qmlcachegen output shadows its own parameters.
+set_source_files_properties(src/main.cpp src/toolmodel.cpp tests/test_toolmodel.cpp
+    PROPERTIES COMPILE_OPTIONS -Wshadow)
 
 # Set compile definitions
 target_compile_definitions(mx-tools PRIVATE
