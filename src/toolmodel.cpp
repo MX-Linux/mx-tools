@@ -31,7 +31,8 @@ constexpr auto applicationsPath = MX_TOOLS_APPLICATIONS_PATH;
 #else
 constexpr auto applicationsPath = "/usr/share/applications";
 #endif
-constexpr auto userApplicationsPath = "/.local/share/applications";
+// Where releases before the state file wrote their overrides, whatever XDG_DATA_HOME says.
+constexpr auto legacyUserApplicationsPath = "/.local/share/applications";
 constexpr auto manualPath = "/usr/share/mx-docs/mxum_en.pdf";
 constexpr auto licensePath = "/usr/share/doc/mx-tools/license.html";
 constexpr auto changelogPath = "/usr/share/doc/mx-tools/changelog.gz";
@@ -253,6 +254,16 @@ std::optional<QStringList> execArguments(const QString &exec, const QString &nam
         finishArgument();
     }
     return arguments;
+}
+
+// The Desktop Entry ID: the path below the applications directory with '/' replaced by
+// '-', so applications/foo/bar.desktop is foo-bar.desktop. Menus and Whisker Menu
+// favorites use it, and a user override must be named after it.
+QString desktopId(const QString &fileName)
+{
+    return QDir(QString::fromLatin1(applicationsPath))
+        .relativeFilePath(fileName)
+        .replace(QLatin1Char('/'), QLatin1Char('-'));
 }
 
 QString menuStateFilePath()
@@ -515,6 +526,7 @@ ToolModel::ToolModel(ToolIconProvider *iconProvider, QObject *parent)
 {
     loadTools();
     detectMenuVisibility();
+    hideNewMenuEntries();
     refilter();
 }
 
@@ -658,7 +670,7 @@ void ToolModel::loadTools()
         }
         m_menuFiles.append(fileName);
         if (!visibleInCurrentEnvironment(entry, desktops)
-            || (!live && liveOnlyDesktopIds.contains(QFileInfo(fileName).fileName()))) {
+            || (!live && liveOnlyDesktopIds.contains(desktopId(fileName)))) {
             continue;
         }
 
@@ -913,8 +925,9 @@ void ToolModel::detectMenuVisibility()
 
     // Only recognize legacy overrides that can be safely removed. A user's
     // custom NoDisplay=true entry alone is not evidence of a legacy operation.
-    const QDir directory(QDir::homePath() + QString::fromLatin1(userApplicationsPath));
+    const QDir directory(QDir::homePath() + QString::fromLatin1(legacyUserApplicationsPath));
     for (const QString &fileName : std::as_const(m_menuFiles)) {
+        // Legacy releases named overrides after the basename, not the desktop ID.
         QFile currentFile(directory.filePath(QFileInfo(fileName).fileName()));
         QFile systemFile(fileName);
         if (!currentFile.open(QIODevice::ReadOnly | QIODevice::Text)
@@ -932,9 +945,90 @@ void ToolModel::detectMenuVisibility()
     }
 }
 
+// Records how to restore one launcher in the state's Entries group, then writes its
+// NoDisplay override. The record comes first so a failed write can still be undone,
+// and is marked written only once the override is in place.
+bool ToolModel::hideMenuEntry(QSettings &state, const QDir &directory, const QString &fileName)
+{
+    const QString id = desktopId(fileName);
+    const QString destination = directory.filePath(id);
+    const bool originalExists = QFileInfo::exists(destination);
+    QFile input(originalExists ? destination : fileName);
+    if (!input.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+    const QByteArray original = input.readAll();
+    const QByteArray hidden = replaceVisibilityLines(QString::fromUtf8(original),
+                                                     {QStringLiteral("NoDisplay=true")})
+                                  .toUtf8();
+
+    state.beginGroup(id);
+    state.setValue(QStringLiteral("path"), destination);
+    state.setValue(QStringLiteral("originalExists"), originalExists);
+    state.setValue(QStringLiteral("original"), original);
+    state.setValue(QStringLiteral("hidden"), hidden);
+    state.setValue(QStringLiteral("written"), false);
+    state.sync();
+    if (state.status() != QSettings::NoError || !writeFileAtomically(destination, hidden)) {
+        state.endGroup();
+        return false;
+    }
+    state.setValue(QStringLiteral("written"), true);
+    state.endGroup();
+    state.sync();
+    return state.status() == QSettings::NoError;
+}
+
+// While tools are hidden, hide MX launchers installed since then as well, and record
+// them so restoring brings them back too. An override that was never written is
+// retried on the next start; records from before the written flag count as written.
+void ToolModel::hideNewMenuEntries()
+{
+    if (!m_hideFromMenu || m_legacyMenuState) {
+        return;
+    }
+    const QString statePath = menuStateFilePath();
+    QLockFile operationLock(statePath + QStringLiteral(".operation.lock"));
+    operationLock.setStaleLockTime(0);
+    const QDir directory(QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation));
+    if (!operationLock.tryLock() || !QDir().mkpath(directory.absolutePath())) {
+        return;
+    }
+    QSettings state(statePath, QSettings::IniFormat);
+    if (!state.value(QStringLiteral("active"), false).toBool()) {
+        return;
+    }
+    state.beginGroup(QStringLiteral("Entries"));
+    const QStringList recorded = state.childGroups();
+    for (const QString &fileName : std::as_const(m_menuFiles)) {
+        const QString id = desktopId(fileName);
+        if (recorded.contains(id)) {
+            state.beginGroup(id);
+            const bool written = state.value(QStringLiteral("written"), true).toBool();
+            QFile current(state.value(QStringLiteral("path")).toString());
+            // The override may have been written just before the flag could be saved;
+            // recapturing it then would record the hidden file as the user's original.
+            const bool overrideInPlace = !written && current.open(QIODevice::ReadOnly)
+                                         && current.readAll() == state.value(QStringLiteral("hidden")).toByteArray();
+            if (overrideInPlace) {
+                state.setValue(QStringLiteral("written"), true);
+            }
+            state.endGroup();
+            if (written || overrideInPlace) {
+                continue;
+            }
+        }
+        // A failure leaves the entry marked unwritten, so it is retried next time.
+        static_cast<void>(hideMenuEntry(state, directory, fileName));
+    }
+    state.endGroup();
+    state.sync();
+}
+
 bool ToolModel::hideMenuEntries()
 {
-    const QDir directory(QDir::homePath() + QString::fromLatin1(userApplicationsPath));
+    // Menus read user overrides from $XDG_DATA_HOME/applications.
+    const QDir directory(QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation));
     if (!QDir().mkpath(directory.absolutePath())) {
         emit errorOccurred(tr("Menu setting failed"), tr("Could not create %1.").arg(directory.absolutePath()));
         return false;
@@ -952,27 +1046,7 @@ bool ToolModel::hideMenuEntries()
     state.beginGroup(QStringLiteral("Entries"));
     bool success = true;
     for (const QString &fileName : std::as_const(m_menuFiles)) {
-        const QString desktopId = QFileInfo(fileName).fileName();
-        const QString destination = directory.filePath(desktopId);
-        const bool originalExists = QFileInfo::exists(destination);
-        QFile input(originalExists ? destination : fileName);
-        if (!input.open(QIODevice::ReadOnly)) {
-            success = false;
-            break;
-        }
-        const QByteArray original = input.readAll();
-        const QByteArray hidden = replaceVisibilityLines(QString::fromUtf8(original),
-                                                         {QStringLiteral("NoDisplay=true")})
-                                      .toUtf8();
-
-        state.beginGroup(desktopId);
-        state.setValue(QStringLiteral("path"), destination);
-        state.setValue(QStringLiteral("originalExists"), originalExists);
-        state.setValue(QStringLiteral("original"), original);
-        state.setValue(QStringLiteral("hidden"), hidden);
-        state.endGroup();
-        state.sync();
-        if (state.status() != QSettings::NoError || !writeFileAtomically(destination, hidden)) {
+        if (!hideMenuEntry(state, directory, fileName)) {
             success = false;
             break;
         }
@@ -998,8 +1072,8 @@ bool ToolModel::restoreMenuEntries()
     QSettings state(menuStateFilePath(), QSettings::IniFormat);
     state.beginGroup(QStringLiteral("Entries"));
     bool success = true;
-    for (const QString &desktopId : state.childGroups()) {
-        state.beginGroup(desktopId);
+    for (const QString &id : state.childGroups()) {
+        state.beginGroup(id);
         const QString path = state.value(QStringLiteral("path")).toString();
         const bool originalExists = state.value(QStringLiteral("originalExists")).toBool();
         const QByteArray original = state.value(QStringLiteral("original")).toByteArray();
@@ -1046,9 +1120,10 @@ bool ToolModel::restoreMenuEntries()
 
 bool ToolModel::restoreLegacyMenuEntries()
 {
-    const QDir directory(QDir::homePath() + QString::fromLatin1(userApplicationsPath));
+    const QDir directory(QDir::homePath() + QString::fromLatin1(legacyUserApplicationsPath));
     bool success = true;
     for (const QString &fileName : std::as_const(m_menuFiles)) {
+        // Legacy releases named overrides after the basename, not the desktop ID.
         const QString destination = directory.filePath(QFileInfo(fileName).fileName());
         if (!QFileInfo::exists(destination)) {
             continue;
@@ -1118,7 +1193,7 @@ bool ToolModel::reconcileWhiskerMenuFavorites(QSettings &state)
 
     QSet<QString> ourDesktopIds;
     for (const QString &fileName : std::as_const(m_menuFiles)) {
-        ourDesktopIds.insert(QFileInfo(fileName).fileName());
+        ourDesktopIds.insert(desktopId(fileName));
     }
 
     bool success = true;

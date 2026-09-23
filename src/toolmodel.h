@@ -13,6 +13,7 @@
 
 #include <optional>
 
+class QDir;
 class QSettings;
 
 class ToolIconProvider final : public QQuickImageProvider
@@ -106,6 +107,8 @@ private:
     void loadTools();
     void refilter();
     void detectMenuVisibility();
+    [[nodiscard]] static bool hideMenuEntry(QSettings &state, const QDir &directory, const QString &fileName);
+    void hideNewMenuEntries();
     [[nodiscard]] bool hideMenuEntries();
     [[nodiscard]] bool restoreMenuEntries();
     [[nodiscard]] bool restoreLegacyMenuEntries();

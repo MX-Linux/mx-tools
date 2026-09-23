@@ -10,6 +10,8 @@
 
 #include "toolmodel.h"
 
+#include <unistd.h>
+
 namespace
 {
 QString desktopFileContent(const QString &name, const QString &categories, const QString &extra = {})
@@ -97,6 +99,11 @@ private slots:
     void unrelatedFavoritesSnapshotNeedsNoQuery();
     void failedFavoritesWriteKeepsSnapshot();
     void missingXfconfQueryKeepsSnapshot();
+    void hideWritesOverridesToXdgDataHome();
+    void subdirectoryLaunchersUseDesktopIds();
+    void launchersInstalledWhileHiddenAreHidden();
+    void failedNewLauncherOverrideIsRetried();
+    void unflaggedWrittenOverrideIsNotRecaptured();
 
 private:
     void writeMenuTool();
@@ -126,10 +133,11 @@ void TestToolModel::init()
     QVERIFY(m_home->isValid());
     // ToolModel reads and writes real user paths (menu visibility state,
     // legacy user-overridden .desktop copies) derived from HOME, so every
-    // test gets a private HOME/XDG_CONFIG_HOME instead of touching the
-    // developer's actual configuration.
+    // test gets a private HOME/XDG_CONFIG_HOME (and the default XDG_DATA_HOME)
+    // instead of touching the developer's actual configuration.
     qputenv("HOME", m_home->path().toUtf8());
     qputenv("XDG_CONFIG_HOME", (m_home->path() + QStringLiteral("/.config")).toUtf8());
+    qunsetenv("XDG_DATA_HOME");
     qunsetenv("XDG_CURRENT_DESKTOP");
     qunsetenv("XDG_SESSION_DESKTOP");
     // Pin the live/installed state instead of inheriting it from the root
@@ -505,6 +513,156 @@ void TestToolModel::missingXfconfQueryKeepsSnapshot()
     restarted.setHideFromMenu(false);
     QVERIFY(!restarted.hideFromMenu());
     QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
+}
+
+void TestToolModel::hideWritesOverridesToXdgDataHome()
+{
+    writeMenuTool();
+    const QString dataHome = m_home->filePath(QStringLiteral("data"));
+    qputenv("XDG_DATA_HOME", dataHome.toUtf8());
+    const QString override = dataHome + QStringLiteral("/applications/tool.desktop");
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    model.setHideFromMenu(true);
+    QVERIFY(model.hideFromMenu());
+    QFile file(override);
+    QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
+    QVERIFY(file.readAll().contains("NoDisplay=true"));
+    file.close();
+    QVERIFY(!QFileInfo::exists(m_home->filePath(QStringLiteral(".local/share/applications/tool.desktop"))));
+
+    model.setHideFromMenu(false);
+    QVERIFY(!model.hideFromMenu());
+    QVERIFY(!QFileInfo::exists(override));
+    qunsetenv("XDG_DATA_HOME");
+}
+
+void TestToolModel::subdirectoryLaunchersUseDesktopIds()
+{
+    // applications/mx/tool.desktop has the desktop ID mx-tool.desktop, which is
+    // what menus look up overrides by and what Whisker Menu stores as a favorite.
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    QVERIFY(applications.mkpath(QStringLiteral("mx")));
+    writeDesktopFile(QDir(applications.filePath(QStringLiteral("mx"))), QStringLiteral("tool.desktop"),
+                     desktopFileContent(QStringLiteral("Nested"), QStringLiteral("X-MX-Utilities")));
+    writeMenuTool();
+    setFavorites({QStringLiteral("mx-tool.desktop"), QStringLiteral("tool.desktop")});
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QCOMPARE(model.totalCount(), 2);
+    model.setHideFromMenu(true);
+    const QDir overrides(m_home->filePath(QStringLiteral(".local/share/applications")));
+    QVERIFY(QFileInfo::exists(overrides.filePath(QStringLiteral("mx-tool.desktop"))));
+    QVERIFY(QFileInfo::exists(overrides.filePath(QStringLiteral("tool.desktop"))));
+
+    setFavorites({});
+    model.setHideFromMenu(false);
+    QVERIFY(!model.hideFromMenu());
+    QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("mx-tool.desktop"))));
+    QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("tool.desktop"))));
+    QCOMPARE(favorites(), QStringList({QStringLiteral("mx-tool.desktop"), QStringLiteral("tool.desktop")}));
+}
+
+void TestToolModel::launchersInstalledWhileHiddenAreHidden()
+{
+    writeMenuTool();
+    ToolIconProvider iconProvider;
+    {
+        ToolModel model(&iconProvider);
+        model.setHideFromMenu(true);
+        QVERIFY(model.hideFromMenu());
+    }
+
+    // A package installs another MX tool while the tools are hidden.
+    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("new.desktop"),
+                     desktopFileContent(QStringLiteral("New"), QStringLiteral("X-MX-Setup")));
+    const QDir overrides(m_home->filePath(QStringLiteral(".local/share/applications")));
+    QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("new.desktop"))));
+
+    ToolModel restarted(&iconProvider);
+    QVERIFY(restarted.hideFromMenu());
+    QFile file(overrides.filePath(QStringLiteral("new.desktop")));
+    QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
+    QVERIFY(file.readAll().contains("NoDisplay=true"));
+    file.close();
+
+    restarted.setHideFromMenu(false);
+    QVERIFY(!restarted.hideFromMenu());
+    QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("new.desktop"))));
+    QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("tool.desktop"))));
+}
+
+void TestToolModel::failedNewLauncherOverrideIsRetried()
+{
+    if (geteuid() == 0) {
+        QSKIP("A read-only directory can't make writes fail for root.");
+    }
+    writeMenuTool();
+    ToolIconProvider iconProvider;
+    {
+        ToolModel model(&iconProvider);
+        model.setHideFromMenu(true);
+        QVERIFY(model.hideFromMenu());
+    }
+    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("new.desktop"),
+                     desktopFileContent(QStringLiteral("New"), QStringLiteral("X-MX-Setup")));
+    const QString overrides = m_home->filePath(QStringLiteral(".local/share/applications"));
+    const QString override = QDir(overrides).filePath(QStringLiteral("new.desktop"));
+
+    // The first start records the new launcher but can't write its override.
+    const QFileDevice::Permissions permissions = QFile::permissions(overrides);
+    QVERIFY(QFile::setPermissions(overrides, QFile::ReadOwner | QFile::ExeOwner));
+    {
+        ToolModel restarted(&iconProvider);
+        QVERIFY(restarted.hideFromMenu());
+    }
+    QVERIFY(QFile::setPermissions(overrides, permissions));
+    QVERIFY(!QFileInfo::exists(override));
+
+    // The next start retries it.
+    ToolModel retried(&iconProvider);
+    QFile file(override);
+    QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
+    QVERIFY(file.readAll().contains("NoDisplay=true"));
+    file.close();
+
+    retried.setHideFromMenu(false);
+    QVERIFY(!retried.hideFromMenu());
+    QVERIFY(!QFileInfo::exists(override));
+}
+
+void TestToolModel::unflaggedWrittenOverrideIsNotRecaptured()
+{
+    writeMenuTool();
+    ToolIconProvider iconProvider;
+    {
+        ToolModel model(&iconProvider);
+        model.setHideFromMenu(true);
+        QVERIFY(model.hideFromMenu());
+    }
+    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("new.desktop"),
+                     desktopFileContent(QStringLiteral("New"), QStringLiteral("X-MX-Setup")));
+    {
+        ToolModel restarted(&iconProvider);
+    }
+    const QString override = m_home->filePath(QStringLiteral(".local/share/applications/new.desktop"));
+    QVERIFY(QFileInfo::exists(override));
+
+    // Simulate exiting after the override was written but before it was flagged.
+    const QString statePath = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation))
+                                  .filePath(QStringLiteral("menu-visibility.ini"));
+    {
+        QSettings state(statePath, QSettings::IniFormat);
+        state.setValue(QStringLiteral("Entries/new.desktop/written"), false);
+    }
+
+    ToolModel retried(&iconProvider);
+    QVERIFY(QSettings(statePath, QSettings::IniFormat).value(QStringLiteral("Entries/new.desktop/written")).toBool());
+    retried.setHideFromMenu(false);
+    QVERIFY(!retried.hideFromMenu());
+    QVERIFY(!QFileInfo::exists(override));
 }
 
 QTEST_MAIN(TestToolModel)
