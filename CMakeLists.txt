@@ -117,7 +117,12 @@ endif()
 # about them.
 if(Qt6_VERSION VERSION_GREATER_EQUAL 6.5)
     qt6_policy(SET QTP0001 NEW)
+    set(MX_TOOLS_QML_RESOURCE_PREFIX "/qt/qml")
+else()
+    set(MX_TOOLS_QML_RESOURCE_PREFIX "")
 endif()
+# QTP0001 decides where the QML module's resources live; C++ needs the same path.
+add_compile_definitions(MX_TOOLS_LOGO_RESOURCE=":${MX_TOOLS_QML_RESOURCE_PREFIX}/MxTools/icons/logo.svg")
 if(Qt6_VERSION VERSION_GREATER_EQUAL 6.8)
     qt6_policy(SET QTP0004 NEW)
 endif()

@@ -44,13 +44,7 @@ int main(int argc, char *argv[])
     if (QIcon::hasThemeIcon(windowIconName)) {
         QApplication::setWindowIcon(QIcon::fromTheme(windowIconName));
     } else {
-        const auto bundledIcon =
-#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-            QStringLiteral(":/qt/qml/MxTools/icons/logo.svg");
-#else
-            QStringLiteral(":/MxTools/icons/logo.svg");
-#endif
-        QApplication::setWindowIcon(QIcon(bundledIcon));
+        QApplication::setWindowIcon(QIcon(QStringLiteral(MX_TOOLS_LOGO_RESOURCE)));
     }
 
     QTranslator qtTranslator;

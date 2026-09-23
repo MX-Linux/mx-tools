@@ -24,6 +24,7 @@ public:
 
 private:
     QHash<QString, QIcon> m_icons;
+    QIcon m_fallbackIcon;
 };
 
 class ToolModel final : public QAbstractListModel
@@ -50,8 +51,6 @@ public:
     using DesktopEntry = QHash<QString, QString>;
 
     explicit ToolModel(ToolIconProvider *iconProvider, QObject *parent = nullptr);
-
-    [[nodiscard]] static QIcon fallbackIcon();
 
     [[nodiscard]] int rowCount(const QModelIndex &parent = {}) const override;
     [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;

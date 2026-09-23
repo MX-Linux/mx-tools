@@ -549,8 +549,13 @@ private:
 };
 }
 
+// The fallback is a member rather than a static so that it is destroyed with the
+// provider, before QApplication, as Qt expects of GUI objects.
 ToolIconProvider::ToolIconProvider()
-    : QQuickImageProvider(QQuickImageProvider::Pixmap)
+    : QQuickImageProvider(QQuickImageProvider::Pixmap),
+      m_fallbackIcon(QIcon::hasThemeIcon(QStringLiteral("applications-utilities"))
+                         ? QIcon::fromTheme(QStringLiteral("applications-utilities"))
+                         : QIcon(QStringLiteral(MX_TOOLS_LOGO_RESOURCE)))
 {
 }
 
@@ -564,7 +569,7 @@ QPixmap ToolIconProvider::requestPixmap(const QString &id, QSize *size, const QS
     const QSize target = requestedSize.isEmpty() ? QSize(48, 48) : requestedSize;
     QPixmap pixmap = m_icons.value(id).pixmap(target);
     if (pixmap.isNull()) {
-        pixmap = ToolModel::fallbackIcon().pixmap(target);
+        pixmap = m_fallbackIcon.pixmap(target);
     }
     if (pixmap.isNull()) {
         // Guarantee a valid pixmap even if the bundled fallback icon itself
@@ -773,7 +778,8 @@ void ToolModel::loadTools()
         tool.arguments = execArguments(value(entry, QStringLiteral("Exec")),
                                        value(entry, translatedKey(entry, QStringLiteral("Name"))), iconName, fileName);
         const QString iconKey = QString::number(iconNumber++);
-        m_iconProvider->insert(iconKey, lookupIcon(iconName).value_or(fallbackIcon()));
+        // A tool without a usable icon gets the provider's fallback when it is drawn.
+        m_iconProvider->insert(iconKey, lookupIcon(iconName).value_or(QIcon()));
         tool.iconSource = QStringLiteral("image://toolicons/") + iconKey;
         toolsByCategory[memberCategories.constFirst()].append(tool);
     }
@@ -864,11 +870,16 @@ bool ToolModel::visibleInCurrentEnvironment(const DesktopEntry &entry, const QSt
 
 std::optional<QIcon> ToolModel::lookupIcon(const QString &iconName)
 {
-    if (QFileInfo(iconName).isAbsolute() && QFile::exists(iconName)) {
+    // Only regular files count: an empty name would otherwise match an icon directory.
+    if (iconName.isEmpty()) {
+        return std::nullopt;
+    }
+    if (QFileInfo(iconName).isAbsolute() && QFileInfo(iconName).isFile()) {
         return QIcon(iconName);
     }
     QString name = iconName;
-    name.remove(QRegularExpression(QStringLiteral(R"(\.(png|svg|xpm)$)")));
+    static const QRegularExpression imageExtension(QStringLiteral(R"(\.(png|svg|xpm)$)"));
+    name.remove(imageExtension);
     if (!name.isEmpty() && QIcon::hasThemeIcon(name)) {
         return QIcon::fromTheme(name);
     }
@@ -880,24 +891,12 @@ std::optional<QIcon> ToolModel::lookupIcon(const QString &iconName)
     for (const QString &root : roots) {
         for (const QString &extension : {QString(), QStringLiteral(".svg"), QStringLiteral(".png"), QStringLiteral(".xpm")}) {
             const QString candidate = root + (extension.isEmpty() ? iconName : name + extension);
-            if (QFile::exists(candidate)) {
+            if (QFileInfo(candidate).isFile()) {
                 return QIcon(candidate);
             }
         }
     }
     return std::nullopt;
-}
-
-QIcon ToolModel::fallbackIcon()
-{
-    static const QIcon icon = []() {
-        const auto themeName = QStringLiteral("applications-utilities");
-        if (QIcon::hasThemeIcon(themeName)) {
-            return QIcon::fromTheme(themeName);
-        }
-        return QIcon(QStringLiteral(":/qt/qml/MxTools/icons/logo.svg"));
-    }();
-    return icon;
 }
 
 void ToolModel::launch(const QString &fileName)
