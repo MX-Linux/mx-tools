@@ -1,3 +1,40 @@
+mx-tools (26.09.9) mx; urgency=medium
+
+  * Keep your Whisker Menu favorites when hiding MX tools from the system menu
+    and showing them again, including on non-English systems, and never add
+    stray entries to the favorites
+  * Don't hide the tools if the Whisker Menu favorites can't be read, so they
+    can't be lost, and keep them saved until they have been put back
+  * Also hide MX tools installed after you chose to hide them from the menu
+  * Make hiding from the menu work for tools kept in subfolders and when a
+    custom data folder is set
+  * Keep the window responsive while the tools are hidden or shown again, and
+    make the switch always show whether they are actually hidden
+  * Toggle the "hide from the system menu" switch by clicking its label too
+  * Open the changelog without freezing the window
+  * List a tool that belongs to several categories only once, under each of
+    its categories
+  * Read tool names, descriptions and launch commands correctly when they use
+    extra spaces, quotes or special characters
+  * Find tools by all the words you type, in any order, and ignore extra spaces
+  * Sort tool names alphabetically for your language, including accented names
+  * Move between tools with the arrow keys, scrolling to reach every tool, and
+    press Enter to open one
+  * Show the MX logo for tools without an icon on older systems such as Debian
+    Bookworm
+  * Show "1 tool" and "2 tools" instead of "tool(s)", and fix the French count
+    for no results
+  * Show error messages one after another in a narrower window instead of
+    replacing one you haven't read yet
+  * Bring the window back onto the screen if it was last closed on a monitor
+    that is no longer connected
+  * Show the search icon with every font
+  * Start a tool again even if another program has taken the number of its
+    earlier run
+  * Install the manual page on Arch
+
+ -- Adrian <adrian@mxlinux.org>  Wed, 23 Sep 2026 12:05:10 -0400
+
 mx-tools (26.09.8) mx; urgency=medium
 
   * Fix missing MX apps from menu in Arch
