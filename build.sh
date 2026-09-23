@@ -179,6 +179,20 @@ if [ "$CLEAN" = true ]; then
     rm -f translations/*.qm
 fi
 
+# Switching compilers makes CMake discard its cache, and with it CMAKE_BUILD_TYPE, so
+# start the build directory's configuration afresh instead.
+if [ -f "$BUILD_DIR/CMakeCache.txt" ]; then
+    CACHED_COMPILER=$(sed -n 's/^CMAKE_CXX_COMPILER:[A-Z]*=//p' "$BUILD_DIR/CMakeCache.txt")
+    CACHED_CLANG=false
+    if [[ "$CACHED_COMPILER" == *clang* ]]; then
+        CACHED_CLANG=true
+    fi
+    if [ "$CACHED_CLANG" != "$USE_CLANG" ]; then
+        echo "Compiler changed; reconfiguring $BUILD_DIR from scratch"
+        rm -rf "$BUILD_DIR/CMakeCache.txt" "$BUILD_DIR/CMakeFiles"
+    fi
+fi
+
 # Create build directory
 mkdir -p "$BUILD_DIR"
 
@@ -191,9 +205,19 @@ CMAKE_ARGS=(
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 )
 
+# The compiler has to be chosen before CMake's project() detects it, so pass it here
+# rather than switching inside CMakeLists.txt.
 if [ "$USE_CLANG" = true ]; then
-    CMAKE_ARGS+=(-DUSE_CLANG=ON)
+    CMAKE_ARGS+=(-DCMAKE_CXX_COMPILER=clang++)
     echo "Using clang compiler"
+fi
+
+# Color compiler diagnostics only when a person is watching; logs stay plain. Pass the
+# setting either way, since the cache would otherwise keep the last run's choice.
+if [ -t 1 ]; then
+    CMAKE_ARGS+=(-DCMAKE_COLOR_DIAGNOSTICS=ON)
+else
+    CMAKE_ARGS+=(-DCMAKE_COLOR_DIAGNOSTICS=OFF)
 fi
 
 cmake "${CMAKE_ARGS[@]}"

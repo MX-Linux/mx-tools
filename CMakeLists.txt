@@ -77,25 +77,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Enable compile commands export for IDEs and tools
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Optimize for Ninja builds
-if(CMAKE_GENERATOR STREQUAL "Ninja")
-    # Enable colored output for Ninja
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        add_compile_options(-fdiagnostics-color=always)
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        add_compile_options(-fcolor-diagnostics)
-    endif()
-endif()
-
-# Option to use clang for testing builds
-option(USE_CLANG "Use clang compiler" OFF)
-if(USE_CLANG)
-    set(CMAKE_C_COMPILER clang)
-    set(CMAKE_CXX_COMPILER clang++)
-    set(CMAKE_CXX_COMPILER_ID "Clang")
-    message(STATUS "Using clang compiler")
-endif()
-
 # Find Qt6 components
 find_package(Qt6 REQUIRED COMPONENTS
     Core
@@ -196,7 +177,12 @@ target_link_libraries(mx-tools PRIVATE
 )
 
 # Set compiler flags
-target_compile_options(mx-tools PRIVATE
+# Warnings shared by the application and the tests; every warning is an error.
+add_library(mx-tools-warnings INTERFACE)
+target_compile_options(mx-tools-warnings INTERFACE
+    -Wall
+    -Wextra
+    -Wshadow
     -Wpedantic
     -pedantic
     -Werror=return-type
@@ -204,33 +190,29 @@ target_compile_options(mx-tools PRIVATE
     -Werror=uninitialized
     -Werror
 )
-
-# Add compiler-specific flags
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR USE_CLANG)
-    target_compile_options(mx-tools PRIVATE -Werror=return-stack-address)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(mx-tools-warnings INTERFACE -Werror=return-stack-address)
 else()
-    target_compile_options(mx-tools PRIVATE -Werror=return-local-addr)
+    target_compile_options(mx-tools-warnings INTERFACE -Werror=return-local-addr)
 endif()
+target_link_libraries(mx-tools PRIVATE mx-tools-warnings)
 
 # Set compile definitions
 target_compile_definitions(mx-tools PRIVATE
-    QT_DEPRECATED_WARNINGS
     QT_DISABLE_DEPRECATED_BEFORE=0x060000
     VERSION="${PROJECT_VERSION_FROM_CHANGELOG}"
 )
 
-# Release-specific optimizations
+# Release builds optimize for size, and use link-time optimization where the toolchain
+# supports it. CMake's Release flags already define NDEBUG.
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_definitions(mx-tools PRIVATE NDEBUG)
     target_compile_options(mx-tools PRIVATE -Os)
-
-    # Add LTO - different flags for different compilers
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR USE_CLANG)
-        target_compile_options(mx-tools PRIVATE -flto=thin)
-        target_link_options(mx-tools PRIVATE -flto=thin)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT MX_TOOLS_IPO_SUPPORTED OUTPUT MX_TOOLS_IPO_OUTPUT LANGUAGES CXX)
+    if(MX_TOOLS_IPO_SUPPORTED)
+        set_property(TARGET mx-tools PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     else()
-        target_compile_options(mx-tools PRIVATE -flto=auto)
-        target_link_options(mx-tools PRIVATE -flto=auto)
+        message(STATUS "Link-time optimization is not available: ${MX_TOOLS_IPO_OUTPUT}")
     endif()
 endif()
 
@@ -266,19 +248,7 @@ if(BUILD_TESTING)
     target_link_libraries(test-toolmodel PRIVATE
         Qt6::Core Qt6::Concurrent Qt6::Gui Qt6::Widgets Qt6::Qml Qt6::Quick Qt6::Test
     )
-    target_compile_options(test-toolmodel PRIVATE
-        -Wpedantic
-        -pedantic
-        -Werror=return-type
-        -Werror=switch
-        -Werror=uninitialized
-        -Werror
-    )
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR USE_CLANG)
-        target_compile_options(test-toolmodel PRIVATE -Werror=return-stack-address)
-    else()
-        target_compile_options(test-toolmodel PRIVATE -Werror=return-local-addr)
-    endif()
+    target_link_libraries(test-toolmodel PRIVATE mx-tools-warnings)
     target_compile_definitions(test-toolmodel PRIVATE
         MX_TOOLS_APPLICATIONS_PATH="${CMAKE_CURRENT_BINARY_DIR}/test-applications"
         MX_TOOLS_CHANGELOG_PATH="${CMAKE_CURRENT_BINARY_DIR}/test-changelog.gz"

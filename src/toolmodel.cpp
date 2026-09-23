@@ -1025,10 +1025,10 @@ void ToolModel::openChangelog()
         m_changelogProcess->deleteLater();
         m_changelogProcess = nullptr;
     };
-    connect(m_changelogProcess, &QProcess::finished, this, [this, finish](int exitCode, QProcess::ExitStatus status) {
+    connect(m_changelogProcess, &QProcess::finished, this, [finish](int exitCode, QProcess::ExitStatus status) {
         finish(status == QProcess::NormalExit && exitCode == 0);
     });
-    connect(m_changelogProcess, &QProcess::errorOccurred, this, [this, finish](QProcess::ProcessError error) {
+    connect(m_changelogProcess, &QProcess::errorOccurred, this, [finish](QProcess::ProcessError error) {
         // Only a failed start ends without finished().
         if (error == QProcess::FailedToStart) {
             finish(false);
