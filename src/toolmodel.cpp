@@ -17,6 +17,7 @@
 #include <QProcess>
 #include <QRegularExpression>
 #include <QSaveFile>
+#include <QScopeGuard>
 #include <QSet>
 #include <QSettings>
 #include <QStandardPaths>
@@ -461,6 +462,8 @@ bool ToolModel::hideFromMenu() const
 
 void ToolModel::setHideFromMenu(bool hide)
 {
+    // The switches flip themselves when clicked, so re-sync them on every exit, failures included.
+    const auto notify = qScopeGuard([this] { emit hideFromMenuChanged(); });
     const QString statePath = menuStateFilePath();
     if (!QDir().mkpath(QFileInfo(statePath).absolutePath())) {
         emit errorOccurred(tr("Menu setting failed"), tr("Could not create %1.").arg(QFileInfo(statePath).absolutePath()));
@@ -472,14 +475,9 @@ void ToolModel::setHideFromMenu(bool hide)
     operationLock.setStaleLockTime(0);
     if (!operationLock.tryLock()) {
         emit errorOccurred(tr("Menu setting failed"), tr("Could not update %1.").arg(statePath));
-        emit hideFromMenuChanged();
         return;
     }
-    const bool previousHideFromMenu = m_hideFromMenu;
     detectMenuVisibility();
-    if (m_hideFromMenu != previousHideFromMenu) {
-        emit hideFromMenuChanged();
-    }
     if (m_hideFromMenu == hide) {
         return;
     }
@@ -490,7 +488,6 @@ void ToolModel::setHideFromMenu(bool hide)
     }
     m_hideFromMenu = hide;
     m_legacyMenuState = false;
-    emit hideFromMenuChanged();
 }
 
 void ToolModel::loadTools()
@@ -836,7 +833,6 @@ bool ToolModel::hideMenuEntries()
         const bool restored = restoreMenuEntries();
         if (!restored) {
             m_hideFromMenu = true;
-            emit hideFromMenuChanged();
         } else {
             emit errorOccurred(tr("Menu setting failed"), tr("Could not update %1.").arg(directory.absolutePath()));
         }

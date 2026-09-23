@@ -271,8 +271,11 @@ void TestToolModel::failedPluginQueryKeepsFavoritesSnapshot()
 
     // A failing plugin-type query must not be mistaken for a removed plugin.
     setFakeXfconfFailure(QStringLiteral("type"), true);
+    QSignalSpy visibilityChanges(&model, &ToolModel::hideFromMenuChanged);
     model.setHideFromMenu(false);
     QVERIFY(model.hideFromMenu());
+    // The switch already flipped itself; it needs the signal to flip back.
+    QVERIFY(!visibilityChanges.isEmpty());
     QCOMPARE(errors.count(), 1);
     QVERIFY(menuStateActive());
     QCOMPARE(favorites(), QStringList({QStringLiteral("other.desktop")}));
