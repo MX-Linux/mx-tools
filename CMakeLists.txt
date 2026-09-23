@@ -99,6 +99,7 @@ endif()
 # Find Qt6 components
 find_package(Qt6 REQUIRED COMPONENTS
     Core
+    Concurrent
     Gui
     Widgets
     Qml
@@ -179,6 +180,7 @@ qt6_add_qml_module(mx-tools
 # Link Qt6 libraries
 target_link_libraries(mx-tools PRIVATE
     Qt6::Core
+    Qt6::Concurrent
     Qt6::Gui
     Qt6::Widgets
     Qt6::Qml
@@ -255,7 +257,7 @@ if(BUILD_TESTING)
         src/toolmodel.h
     )
     target_link_libraries(test-toolmodel PRIVATE
-        Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Qml Qt6::Quick Qt6::Test
+        Qt6::Core Qt6::Concurrent Qt6::Gui Qt6::Widgets Qt6::Qml Qt6::Quick Qt6::Test
     )
     target_compile_options(test-toolmodel PRIVATE
         -Wpedantic
@@ -272,6 +274,7 @@ if(BUILD_TESTING)
     endif()
     target_compile_definitions(test-toolmodel PRIVATE
         MX_TOOLS_APPLICATIONS_PATH="${CMAKE_CURRENT_BINARY_DIR}/test-applications"
+        MX_TOOLS_CHANGELOG_PATH="${CMAKE_CURRENT_BINARY_DIR}/test-changelog.gz"
         MX_TOOLS_TESTING
     )
     target_include_directories(test-toolmodel PRIVATE src)

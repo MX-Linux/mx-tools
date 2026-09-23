@@ -261,6 +261,7 @@ ApplicationWindow {
                     ModernSwitch {
                         id: sidebarMenuVisibilitySwitch
                         checked: root.backend.hideFromMenu
+                        enabled: !root.backend.menuBusy
                         accentColor: root.accentColor
                         inactiveColor: root.inactiveControlColor
                         knobColor: checked ? systemPalette.highlightedText : systemPalette.button
@@ -509,6 +510,7 @@ ApplicationWindow {
                 ModernSwitch {
                     id: compactMenuVisibilitySwitch
                     checked: root.backend.hideFromMenu
+                    enabled: !root.backend.menuBusy
                     accentColor: root.accentColor
                     inactiveColor: root.inactiveControlColor
                     knobColor: checked ? systemPalette.highlightedText : systemPalette.button

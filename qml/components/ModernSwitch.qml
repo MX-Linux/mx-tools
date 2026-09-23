@@ -18,7 +18,8 @@ AbstractButton {
     Accessible.role: Accessible.CheckBox
     Accessible.checked: checked
 
-    HoverHandler { cursorShape: Qt.PointingHandCursor }
+    opacity: enabled ? 1 : 0.5
+    HoverHandler { cursorShape: control.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor }
 
     background: Item {}
 

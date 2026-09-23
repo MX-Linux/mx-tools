@@ -13,8 +13,7 @@
 
 #include <optional>
 
-class QDir;
-class QSettings;
+class QProcess;
 
 class ToolIconProvider final : public QQuickImageProvider
 {
@@ -35,6 +34,7 @@ class ToolModel final : public QAbstractListModel
     Q_PROPERTY(QStringList categories READ categories CONSTANT)
     Q_PROPERTY(int totalCount READ totalCount CONSTANT)
     Q_PROPERTY(bool hideFromMenu READ hideFromMenu WRITE setHideFromMenu NOTIFY hideFromMenuChanged)
+    Q_PROPERTY(bool menuBusy READ menuBusy NOTIFY menuBusyChanged)
 
 public:
     enum Role {
@@ -65,6 +65,7 @@ public:
     [[nodiscard]] int totalCount() const;
     [[nodiscard]] bool hideFromMenu() const;
     void setHideFromMenu(bool hide);
+    [[nodiscard]] bool menuBusy() const;
 
     Q_INVOKABLE void launch(const QString &fileName);
     Q_INVOKABLE void openManual();
@@ -76,6 +77,7 @@ signals:
     void searchChanged();
     void selectedCategoryChanged();
     void hideFromMenuChanged();
+    void menuBusyChanged();
     void errorOccurred(const QString &title, const QString &message);
     void documentReady(const QString &title, const QString &content);
 
@@ -101,19 +103,12 @@ private:
     QString m_selectedCategory;
     QHash<QString, qint64> m_runningTools;
     ToolIconProvider *m_iconProvider;
+    QProcess *m_changelogProcess = nullptr;
     bool m_hideFromMenu = false;
-    bool m_legacyMenuState = false;
+    bool m_menuBusy = false;
 
     void loadTools();
     void refilter();
-    void detectMenuVisibility();
-    [[nodiscard]] static bool hideMenuEntry(QSettings &state, const QDir &directory, const QString &fileName);
-    void hideNewMenuEntries();
-    [[nodiscard]] bool hideMenuEntries();
-    [[nodiscard]] bool restoreMenuEntries();
-    [[nodiscard]] bool restoreLegacyMenuEntries();
-    void snapshotWhiskerMenuFavorites(QSettings &state);
-    [[nodiscard]] bool reconcileWhiskerMenuFavorites(QSettings &state);
     [[nodiscard]] static DesktopEntry parseDesktopEntry(const QString &text);
     [[nodiscard]] static QString value(const DesktopEntry &entry, const QString &key);
     [[nodiscard]] static QString translatedKey(const DesktopEntry &entry, const QString &key);

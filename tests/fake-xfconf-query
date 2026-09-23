@@ -5,13 +5,15 @@
 # with a ".scalar" suffix, a plain string value; a single --set value without
 # -a is stored that way, as the real command does). A "fail-type",
 # "fail-favorites" or "fail-write" file makes queries of that kind fail with a
-# generic error.
+# generic error. Every invocation's arguments are appended to "calls".
 d="$FAKE_XFCONF_DIR"
-prop= list= reset= array= values= count=0
+echo "$*" >> "$d/calls"
+prop= list= verbose= reset= array= values= count=0
 while [ $# -gt 0 ]; do
     case "$1" in
         -p) shift; prop="$1" ;;
         -l) list=1 ;;
+        -v) verbose=1 ;;
         -r) reset=1 ;;
         -a) array=1 ;;
         -s) shift; values="$values$1
@@ -21,7 +23,18 @@ while [ $# -gt 0 ]; do
     shift
 done
 if [ -n "$list" ]; then
-    for n in $(cat "$d/plugins"); do echo "/plugins/plugin-$n"; done
+    # Listing is how plugin types are read, so "fail-type" fails it too.
+    if [ -e "$d/fail-type" ]; then
+        echo "Failed to contact the configuration daemon" >&2
+        exit 1
+    fi
+    for n in $(cat "$d/plugins"); do
+        if [ -n "$verbose" ] && [ -e "$d/plugin-$n" ]; then
+            printf '%-24s%s\n' "/plugins/plugin-$n" "$(cat "$d/plugin-$n")"
+        else
+            echo "/plugins/plugin-$n"
+        fi
+    done
     exit 0
 fi
 key=$(echo "${prop#/plugins/}" | tr / -)

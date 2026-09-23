@@ -10,6 +10,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QDirIterator>
+#include <QFutureWatcher>
 #include <QFile>
 #include <QFileInfo>
 #include <QLocale>
@@ -17,12 +18,12 @@
 #include <QProcess>
 #include <QRegularExpression>
 #include <QSaveFile>
-#include <QScopeGuard>
 #include <QSet>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QUrl>
+#include <QtConcurrentRun>
 
 namespace
 {
@@ -35,7 +36,11 @@ constexpr auto applicationsPath = "/usr/share/applications";
 constexpr auto legacyUserApplicationsPath = "/.local/share/applications";
 constexpr auto manualPath = "/usr/share/mx-docs/mxum_en.pdf";
 constexpr auto licensePath = "/usr/share/doc/mx-tools/license.html";
+#ifdef MX_TOOLS_CHANGELOG_PATH
+constexpr auto changelogPath = MX_TOOLS_CHANGELOG_PATH;
+#else
 constexpr auto changelogPath = "/usr/share/doc/mx-tools/changelog.gz";
+#endif
 constexpr auto menuStateFileName = "menu-visibility.ini";
 
 // Tools that only make sense on a live system, hidden once MX is installed.
@@ -384,30 +389,41 @@ XfconfResult runXfconfQuery(const QStringList &arguments)
     return result;
 }
 
+// Every panel plugin's type by instance number, from one xfconf-query call instead of
+// one per plugin, or nullopt if the query failed.
+std::optional<QHash<int, QString>> panelPluginTypes()
+{
+    const XfconfResult result = runXfconfQuery({QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"),
+                                                QStringLiteral("/plugins"), QStringLiteral("-l"),
+                                                QStringLiteral("-v")});
+    if (!result.success || result.exitCode != 0) {
+        return std::nullopt;
+    }
+    // -lv prints each property padded to a column, then its value.
+    static const QRegularExpression pluginPattern(QStringLiteral(R"(^/plugins/plugin-(\d+)\s+(\S+)\s*$)"));
+    QHash<int, QString> types;
+    for (const QString &line : result.output.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
+        const QRegularExpressionMatch match = pluginPattern.match(line);
+        if (match.hasMatch()) {
+            types.insert(match.captured(1).toInt(), match.captured(2));
+        }
+    }
+    return types;
+}
+
 QList<int> discoverWhiskerMenuInstances()
 {
-    const XfconfResult listResult = runXfconfQuery({QStringLiteral("-c"), xfconfPanelChannel,
-                                                     QStringLiteral("-p"), QStringLiteral("/plugins"),
-                                                     QStringLiteral("-l")});
-    if (!listResult.success || listResult.exitCode != 0) {
+    const std::optional<QHash<int, QString>> types = panelPluginTypes();
+    if (!types) {
         return {};
     }
-    static const QRegularExpression instancePattern(QStringLiteral(R"(^/plugins/plugin-(\d+)$)"));
     QList<int> instances;
-    for (const QString &line : listResult.output.split(QLatin1Char('\n'), Qt::SkipEmptyParts)) {
-        const QRegularExpressionMatch match = instancePattern.match(line.trimmed());
-        if (!match.hasMatch()) {
-            continue;
-        }
-        const int instance = match.captured(1).toInt();
-        const XfconfResult typeResult = runXfconfQuery(
-            {QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"),
-             QStringLiteral("/plugins/plugin-%1").arg(instance)});
-        if (typeResult.success && typeResult.exitCode == 0
-            && typeResult.output.trimmed() == QStringLiteral("whiskermenu")) {
-            instances.append(instance);
+    for (auto it = types->cbegin(); it != types->cend(); ++it) {
+        if (it.value() == QLatin1String("whiskermenu")) {
+            instances.append(it.key());
         }
     }
+    std::ranges::sort(instances);
     return instances;
 }
 
@@ -489,6 +505,48 @@ bool reconcileOneWhiskerMenuArray(int instance, const QString &property, const Q
     }
     return !changed || writeXfconfArray(instance, property, current);
 }
+
+// The per-user menu visibility state and the operations that change it. It works on its
+// own copy of the launcher list and collects errors instead of emitting them, so that an
+// operation can run on a worker thread.
+class MenuVisibility
+{
+public:
+    MenuVisibility() = default;
+    explicit MenuVisibility(QStringList menuFiles)
+        : m_menuFiles(std::move(menuFiles))
+    {
+    }
+
+    void detectMenuVisibility();
+    void hideNewMenuEntries();
+    void setHideFromMenu(bool hide);
+    [[nodiscard]] bool hideFromMenu() const
+    {
+        return m_hideFromMenu;
+    }
+    [[nodiscard]] const QList<QPair<QString, QString>> &errors() const
+    {
+        return m_errors;
+    }
+
+private:
+    void error(const QString &title, const QString &message)
+    {
+        m_errors.append({title, message});
+    }
+    [[nodiscard]] static bool hideMenuEntry(QSettings &state, const QDir &directory, const QString &fileName);
+    [[nodiscard]] bool hideMenuEntries();
+    [[nodiscard]] bool restoreMenuEntries();
+    [[nodiscard]] bool restoreLegacyMenuEntries();
+    void snapshotWhiskerMenuFavorites(QSettings &state);
+    [[nodiscard]] bool reconcileWhiskerMenuFavorites(QSettings &state);
+
+    QStringList m_menuFiles;
+    bool m_hideFromMenu = false;
+    bool m_legacyMenuState = false;
+    QList<QPair<QString, QString>> m_errors;
+};
 }
 
 ToolIconProvider::ToolIconProvider()
@@ -525,8 +583,10 @@ ToolModel::ToolModel(ToolIconProvider *iconProvider, QObject *parent)
       m_iconProvider(iconProvider)
 {
     loadTools();
-    detectMenuVisibility();
-    hideNewMenuEntries();
+    MenuVisibility visibility(m_menuFiles);
+    visibility.detectMenuVisibility();
+    visibility.hideNewMenuEntries();
+    m_hideFromMenu = visibility.hideFromMenu();
     refilter();
 }
 
@@ -610,32 +670,39 @@ bool ToolModel::hideFromMenu() const
 
 void ToolModel::setHideFromMenu(bool hide)
 {
-    // The switches flip themselves when clicked, so re-sync them on every exit, failures included.
-    const auto notify = qScopeGuard([this] { emit hideFromMenuChanged(); });
-    const QString statePath = menuStateFilePath();
-    if (!QDir().mkpath(QFileInfo(statePath).absolutePath())) {
-        emit errorOccurred(tr("Menu setting failed"), tr("Could not create %1.").arg(QFileInfo(statePath).absolutePath()));
+    // The switches are disabled while an operation runs; a change that arrives anyway
+    // just re-syncs them, since they flip themselves when clicked.
+    if (m_menuBusy) {
+        emit hideFromMenuChanged();
         return;
     }
-    // Use a separate lock from QSettings' own .lock file, and hold it across
-    // the state refresh, desktop-file changes, and any rollback.
-    QLockFile operationLock(statePath + QStringLiteral(".operation.lock"));
-    operationLock.setStaleLockTime(0);
-    if (!operationLock.tryLock()) {
-        emit errorOccurred(tr("Menu setting failed"), tr("Could not update %1.").arg(statePath));
-        return;
-    }
-    detectMenuVisibility();
-    if (m_hideFromMenu == hide) {
-        return;
-    }
-    const bool updated = hide ? hideMenuEntries()
-                              : (m_legacyMenuState ? restoreLegacyMenuEntries() : restoreMenuEntries());
-    if (!updated) {
-        return;
-    }
-    m_hideFromMenu = hide;
-    m_legacyMenuState = false;
+    m_menuBusy = true;
+    emit menuBusyChanged();
+    // Spawning xfconf-query and rewriting launchers can take a while, so run it on a
+    // worker thread with its own copy of the state and apply the outcome here.
+    auto *watcher = new QFutureWatcher<MenuVisibility>(this);
+    connect(watcher, &QFutureWatcherBase::finished, this, [this, watcher] {
+        const MenuVisibility visibility = watcher->result();
+        watcher->deleteLater();
+        m_hideFromMenu = visibility.hideFromMenu();
+        m_menuBusy = false;
+        for (const auto &[title, message] : visibility.errors()) {
+            emit errorOccurred(title, message);
+        }
+        emit menuBusyChanged();
+        // Re-sync the switches on every outcome, failures included.
+        emit hideFromMenuChanged();
+    });
+    watcher->setFuture(QtConcurrent::run([menuFiles = m_menuFiles, hide] {
+        MenuVisibility visibility(menuFiles);
+        visibility.setHideFromMenu(hide);
+        return visibility;
+    }));
+}
+
+bool ToolModel::menuBusy() const
+{
+    return m_menuBusy;
 }
 
 void ToolModel::loadTools()
@@ -903,16 +970,62 @@ void ToolModel::openChangelog()
         emit errorOccurred(tr("Changelog unavailable"), tr("Could not open %1.").arg(QString::fromLatin1(changelogPath)));
         return;
     }
-    QProcess process;
-    process.start(QStringLiteral("zcat"), {QString::fromLatin1(changelogPath)}, QIODevice::ReadOnly);
-    if (!process.waitForFinished() || process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
-        emit errorOccurred(tr("Changelog unavailable"), tr("Could not read the application changelog."));
+    // Decompress in the background so a slow disk can't freeze the window; a second
+    // click while that runs is ignored.
+    if (m_changelogProcess) {
         return;
     }
-    emit documentReady(tr("Changelog"), QString::fromUtf8(process.readAllStandardOutput()));
+    m_changelogProcess = new QProcess(this);
+    const auto finish = [this](bool success) {
+        if (success) {
+            emit documentReady(tr("Changelog"), QString::fromUtf8(m_changelogProcess->readAllStandardOutput()));
+        } else {
+            emit errorOccurred(tr("Changelog unavailable"), tr("Could not read the application changelog."));
+        }
+        m_changelogProcess->deleteLater();
+        m_changelogProcess = nullptr;
+    };
+    connect(m_changelogProcess, &QProcess::finished, this, [this, finish](int exitCode, QProcess::ExitStatus status) {
+        finish(status == QProcess::NormalExit && exitCode == 0);
+    });
+    connect(m_changelogProcess, &QProcess::errorOccurred, this, [this, finish](QProcess::ProcessError error) {
+        // Only a failed start ends without finished().
+        if (error == QProcess::FailedToStart) {
+            finish(false);
+        }
+    });
+    m_changelogProcess->start(QStringLiteral("zcat"), {QString::fromLatin1(changelogPath)}, QIODevice::ReadOnly);
 }
 
-void ToolModel::detectMenuVisibility()
+void MenuVisibility::setHideFromMenu(bool hide)
+{
+    const QString statePath = menuStateFilePath();
+    if (!QDir().mkpath(QFileInfo(statePath).absolutePath())) {
+        error(ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not create %1.").arg(QFileInfo(statePath).absolutePath()));
+        return;
+    }
+    // Use a separate lock from QSettings' own .lock file, and hold it across
+    // the state refresh, desktop-file changes, and any rollback.
+    QLockFile operationLock(statePath + QStringLiteral(".operation.lock"));
+    operationLock.setStaleLockTime(0);
+    if (!operationLock.tryLock()) {
+        error(ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(statePath));
+        return;
+    }
+    detectMenuVisibility();
+    if (m_hideFromMenu == hide) {
+        return;
+    }
+    const bool updated = hide ? hideMenuEntries()
+                              : (m_legacyMenuState ? restoreLegacyMenuEntries() : restoreMenuEntries());
+    if (!updated) {
+        return;
+    }
+    m_hideFromMenu = hide;
+    m_legacyMenuState = false;
+}
+
+void MenuVisibility::detectMenuVisibility()
 {
     m_hideFromMenu = false;
     m_legacyMenuState = false;
@@ -948,7 +1061,7 @@ void ToolModel::detectMenuVisibility()
 // Records how to restore one launcher in the state's Entries group, then writes its
 // NoDisplay override. The record comes first so a failed write can still be undone,
 // and is marked written only once the override is in place.
-bool ToolModel::hideMenuEntry(QSettings &state, const QDir &directory, const QString &fileName)
+bool MenuVisibility::hideMenuEntry(QSettings &state, const QDir &directory, const QString &fileName)
 {
     const QString id = desktopId(fileName);
     const QString destination = directory.filePath(id);
@@ -982,7 +1095,7 @@ bool ToolModel::hideMenuEntry(QSettings &state, const QDir &directory, const QSt
 // While tools are hidden, hide MX launchers installed since then as well, and record
 // them so restoring brings them back too. An override that was never written is
 // retried on the next start; records from before the written flag count as written.
-void ToolModel::hideNewMenuEntries()
+void MenuVisibility::hideNewMenuEntries()
 {
     if (!m_hideFromMenu || m_legacyMenuState) {
         return;
@@ -1025,17 +1138,17 @@ void ToolModel::hideNewMenuEntries()
     state.sync();
 }
 
-bool ToolModel::hideMenuEntries()
+bool MenuVisibility::hideMenuEntries()
 {
     // Menus read user overrides from $XDG_DATA_HOME/applications.
     const QDir directory(QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation));
     if (!QDir().mkpath(directory.absolutePath())) {
-        emit errorOccurred(tr("Menu setting failed"), tr("Could not create %1.").arg(directory.absolutePath()));
+        error(ToolModel::ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not create %1.").arg(directory.absolutePath()));
         return false;
     }
     const QString statePath = menuStateFilePath();
     if (!QDir().mkpath(QFileInfo(statePath).absolutePath())) {
-        emit errorOccurred(tr("Menu setting failed"), tr("Could not create %1.").arg(QFileInfo(statePath).absolutePath()));
+        error(ToolModel::ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not create %1.").arg(QFileInfo(statePath).absolutePath()));
         return false;
     }
 
@@ -1060,14 +1173,14 @@ bool ToolModel::hideMenuEntries()
         if (!restored) {
             m_hideFromMenu = true;
         } else {
-            emit errorOccurred(tr("Menu setting failed"), tr("Could not update %1.").arg(directory.absolutePath()));
+            error(ToolModel::ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(directory.absolutePath()));
         }
         return false;
     }
     return true;
 }
 
-bool ToolModel::restoreMenuEntries()
+bool MenuVisibility::restoreMenuEntries()
 {
     QSettings state(menuStateFilePath(), QSettings::IniFormat);
     state.beginGroup(QStringLiteral("Entries"));
@@ -1113,12 +1226,12 @@ bool ToolModel::restoreMenuEntries()
         success = false;
     }
     if (!success) {
-        emit errorOccurred(tr("Menu setting failed"), tr("Could not update %1.").arg(menuStateFilePath()));
+        error(ToolModel::ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(menuStateFilePath()));
     }
     return success;
 }
 
-bool ToolModel::restoreLegacyMenuEntries()
+bool MenuVisibility::restoreLegacyMenuEntries()
 {
     const QDir directory(QDir::homePath() + QString::fromLatin1(legacyUserApplicationsPath));
     bool success = true;
@@ -1152,12 +1265,12 @@ bool ToolModel::restoreLegacyMenuEntries()
         }
     }
     if (!success) {
-        emit errorOccurred(tr("Menu setting failed"), tr("Could not update %1.").arg(directory.absolutePath()));
+        error(ToolModel::ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(directory.absolutePath()));
     }
     return success;
 }
 
-void ToolModel::snapshotWhiskerMenuFavorites(QSettings &state)
+void MenuVisibility::snapshotWhiskerMenuFavorites(QSettings &state)
 {
     if (!xfconfQueryAvailable()) {
         return;
@@ -1182,7 +1295,7 @@ void ToolModel::snapshotWhiskerMenuFavorites(QSettings &state)
     state.endGroup();
 }
 
-bool ToolModel::reconcileWhiskerMenuFavorites(QSettings &state)
+bool MenuVisibility::reconcileWhiskerMenuFavorites(QSettings &state)
 {
     state.beginGroup(QStringLiteral("WhiskerMenu"));
     const QStringList instanceStrings = state.value(QStringLiteral("instances")).toStringList();
@@ -1197,6 +1310,8 @@ bool ToolModel::reconcileWhiskerMenuFavorites(QSettings &state)
     }
 
     bool success = true;
+    std::optional<QHash<int, QString>> pluginTypes;
+    bool pluginTypesFetched = false;
     for (const QString &instanceString : instanceStrings) {
         state.beginGroup(QStringLiteral("WhiskerMenu"));
         state.beginGroup(instanceString);
@@ -1214,19 +1329,23 @@ bool ToolModel::reconcileWhiskerMenuFavorites(QSettings &state)
             continue;
         }
 
-        const int instance = instanceString.toInt();
-
-        const XfconfResult typeCheck = runXfconfQuery(
-            {QStringLiteral("-c"), xfconfPanelChannel, QStringLiteral("-p"),
-             QStringLiteral("/plugins/plugin-%1").arg(instance)});
-        if (!typeCheck.success
-            || (typeCheck.exitCode != 0 && !typeCheck.errorOutput.contains(QStringLiteral("does not exist")))) {
+        if (!pluginTypesFetched) {
+            pluginTypes = panelPluginTypes();
+            pluginTypesFetched = true;
+            // An unreachable xfconfd can list as an empty channel, and a panel with no
+            // plugins at all is no evidence that the Whisker Menu was removed.
+            if (pluginTypes && pluginTypes->isEmpty()) {
+                pluginTypes.reset();
+            }
+        }
+        if (!pluginTypes) {
             // The query itself failed; keep the snapshot so a later restore can retry.
             success = false;
             continue;
         }
+        const int instance = instanceString.toInt();
         // A removed plugin, or one replaced by another plugin type, has no favorites to restore.
-        if (typeCheck.exitCode != 0 || typeCheck.output.trimmed() != QStringLiteral("whiskermenu")) {
+        if (pluginTypes->value(instance) != QLatin1String("whiskermenu")) {
             continue;
         }
 
