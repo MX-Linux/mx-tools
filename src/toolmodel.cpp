@@ -216,6 +216,11 @@ struct XfconfResult {
 XfconfResult runXfconfQuery(const QStringList &arguments)
 {
     QProcess process;
+    // The output is parsed by message text, which xfconf-query localizes. C.UTF-8 keeps the
+    // messages untranslated without mangling non-ASCII values the way plain C would.
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    environment.insert(QStringLiteral("LC_ALL"), QStringLiteral("C.UTF-8"));
+    process.setProcessEnvironment(environment);
     process.start(QStringLiteral("xfconf-query"), arguments);
     if (!process.waitForFinished(3000)) {
         process.kill();
