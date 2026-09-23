@@ -174,6 +174,8 @@ qt6_add_qml_module(mx-tools
     QML_FILES
         ${MX_TOOLS_MAIN_QML}
         qml/components/CategoryButton.qml
+        qml/components/CategoryRepeater.qml
+        qml/components/MenuVisibilityToggle.qml
         qml/components/ModernSwitch.qml
         qml/components/SecondaryButton.qml
         qml/components/ThemeToolTip.qml

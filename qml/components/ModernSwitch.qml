@@ -4,7 +4,12 @@ import QtQuick.Controls
 AbstractButton {
     id: control
 
-    SystemPalette { id: systemPalette }
+    // Follow the window's active state, as Main.qml's palette does, so these defaults
+    // match the colors Main.qml derives from it.
+    SystemPalette {
+        id: systemPalette
+        colorGroup: control.Window.active ? SystemPalette.Active : SystemPalette.Inactive
+    }
 
     property color accentColor: systemPalette.highlight
     property color inactiveColor: systemPalette.mid

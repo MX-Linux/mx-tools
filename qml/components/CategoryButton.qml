@@ -4,11 +4,16 @@ import QtQuick.Controls
 Button {
     id: control
 
-    SystemPalette { id: systemPalette }
+    // Follow the window's active state, as Main.qml's palette does, so these defaults
+    // match the colors Main.qml derives from it.
+    SystemPalette {
+        id: systemPalette
+        colorGroup: control.Window.active ? SystemPalette.Active : SystemPalette.Inactive
+    }
 
     property bool selected: false
     property color accentColor: systemPalette.highlight
-    property color mutedTextColor: systemPalette.text
+    property color mutedTextColor: Qt.alpha(systemPalette.text, 0.82)
     property color hoverColor: Qt.alpha(systemPalette.highlight, 0.13)
 
     height: 44

@@ -5,7 +5,12 @@ import QtQuick.Layouts
 Button {
     id: control
 
-    SystemPalette { id: systemPalette }
+    // Follow the window's active state, as Main.qml's palette does, so these defaults
+    // match the colors Main.qml derives from it.
+    SystemPalette {
+        id: systemPalette
+        colorGroup: control.Window.active ? SystemPalette.Active : SystemPalette.Inactive
+    }
 
     required property string toolName
     required property string description
