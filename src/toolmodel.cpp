@@ -83,19 +83,29 @@ bool isLiveEnvironment()
     return fileSystem == "aufs" || fileSystem == "overlay";
 }
 
-bool isProcessRunning(qint64 pid)
+// The start time of a live process, in clock ticks since boot (field 22 of
+// /proc/<pid>/stat), or nullopt if it has exited or is a zombie. Comparing it
+// tells a tool we launched apart from an unrelated process that reused its PID.
+std::optional<quint64> processStartTime(qint64 pid)
 {
     QFile statFile(QStringLiteral("/proc/%1/stat").arg(pid));
     if (!statFile.open(QFile::ReadOnly | QFile::Text)) {
-        return false;
+        return std::nullopt;
     }
+    // The command name in field 2 may contain spaces, so count fields after its ")".
     const QString stat = QString::fromLocal8Bit(statFile.readAll());
-    const int closingParen = stat.lastIndexOf(QLatin1Char(')'));
-    if (closingParen < 0 || closingParen + 2 >= stat.size()) {
-        return false;
+    const qsizetype closingParen = stat.lastIndexOf(QLatin1Char(')'));
+    if (closingParen < 0) {
+        return std::nullopt;
     }
-    const QChar state = stat.at(closingParen + 2);
-    return state != QLatin1Char('Z') && state != QLatin1Char('X');
+    const QStringList fields = stat.mid(closingParen + 1).split(QLatin1Char(' '), Qt::SkipEmptyParts);
+    // fields[0] is the state (field 3), so the start time (field 22) is fields[19].
+    if (fields.size() < 20 || fields.at(0) == QLatin1String("Z") || fields.at(0) == QLatin1String("X")) {
+        return std::nullopt;
+    }
+    bool ok = false;
+    const quint64 startTime = fields.at(19).toULongLong(&ok);
+    return ok ? std::optional(startTime) : std::nullopt;
 }
 
 QString translatedCategory(const QString &category)
@@ -947,8 +957,8 @@ void ToolModel::launch(const QString &fileName)
         emit errorOccurred(tr("Unable to launch tool"), tr("The selected tool is no longer available."));
         return;
     }
-    const qint64 runningProcessId = m_runningTools.value(fileName);
-    if (runningProcessId > 0 && isProcessRunning(runningProcessId)) {
+    const auto running = m_runningTools.constFind(fileName);
+    if (running != m_runningTools.cend() && processStartTime(running->processId) == running->startTime) {
         emit errorOccurred(tr("Tool already running"), tr("%1 is already running.").arg(iterator->name));
         return;
     }
@@ -976,7 +986,10 @@ void ToolModel::launch(const QString &fileName)
     if (!QProcess::startDetached(program, arguments, {}, &processId)) {
         emit errorOccurred(tr("Unable to launch tool"), tr("Could not start %1.").arg(iterator->name));
     } else if (processId > 0) {
-        m_runningTools.insert(fileName, processId);
+        // A tool that has already exited has no start time and isn't tracked.
+        if (const std::optional<quint64> startTime = processStartTime(processId)) {
+            m_runningTools.insert(fileName, {processId, *startTime});
+        }
     }
 }
 

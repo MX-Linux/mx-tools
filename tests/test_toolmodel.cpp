@@ -28,12 +28,19 @@ QString desktopFileContent(const QString &name, const QString &categories, const
         .arg(name, categories, extra);
 }
 
-void writeDesktopFile(const QDir &directory, const QString &fileName, const QString &content)
+// The helpers return whether they succeeded, for the caller to QVERIFY: a QVERIFY in
+// a void helper would only return from the helper and let the test carry on.
+[[nodiscard]] bool writeDesktopFile(const QDir &directory, const QString &fileName, const QString &content)
 {
     QFile file(directory.filePath(fileName));
-    QVERIFY2(file.open(QFile::WriteOnly | QFile::Text), qPrintable(file.fileName()));
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        qWarning("Could not write %s", qPrintable(file.fileName()));
+        return false;
+    }
     QTextStream stream(&file);
     stream << content;
+    stream.flush();
+    return stream.status() == QTextStream::Ok;
 }
 
 QString fakeXfconfPath(const QString &name)
@@ -41,23 +48,32 @@ QString fakeXfconfPath(const QString &name)
     return QDir(QString::fromLocal8Bit(qgetenv("FAKE_XFCONF_DIR"))).filePath(name);
 }
 
-void writeFakeXfconf(const QString &name, const QString &content)
+[[nodiscard]] bool writeFakeXfconf(const QString &name, const QString &content)
 {
     QFile file(fakeXfconfPath(name));
-    QVERIFY2(file.open(QFile::WriteOnly | QFile::Text), qPrintable(file.fileName()));
-    file.write(content.toUtf8());
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        qWarning("Could not write %s", qPrintable(file.fileName()));
+        return false;
+    }
+    const QByteArray bytes = content.toUtf8();
+    return file.write(bytes) == bytes.size();
 }
 
-void setFavorites(const QStringList &favorites)
+[[nodiscard]] bool removeIfPresent(const QString &path)
 {
-    QFile::remove(fakeXfconfPath(QStringLiteral("plugin-1-favorites.scalar")));
-    writeFakeXfconf(QStringLiteral("plugin-1-favorites"), favorites.join(QLatin1Char('\n')) + QLatin1Char('\n'));
+    return !QFile::exists(path) || QFile::remove(path);
 }
 
-void setScalarFavorite(const QString &favorite)
+[[nodiscard]] bool setFavorites(const QStringList &favorites)
 {
-    QFile::remove(fakeXfconfPath(QStringLiteral("plugin-1-favorites")));
-    writeFakeXfconf(QStringLiteral("plugin-1-favorites.scalar"), favorite + QLatin1Char('\n'));
+    return removeIfPresent(fakeXfconfPath(QStringLiteral("plugin-1-favorites.scalar")))
+           && writeFakeXfconf(QStringLiteral("plugin-1-favorites"), favorites.join(QLatin1Char('\n')) + QLatin1Char('\n'));
+}
+
+[[nodiscard]] bool setScalarFavorite(const QString &favorite)
+{
+    return removeIfPresent(fakeXfconfPath(QStringLiteral("plugin-1-favorites")))
+           && writeFakeXfconf(QStringLiteral("plugin-1-favorites.scalar"), favorite + QLatin1Char('\n'));
 }
 
 QStringList favorites()
@@ -69,13 +85,12 @@ QStringList favorites()
     return QString::fromUtf8(file.readAll()).split(QLatin1Char('\n'), Qt::SkipEmptyParts);
 }
 
-void setFakeXfconfFailure(const QString &kind, bool fail)
+[[nodiscard]] bool setFakeXfconfFailure(const QString &kind, bool fail)
 {
     if (fail) {
-        writeFakeXfconf(QStringLiteral("fail-") + kind, {});
-    } else {
-        QFile::remove(fakeXfconfPath(QStringLiteral("fail-") + kind));
+        return writeFakeXfconf(QStringLiteral("fail-") + kind, {});
     }
+    return removeIfPresent(fakeXfconfPath(QStringLiteral("fail-") + kind));
 }
 
 // Menu visibility changes run on a worker thread; starts one and waits for it to finish.
@@ -131,7 +146,7 @@ private slots:
     void showsTranslationsAndSearchesEnglish();
 
 private:
-    void writeMenuTool();
+    [[nodiscard]] bool writeMenuTool();
 
     QTemporaryDir m_fakeBin;
     QByteArray m_path;
@@ -177,8 +192,8 @@ void TestToolModel::init()
     const QString xfconfDir = m_home->filePath(QStringLiteral("xfconf"));
     QVERIFY(QDir().mkpath(xfconfDir));
     qputenv("FAKE_XFCONF_DIR", xfconfDir.toUtf8());
-    writeFakeXfconf(QStringLiteral("plugins"), QStringLiteral("1\n"));
-    writeFakeXfconf(QStringLiteral("plugin-1"), QStringLiteral("whiskermenu\n"));
+    QVERIFY(writeFakeXfconf(QStringLiteral("plugins"), QStringLiteral("1\n")));
+    QVERIFY(writeFakeXfconf(QStringLiteral("plugin-1"), QStringLiteral("whiskermenu\n")));
 }
 
 void TestToolModel::cleanup()
@@ -191,9 +206,9 @@ void TestToolModel::cleanup()
     m_home.reset();
 }
 
-void TestToolModel::writeMenuTool()
+bool TestToolModel::writeMenuTool()
 {
-    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("tool.desktop"),
+    return writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("tool.desktop"),
                      desktopFileContent(QStringLiteral("Tool"), QStringLiteral("X-MX-Utilities")));
 }
 
@@ -201,20 +216,20 @@ void TestToolModel::discoversAndFiltersTools()
 {
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
 
-    writeDesktopFile(applications, QStringLiteral("utility.desktop"),
-                      desktopFileContent(QStringLiteral("Utility Tool"), QStringLiteral("X-MX-Utilities")));
-    writeDesktopFile(applications, QStringLiteral("setup-hidden.desktop"),
-                      desktopFileContent(QStringLiteral("Hidden Setup Tool"), QStringLiteral("MX-Setup"),
-                                         QStringLiteral("NotShowIn=XFCE;\n")));
-    writeDesktopFile(applications, QStringLiteral("software-wrong-desktop.desktop"),
-                      desktopFileContent(QStringLiteral("KDE-only Software"), QStringLiteral("X-MX-Software"),
-                                         QStringLiteral("OnlyShowIn=KDE;\n")));
-    writeDesktopFile(applications, QStringLiteral("mx-remastercc.desktop"),
-                      desktopFileContent(QStringLiteral("Live Only Tool"), QStringLiteral("MX-Live")));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("utility.desktop"),
+                              desktopFileContent(QStringLiteral("Utility Tool"), QStringLiteral("X-MX-Utilities"))));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("setup-hidden.desktop"),
+                              desktopFileContent(QStringLiteral("Hidden Setup Tool"), QStringLiteral("MX-Setup"),
+                                                 QStringLiteral("NotShowIn=XFCE;\n"))));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("software-wrong-desktop.desktop"),
+                              desktopFileContent(QStringLiteral("KDE-only Software"), QStringLiteral("X-MX-Software"),
+                                                 QStringLiteral("OnlyShowIn=KDE;\n"))));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("mx-remastercc.desktop"),
+                              desktopFileContent(QStringLiteral("Live Only Tool"), QStringLiteral("MX-Live"))));
     // Mentioning a marker in the text no longer hides a tool.
-    writeDesktopFile(applications, QStringLiteral("installed.desktop"),
-                      desktopFileContent(QStringLiteral("Installed Tool"), QStringLiteral("MX-Maintenance"),
-                                         QStringLiteral("Keywords=MX-OnlyLive;\n")));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("installed.desktop"),
+                              desktopFileContent(QStringLiteral("Installed Tool"), QStringLiteral("MX-Maintenance"),
+                                                 QStringLiteral("Keywords=MX-OnlyLive;\n"))));
 
     qputenv("XDG_CURRENT_DESKTOP", "XFCE");
 
@@ -254,9 +269,23 @@ void TestToolModel::discoversAndFiltersTools()
 
 void TestToolModel::launchBlocksRelaunchOnlyWhileRunning()
 {
+    // The tool runs until the test creates a release file, so "still running" doesn't
+    // depend on timing. The guard releases it on any exit, so it can't be left behind.
+    const QString waiter = m_home->filePath(QStringLiteral("wait-for-release"));
+    const QString release = m_home->filePath(QStringLiteral("release"));
+    {
+        QFile script(waiter);
+        QVERIFY(script.open(QFile::WriteOnly | QFile::Text));
+        QVERIFY(script.write("#!/bin/sh\nwhile [ ! -e \"$1\" ]; do sleep 0.05; done\n") > 0);
+    }
+    QVERIFY(QFile::setPermissions(waiter, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+    const auto releaseTool = qScopeGuard([&release] { QFile(release).open(QFile::WriteOnly); });
+
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
-    writeDesktopFile(applications, QStringLiteral("sleeper.desktop"),
-                      desktopFileContent(QStringLiteral("Sleeper"), QStringLiteral("X-MX-Utilities")));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("waiter.desktop"),
+                             QStringLiteral("[Desktop Entry]\nType=Application\nName=Waiter\n"
+                                            "Categories=X-MX-Utilities;\nExec=\"%1\" \"%2\"\n")
+                                 .arg(waiter, release)));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
@@ -269,30 +298,38 @@ void TestToolModel::launchBlocksRelaunchOnlyWhileRunning()
     QCOMPARE(errors.count(), 1);
     QCOMPARE(errors.constFirst().at(0).toString(), QStringLiteral("Tool already running"));
 
-    // Once the detached /bin/sleep 0.2 has exited, launching again must be
-    // allowed. Note this does not exercise the zombie branch of
-    // isProcessRunning(): QProcess::startDetached double-forks, so the child
-    // is reparented to init and reaped as soon as it exits.
-    QTest::qWait(600);
-    model.launch(fileName);
-    QCOMPARE(errors.count(), 1);
+    // Once the tool has exited, launching again must be allowed. Poll for that: each
+    // attempt while it still runs adds an error. QTRY_* evaluates its expression again
+    // after it succeeds, so stop launching then. This doesn't exercise the zombie case:
+    // QProcess::startDetached double-forks, so the child is reaped by init.
+    QVERIFY(QFile(release).open(QFile::WriteOnly));
+    bool relaunched = false;
+    const auto tryRelaunch = [&] {
+        if (!relaunched) {
+            const qsizetype before = errors.count();
+            model.launch(fileName);
+            relaunched = errors.count() == before;
+        }
+        return relaunched;
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(tryRelaunch(), 10000);
 }
 
 void TestToolModel::readsOnlyTheDesktopEntryGroup()
 {
     // Keys from other groups must not fill in missing ones, spacing around '='
     // is allowed, and values are unescaped.
-    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("parsed.desktop"),
-                     QStringLiteral("# Comment=Not a comment\n"
-                                    "[Desktop Entry]\n"
-                                    "Type=Application\n"
-                                    "Name = Parsed\\sTool\n"
-                                    "Exec=/bin/true\n"
-                                    "Categories = System;X-MX-Utilities;\n"
-                                    "Keywords=semi\\;colon;other;\n"
-                                    "[Desktop Action extra]\n"
-                                    "Name=Extra\n"
-                                    "Comment=Action comment\n"));
+    QVERIFY(writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("parsed.desktop"),
+                             QStringLiteral("# Comment=Not a comment\n"
+                                            "[Desktop Entry]\n"
+                                            "Type=Application\n"
+                                            "Name = Parsed\\sTool\n"
+                                            "Exec=/bin/true\n"
+                                            "Categories = System;X-MX-Utilities;\n"
+                                            "Keywords=semi\\;colon;other;\n"
+                                            "[Desktop Action extra]\n"
+                                            "Name=Extra\n"
+                                            "Comment=Action comment\n")));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
@@ -309,10 +346,10 @@ void TestToolModel::readsOnlyTheDesktopEntryGroup()
 void TestToolModel::listsMultiCategoryToolOnce()
 {
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
-    writeDesktopFile(applications, QStringLiteral("both.desktop"),
-                     desktopFileContent(QStringLiteral("Both"), QStringLiteral("X-MX-Utilities;MX-Setup;")));
-    writeDesktopFile(applications, QStringLiteral("setup.desktop"),
-                     desktopFileContent(QStringLiteral("Setup Only"), QStringLiteral("X-MX-Setup;")));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("both.desktop"),
+                             desktopFileContent(QStringLiteral("Both"), QStringLiteral("X-MX-Utilities;MX-Setup;"))));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("setup.desktop"),
+                             desktopFileContent(QStringLiteral("Setup Only"), QStringLiteral("X-MX-Setup;"))));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
@@ -353,11 +390,11 @@ void TestToolModel::launchExpandsExecFieldCodes()
     // with backslash escapes; \\ in the file is the string-level escape.
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
     const QString desktopFile = applications.filePath(QStringLiteral("recorder.desktop"));
-    writeDesktopFile(applications, QStringLiteral("recorder.desktop"),
-                     QStringLiteral("[Desktop Entry]\nType=Application\nName=MX Recorder\nIcon=recorder-icon\n"
-                                    "Categories=X-MX-Utilities;\nExec=\"%1\" %F \"quoted arg\" 100%% --name=%c %i %k "
-                                    "\"say \\\\\"hi\\\\\"\" \"\" \"100%% done\" %d%m\n")
-                         .arg(recorder));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("recorder.desktop"),
+                             QStringLiteral("[Desktop Entry]\nType=Application\nName=MX Recorder\nIcon=recorder-icon\n"
+                                            "Categories=X-MX-Utilities;\nExec=\"%1\" %F \"quoted arg\" 100%% --name=%c %i %k "
+                                            "\"say \\\\\"hi\\\\\"\" \"\" \"100%% done\" %d%m\n")
+                                 .arg(recorder)));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
@@ -374,10 +411,10 @@ void TestToolModel::launchExpandsExecFieldCodes()
 
     // The spec forbids running a command with an unknown field code.
     QFile::remove(argumentsFile);
-    writeDesktopFile(applications, QStringLiteral("invalid.desktop"),
-                     QStringLiteral("[Desktop Entry]\nType=Application\nName=Invalid\n"
-                                    "Categories=X-MX-Utilities;\nExec=\"%1\" --mode=%Z\n")
-                         .arg(recorder));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("invalid.desktop"),
+                             QStringLiteral("[Desktop Entry]\nType=Application\nName=Invalid\n"
+                                            "Categories=X-MX-Utilities;\nExec=\"%1\" --mode=%Z\n")
+                                 .arg(recorder)));
     ToolModel invalidModel(&iconProvider);
     QSignalSpy invalidErrors(&invalidModel, &ToolModel::errorOccurred);
     invalidModel.launch(applications.filePath(QStringLiteral("invalid.desktop")));
@@ -389,8 +426,8 @@ void TestToolModel::launchExpandsExecFieldCodes()
 
 void TestToolModel::restoreReinsertsDroppedWhiskerFavorite()
 {
-    writeMenuTool();
-    setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")});
+    QVERIFY(writeMenuTool());
+    QVERIFY(setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
@@ -398,7 +435,7 @@ void TestToolModel::restoreReinsertsDroppedWhiskerFavorite()
     QVERIFY(model.hideFromMenu());
 
     // Whisker Menu drops favorites whose launchers become hidden.
-    setFavorites({QStringLiteral("other.desktop")});
+    QVERIFY(setFavorites({QStringLiteral("other.desktop")}));
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(!model.hideFromMenu());
     QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
@@ -407,18 +444,18 @@ void TestToolModel::restoreReinsertsDroppedWhiskerFavorite()
 
 void TestToolModel::failedPluginQueryKeepsFavoritesSnapshot()
 {
-    writeMenuTool();
-    setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")});
+    QVERIFY(writeMenuTool());
+    QVERIFY(setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
     QSignalSpy errors(&model, &ToolModel::errorOccurred);
     QVERIFY(setHideFromMenu(model, true));
     QVERIFY(model.hideFromMenu());
-    setFavorites({QStringLiteral("other.desktop")});
+    QVERIFY(setFavorites({QStringLiteral("other.desktop")}));
 
     // A failing plugin-type query must not be mistaken for a removed plugin.
-    setFakeXfconfFailure(QStringLiteral("type"), true);
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("type"), true));
     QSignalSpy visibilityChanges(&model, &ToolModel::hideFromMenuChanged);
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(model.hideFromMenu());
@@ -429,7 +466,7 @@ void TestToolModel::failedPluginQueryKeepsFavoritesSnapshot()
     QCOMPARE(favorites(), QStringList({QStringLiteral("other.desktop")}));
 
     // The kept snapshot lets the next attempt finish the restore.
-    setFakeXfconfFailure(QStringLiteral("type"), false);
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("type"), false));
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(!model.hideFromMenu());
     QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
@@ -438,20 +475,20 @@ void TestToolModel::failedPluginQueryKeepsFavoritesSnapshot()
 
 void TestToolModel::legacyScalarFavoritesAreRestoredAsArray()
 {
-    writeMenuTool();
+    QVERIFY(writeMenuTool());
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
 
     // Earlier releases stored a single restored favorite as a plain string.
-    setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")});
+    QVERIFY(setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
     QVERIFY(setHideFromMenu(model, true));
-    setScalarFavorite(QStringLiteral("other.desktop"));
+    QVERIFY(setScalarFavorite(QStringLiteral("other.desktop")));
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(!model.hideFromMenu());
     QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
 
     // A plain-string snapshot is restored, and a single favorite stays an array.
-    setScalarFavorite(QStringLiteral("tool.desktop"));
+    QVERIFY(setScalarFavorite(QStringLiteral("tool.desktop")));
     QVERIFY(setHideFromMenu(model, true));
     QFile::remove(fakeXfconfPath(QStringLiteral("plugin-1-favorites.scalar")));
     QVERIFY(setHideFromMenu(model, false));
@@ -462,8 +499,8 @@ void TestToolModel::legacyScalarFavoritesAreRestoredAsArray()
 
 void TestToolModel::unrelatedFavoritesSnapshotNeedsNoQuery()
 {
-    writeMenuTool();
-    setFavorites({QStringLiteral("other.desktop")});
+    QVERIFY(writeMenuTool());
+    QVERIFY(setFavorites({QStringLiteral("other.desktop")}));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
@@ -472,16 +509,16 @@ void TestToolModel::unrelatedFavoritesSnapshotNeedsNoQuery()
     QVERIFY(model.hideFromMenu());
 
     // None of our launchers were favorites, so xfconf failures can't block the restore.
-    setFakeXfconfFailure(QStringLiteral("type"), true);
-    setFakeXfconfFailure(QStringLiteral("favorites"), true);
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("type"), true));
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("favorites"), true));
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(!model.hideFromMenu());
     QCOMPARE(errors.count(), 0);
     QVERIFY(!menuStateActive());
 
     // The same holds when xfconf-query is gone altogether.
-    setFakeXfconfFailure(QStringLiteral("type"), false);
-    setFakeXfconfFailure(QStringLiteral("favorites"), false);
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("type"), false));
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("favorites"), false));
     QVERIFY(setHideFromMenu(model, true));
     QVERIFY(model.hideFromMenu());
     qputenv("PATH", m_home->path().toUtf8());
@@ -492,25 +529,25 @@ void TestToolModel::unrelatedFavoritesSnapshotNeedsNoQuery()
 
 void TestToolModel::failedFavoritesWriteKeepsSnapshot()
 {
-    writeMenuTool();
-    setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")});
+    QVERIFY(writeMenuTool());
+    QVERIFY(setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
     QSignalSpy errors(&model, &ToolModel::errorOccurred);
     QVERIFY(setHideFromMenu(model, true));
     QVERIFY(model.hideFromMenu());
-    setFavorites({QStringLiteral("other.desktop")});
+    QVERIFY(setFavorites({QStringLiteral("other.desktop")}));
 
     // A failed write must leave the current favorites and the snapshot intact.
-    setFakeXfconfFailure(QStringLiteral("write"), true);
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("write"), true));
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(model.hideFromMenu());
     QCOMPARE(errors.count(), 1);
     QVERIFY(menuStateActive());
     QCOMPARE(favorites(), QStringList({QStringLiteral("other.desktop")}));
 
-    setFakeXfconfFailure(QStringLiteral("write"), false);
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("write"), false));
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(!model.hideFromMenu());
     QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
@@ -519,14 +556,14 @@ void TestToolModel::failedFavoritesWriteKeepsSnapshot()
 
 void TestToolModel::missingXfconfQueryKeepsSnapshot()
 {
-    writeMenuTool();
-    setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")});
+    QVERIFY(writeMenuTool());
+    QVERIFY(setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
     QVERIFY(setHideFromMenu(model, true));
     QVERIFY(model.hideFromMenu());
-    setFavorites({QStringLiteral("other.desktop")});
+    QVERIFY(setFavorites({QStringLiteral("other.desktop")}));
 
     // The state file outlives the process, so a restore without xfconf-query
     // (for example after a restart with a different PATH) must keep it.
@@ -545,7 +582,7 @@ void TestToolModel::missingXfconfQueryKeepsSnapshot()
 
 void TestToolModel::hideWritesOverridesToXdgDataHome()
 {
-    writeMenuTool();
+    QVERIFY(writeMenuTool());
     const QString dataHome = m_home->filePath(QStringLiteral("data"));
     qputenv("XDG_DATA_HOME", dataHome.toUtf8());
     const QString override = dataHome + QStringLiteral("/applications/tool.desktop");
@@ -572,10 +609,10 @@ void TestToolModel::subdirectoryLaunchersUseDesktopIds()
     // what menus look up overrides by and what Whisker Menu stores as a favorite.
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
     QVERIFY(applications.mkpath(QStringLiteral("mx")));
-    writeDesktopFile(QDir(applications.filePath(QStringLiteral("mx"))), QStringLiteral("tool.desktop"),
-                     desktopFileContent(QStringLiteral("Nested"), QStringLiteral("X-MX-Utilities")));
-    writeMenuTool();
-    setFavorites({QStringLiteral("mx-tool.desktop"), QStringLiteral("tool.desktop")});
+    QVERIFY(writeDesktopFile(QDir(applications.filePath(QStringLiteral("mx"))), QStringLiteral("tool.desktop"),
+                             desktopFileContent(QStringLiteral("Nested"), QStringLiteral("X-MX-Utilities"))));
+    QVERIFY(writeMenuTool());
+    QVERIFY(setFavorites({QStringLiteral("mx-tool.desktop"), QStringLiteral("tool.desktop")}));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
@@ -585,7 +622,7 @@ void TestToolModel::subdirectoryLaunchersUseDesktopIds()
     QVERIFY(QFileInfo::exists(overrides.filePath(QStringLiteral("mx-tool.desktop"))));
     QVERIFY(QFileInfo::exists(overrides.filePath(QStringLiteral("tool.desktop"))));
 
-    setFavorites({});
+    QVERIFY(setFavorites({}));
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(!model.hideFromMenu());
     QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("mx-tool.desktop"))));
@@ -595,7 +632,7 @@ void TestToolModel::subdirectoryLaunchersUseDesktopIds()
 
 void TestToolModel::launchersInstalledWhileHiddenAreHidden()
 {
-    writeMenuTool();
+    QVERIFY(writeMenuTool());
     ToolIconProvider iconProvider;
     {
         ToolModel model(&iconProvider);
@@ -604,8 +641,8 @@ void TestToolModel::launchersInstalledWhileHiddenAreHidden()
     }
 
     // A package installs another MX tool while the tools are hidden.
-    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("new.desktop"),
-                     desktopFileContent(QStringLiteral("New"), QStringLiteral("X-MX-Setup")));
+    QVERIFY(writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("new.desktop"),
+                             desktopFileContent(QStringLiteral("New"), QStringLiteral("X-MX-Setup"))));
     const QDir overrides(m_home->filePath(QStringLiteral(".local/share/applications")));
     QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("new.desktop"))));
 
@@ -627,15 +664,15 @@ void TestToolModel::failedNewLauncherOverrideIsRetried()
     if (geteuid() == 0) {
         QSKIP("A read-only directory can't make writes fail for root.");
     }
-    writeMenuTool();
+    QVERIFY(writeMenuTool());
     ToolIconProvider iconProvider;
     {
         ToolModel model(&iconProvider);
         QVERIFY(setHideFromMenu(model, true));
         QVERIFY(model.hideFromMenu());
     }
-    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("new.desktop"),
-                     desktopFileContent(QStringLiteral("New"), QStringLiteral("X-MX-Setup")));
+    QVERIFY(writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("new.desktop"),
+                             desktopFileContent(QStringLiteral("New"), QStringLiteral("X-MX-Setup"))));
     const QString overrides = m_home->filePath(QStringLiteral(".local/share/applications"));
     const QString override = QDir(overrides).filePath(QStringLiteral("new.desktop"));
 
@@ -663,15 +700,15 @@ void TestToolModel::failedNewLauncherOverrideIsRetried()
 
 void TestToolModel::unflaggedWrittenOverrideIsNotRecaptured()
 {
-    writeMenuTool();
+    QVERIFY(writeMenuTool());
     ToolIconProvider iconProvider;
     {
         ToolModel model(&iconProvider);
         QVERIFY(setHideFromMenu(model, true));
         QVERIFY(model.hideFromMenu());
     }
-    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("new.desktop"),
-                     desktopFileContent(QStringLiteral("New"), QStringLiteral("X-MX-Setup")));
+    QVERIFY(writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("new.desktop"),
+                             desktopFileContent(QStringLiteral("New"), QStringLiteral("X-MX-Setup"))));
     {
         ToolModel restarted(&iconProvider);
     }
@@ -727,12 +764,12 @@ void TestToolModel::changelogIsReadInTheBackground()
 
 void TestToolModel::pluginTypesComeFromOneListing()
 {
-    writeMenuTool();
-    writeFakeXfconf(QStringLiteral("plugins"), QStringLiteral("1\n2\n3\n"));
-    writeFakeXfconf(QStringLiteral("plugin-2"), QStringLiteral("whiskermenu\n"));
-    writeFakeXfconf(QStringLiteral("plugin-3"), QStringLiteral("launcher\n"));
-    setFavorites({QStringLiteral("tool.desktop")});
-    writeFakeXfconf(QStringLiteral("plugin-2-favorites"), QStringLiteral("tool.desktop\n"));
+    QVERIFY(writeMenuTool());
+    QVERIFY(writeFakeXfconf(QStringLiteral("plugins"), QStringLiteral("1\n2\n3\n")));
+    QVERIFY(writeFakeXfconf(QStringLiteral("plugin-2"), QStringLiteral("whiskermenu\n")));
+    QVERIFY(writeFakeXfconf(QStringLiteral("plugin-3"), QStringLiteral("launcher\n")));
+    QVERIFY(setFavorites({QStringLiteral("tool.desktop")}));
+    QVERIFY(writeFakeXfconf(QStringLiteral("plugin-2-favorites"), QStringLiteral("tool.desktop\n")));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
@@ -747,16 +784,16 @@ void TestToolModel::pluginTypesComeFromOneListing()
     QCOMPARE(hideCalls.size(), 3);
 
     // Plugin 2 was replaced by another plugin type; plugin 1 is restored as usual.
-    writeFakeXfconf(QStringLiteral("plugin-2"), QStringLiteral("launcher\n"));
-    setFavorites({});
+    QVERIFY(writeFakeXfconf(QStringLiteral("plugin-2"), QStringLiteral("launcher\n")));
+    QVERIFY(setFavorites({}));
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(!model.hideFromMenu());
     QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop")}));
 
     // An empty listing looks like an unreachable xfconfd, so the snapshot is kept.
     QVERIFY(setHideFromMenu(model, true));
-    setFavorites({});
-    writeFakeXfconf(QStringLiteral("plugins"), {});
+    QVERIFY(setFavorites({}));
+    QVERIFY(writeFakeXfconf(QStringLiteral("plugins"), {}));
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(model.hideFromMenu());
     QVERIFY(menuStateActive());
@@ -764,7 +801,7 @@ void TestToolModel::pluginTypesComeFromOneListing()
 
 void TestToolModel::menuChangesRunInTheBackground()
 {
-    writeMenuTool();
+    QVERIFY(writeMenuTool());
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
     QSignalSpy busyChanges(&model, &ToolModel::menuBusyChanged);
@@ -788,10 +825,10 @@ void TestToolModel::menuChangesRunInTheBackground()
 void TestToolModel::searchMatchesEveryWord()
 {
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
-    writeDesktopFile(applications, QStringLiteral("backup.desktop"),
-                     desktopFileContent(QStringLiteral("Backup"), QStringLiteral("X-MX-Utilities")));
-    writeDesktopFile(applications, QStringLiteral("cleanup.desktop"),
-                     desktopFileContent(QStringLiteral("Cleanup"), QStringLiteral("X-MX-Maintenance")));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("backup.desktop"),
+                             desktopFileContent(QStringLiteral("Backup"), QStringLiteral("X-MX-Utilities"))));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("cleanup.desktop"),
+                             desktopFileContent(QStringLiteral("Cleanup"), QStringLiteral("X-MX-Maintenance"))));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
@@ -816,8 +853,8 @@ void TestToolModel::sortsNamesForTheLocale()
     const QStringList names {QStringLiteral("Zeta"), QStringLiteral("\u00c9dition"), QStringLiteral("beta"),
                              QStringLiteral("Tool 10"), QStringLiteral("Tool 9"), QStringLiteral("Alpha")};
     for (qsizetype index = 0; index < names.size(); ++index) {
-        writeDesktopFile(applications, QStringLiteral("tool%1.desktop").arg(index),
-                         desktopFileContent(names.at(index), QStringLiteral("X-MX-Utilities")));
+        QVERIFY(writeDesktopFile(applications, QStringLiteral("tool%1.desktop").arg(index),
+                                 desktopFileContent(names.at(index), QStringLiteral("X-MX-Utilities"))));
     }
 
     const QLocale previous;
@@ -841,7 +878,7 @@ void TestToolModel::filteringMovesRowsWithoutReset()
         {QStringLiteral("Gamma"), QStringLiteral("X-MX-Utilities")}, {QStringLiteral("Delta"), QStringLiteral("X-MX-Maintenance")},
         {QStringLiteral("Epsilon"), QStringLiteral("X-MX-Setup")}};
     for (const auto &[name, category] : tools) {
-        writeDesktopFile(applications, name.toLower() + QStringLiteral(".desktop"), desktopFileContent(name, category));
+        QVERIFY(writeDesktopFile(applications, name.toLower() + QStringLiteral(".desktop"), desktopFileContent(name, category)));
     }
 
     ToolIconProvider iconProvider;
@@ -903,7 +940,7 @@ bool writeFile(const QString &path, const QByteArray &content)
 
 void TestToolModel::userOverrideSurvivesRoundTrip()
 {
-    writeMenuTool();
+    QVERIFY(writeMenuTool());
     const QString override = m_home->filePath(QStringLiteral(".local/share/applications/tool.desktop"));
     const QByteArray userOverride = "[Desktop Entry]\nType=Application\nName=My Tool\nNoDisplay=false\n"
                                     "Exec=/bin/true\n\n[Desktop Action extra]\nNoDisplay=true\n";
@@ -922,9 +959,9 @@ void TestToolModel::userOverrideSurvivesRoundTrip()
 
 void TestToolModel::editsMadeWhileHiddenAreKept()
 {
-    writeMenuTool();
-    writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("second.desktop"),
-                     desktopFileContent(QStringLiteral("Second"), QStringLiteral("X-MX-Setup")));
+    QVERIFY(writeMenuTool());
+    QVERIFY(writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("second.desktop"),
+                             desktopFileContent(QStringLiteral("Second"), QStringLiteral("X-MX-Setup"))));
     const QDir overrides(m_home->filePath(QStringLiteral(".local/share/applications")));
     // tool.desktop starts with the user's own override; second.desktop has none.
     QVERIFY(writeFile(overrides.filePath(QStringLiteral("tool.desktop")),
@@ -956,8 +993,8 @@ void TestToolModel::legacyOverrideIsRestoredButUserOverrideIsNot()
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
     const QString legacyContent = desktopFileContent(QStringLiteral("Legacy"), QStringLiteral("X-MX-Setup"));
     const QString userContent = desktopFileContent(QStringLiteral("Mine"), QStringLiteral("X-MX-Setup"));
-    writeDesktopFile(applications, QStringLiteral("legacy.desktop"), legacyContent);
-    writeDesktopFile(applications, QStringLiteral("mine.desktop"), userContent);
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("legacy.desktop"), legacyContent));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("mine.desktop"), userContent));
     const QDir overrides(m_home->filePath(QStringLiteral(".local/share/applications")));
     // Old releases copied the launcher with NoDisplay=true right after the group header.
     QVERIFY(writeFile(overrides.filePath(QStringLiteral("legacy.desktop")),
@@ -984,10 +1021,10 @@ void TestToolModel::legacyOverrideIsRestoredButUserOverrideIsNot()
 void TestToolModel::failedHideRollsBack()
 {
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
-    writeDesktopFile(applications, QStringLiteral("first.desktop"),
-                     desktopFileContent(QStringLiteral("First"), QStringLiteral("X-MX-Setup")));
-    writeDesktopFile(applications, QStringLiteral("second.desktop"),
-                     desktopFileContent(QStringLiteral("Second"), QStringLiteral("X-MX-Setup")));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("first.desktop"),
+                             desktopFileContent(QStringLiteral("First"), QStringLiteral("X-MX-Setup"))));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("second.desktop"),
+                             desktopFileContent(QStringLiteral("Second"), QStringLiteral("X-MX-Setup"))));
     // Make the launcher processed last fail: a directory where its override goes can't
     // be read or replaced. Discovery walks the directory in this same order.
     QStringList order;
@@ -1012,8 +1049,8 @@ void TestToolModel::failedHideRollsBack()
 
 void TestToolModel::localizedNoisyXfconfQueryIsParsed()
 {
-    writeMenuTool();
-    setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")});
+    QVERIFY(writeMenuTool());
+    QVERIFY(setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
     // A German session whose xfconf-query also prints GLib warnings. LC_ALL must be
     // German too: builders such as dh_auto_test export LC_ALL=C.UTF-8, which would keep
     // the fake in English even without the override in runXfconfQuery.
@@ -1041,7 +1078,7 @@ void TestToolModel::localizedNoisyXfconfQueryIsParsed()
     ToolModel model(&iconProvider);
     QVERIFY(setHideFromMenu(model, true));
     QVERIFY(model.hideFromMenu());
-    setFavorites({QStringLiteral("other.desktop")});
+    QVERIFY(setFavorites({QStringLiteral("other.desktop")}));
     QVERIFY(setHideFromMenu(model, false));
     QVERIFY(!model.hideFromMenu());
     QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
@@ -1050,12 +1087,12 @@ void TestToolModel::localizedNoisyXfconfQueryIsParsed()
 void TestToolModel::showsTranslationsAndSearchesEnglish()
 {
     const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
-    writeDesktopFile(applications, QStringLiteral("cleanup.desktop"),
-                     desktopFileContent(QStringLiteral("MX Cleanup"), QStringLiteral("X-MX-Maintenance"),
-                                        QStringLiteral("Name[de]=MX Aufräumen\nComment[de]=Speicher freigeben\n"
-                                                       "Keywords=disk;\nKeywords[de]=Platte;\n")));
-    writeDesktopFile(applications, QStringLiteral("untranslated.desktop"),
-                     desktopFileContent(QStringLiteral("Untranslated"), QStringLiteral("X-MX-Setup")));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("cleanup.desktop"),
+                             desktopFileContent(QStringLiteral("MX Cleanup"), QStringLiteral("X-MX-Maintenance"),
+                                                QStringLiteral("Name[de]=MX Aufräumen\nComment[de]=Speicher freigeben\n"
+                                                               "Keywords=disk;\nKeywords[de]=Platte;\n"))));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("untranslated.desktop"),
+                             desktopFileContent(QStringLiteral("Untranslated"), QStringLiteral("X-MX-Setup"))));
 
     const QLocale previous;
     const auto restoreLocale = qScopeGuard([&previous] { QLocale::setDefault(previous); });

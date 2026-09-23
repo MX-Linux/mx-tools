@@ -100,7 +100,11 @@ private:
     QStringList m_menuFiles;
     QString m_search;
     QString m_selectedCategory;
-    QHash<QString, qint64> m_runningTools;
+    struct RunningTool {
+        qint64 processId = 0;
+        quint64 startTime = 0;
+    };
+    QHash<QString, RunningTool> m_runningTools;
     ToolIconProvider *m_iconProvider;
     QProcess *m_changelogProcess = nullptr;
     bool m_hideFromMenu = false;
