@@ -99,9 +99,9 @@
     <message numerus="yes">
         <location filename="../qml/Main.qml" line="359"/>
         <source>%n tool(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n tool</numerusform>
+            <numerusform>%n tools</numerusform>
         </translation>
     </message>
     <message>

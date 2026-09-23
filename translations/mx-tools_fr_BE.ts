@@ -100,7 +100,7 @@
         <location filename="../qml/Main.qml" line="359"/>
         <source>%n tool(s)</source>
         <translation>
-            <numerusform>1 outil</numerusform>
+            <numerusform>%n outil</numerusform>
             <numerusform>%n outils</numerusform>
         </translation>
     </message>
