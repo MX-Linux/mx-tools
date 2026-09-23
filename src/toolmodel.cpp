@@ -211,6 +211,7 @@ struct XfconfResult {
     bool success = false;
     int exitCode = -1;
     QString output;
+    QString errorOutput;
 };
 
 XfconfResult runXfconfQuery(const QStringList &arguments)
@@ -230,7 +231,9 @@ XfconfResult runXfconfQuery(const QStringList &arguments)
     XfconfResult result;
     result.exitCode = process.exitCode();
     result.success = process.exitStatus() == QProcess::NormalExit;
-    result.output = QString::fromUtf8(process.readAllStandardOutput() + process.readAllStandardError());
+    // Keep stderr apart so GLib/D-Bus warnings are never parsed as values.
+    result.output = QString::fromUtf8(process.readAllStandardOutput());
+    result.errorOutput = QString::fromUtf8(process.readAllStandardError());
     return result;
 }
 
@@ -270,7 +273,7 @@ std::optional<QStringList> readXfconfArray(int instance, const QString &property
         return std::nullopt;
     }
     if (result.exitCode != 0) {
-        if (result.output.contains(QStringLiteral("does not exist"))) {
+        if (result.errorOutput.contains(QStringLiteral("does not exist"))) {
             return QStringList {};
         }
         return std::nullopt;
