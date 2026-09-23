@@ -144,6 +144,9 @@ private slots:
     void failedHideRollsBack();
     void localizedNoisyXfconfQueryIsParsed();
     void showsTranslationsAndSearchesEnglish();
+    void unreadableFavoritesStopHiding();
+    void pendingFavoritesDontHideNewLaunchers();
+    void emptyPanelListingStillHides();
 
 private:
     [[nodiscard]] bool writeMenuTool();
@@ -1120,6 +1123,80 @@ void TestToolModel::showsTranslationsAndSearchesEnglish()
         QCOMPARE(model.rowCount(), 1);
         QCOMPARE(model.data(model.index(0), ToolModel::CommentRole).toString(), QStringLiteral("Untranslated comment"));
     }
+}
+
+void TestToolModel::unreadableFavoritesStopHiding()
+{
+    QVERIFY(writeMenuTool());
+    QVERIFY(setFavorites({QStringLiteral("tool.desktop")}));
+    const QString override = m_home->filePath(QStringLiteral(".local/share/applications/tool.desktop"));
+
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QSignalSpy errors(&model, &ToolModel::errorOccurred);
+    // Hiding would make Whisker Menu drop the favorite, and an unreadable snapshot could
+    // never put it back, so neither a failed read nor a failed plugin listing may hide.
+    for (const QString &kind : {QStringLiteral("favorites"), QStringLiteral("type")}) {
+        QVERIFY(setFakeXfconfFailure(kind, true));
+        QVERIFY(setHideFromMenu(model, true));
+        QVERIFY2(!model.hideFromMenu(), qPrintable(kind));
+        QVERIFY(!QFileInfo::exists(override));
+        QVERIFY(!menuStateActive());
+        QVERIFY(setFakeXfconfFailure(kind, false));
+    }
+    QCOMPARE(errors.count(), 2);
+    QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop")}));
+
+    QVERIFY(setHideFromMenu(model, true));
+    QVERIFY(model.hideFromMenu());
+}
+
+void TestToolModel::pendingFavoritesDontHideNewLaunchers()
+{
+    QVERIFY(writeMenuTool());
+    QVERIFY(setFavorites({QStringLiteral("tool.desktop")}));
+    const QDir overrides(m_home->filePath(QStringLiteral(".local/share/applications")));
+
+    ToolIconProvider iconProvider;
+    {
+        ToolModel model(&iconProvider);
+        QVERIFY(setHideFromMenu(model, true));
+        QVERIFY(model.hideFromMenu());
+        // The launchers come back, but the favorites can't be restored yet.
+        QVERIFY(setFavorites({}));
+        QVERIFY(setFakeXfconfFailure(QStringLiteral("type"), true));
+        QVERIFY(setHideFromMenu(model, false));
+        QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("tool.desktop"))));
+        QVERIFY(menuStateActive());
+    }
+
+    // A tool installed meanwhile must not be hidden while only the favorites are pending.
+    QVERIFY(writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("new.desktop"),
+                             desktopFileContent(QStringLiteral("New"), QStringLiteral("X-MX-Setup"))));
+    ToolModel restarted(&iconProvider);
+    QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("new.desktop"))));
+
+    // Once xfconf-query works again, the retry restores the favorite and clears the state.
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("type"), false));
+    QVERIFY(setHideFromMenu(restarted, false));
+    QVERIFY(!restarted.hideFromMenu());
+    QVERIFY(!menuStateActive());
+    QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop")}));
+}
+
+void TestToolModel::emptyPanelListingStillHides()
+{
+    // A desktop without an Xfce panel has an empty xfce4-panel channel: nothing to
+    // snapshot, so hiding and restoring work without Whisker Menu state.
+    QVERIFY(writeMenuTool());
+    QVERIFY(writeFakeXfconf(QStringLiteral("plugins"), {}));
+    ToolIconProvider iconProvider;
+    ToolModel model(&iconProvider);
+    QVERIFY(setHideFromMenu(model, true));
+    QVERIFY(model.hideFromMenu());
+    QVERIFY(setHideFromMenu(model, false));
+    QVERIFY(!model.hideFromMenu());
+    QVERIFY(!menuStateActive());
 }
 
 QTEST_MAIN(TestToolModel)

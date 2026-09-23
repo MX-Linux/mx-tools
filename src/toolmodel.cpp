@@ -422,11 +422,12 @@ std::optional<QHash<int, QString>> panelPluginTypes()
     return types;
 }
 
-QList<int> discoverWhiskerMenuInstances()
+// The Whisker Menu plugin instances, or nullopt if the panel couldn't be queried.
+std::optional<QList<int>> discoverWhiskerMenuInstances()
 {
     const std::optional<QHash<int, QString>> types = panelPluginTypes();
     if (!types) {
-        return {};
+        return std::nullopt;
     }
     QList<int> instances;
     for (auto it = types->cbegin(); it != types->cend(); ++it) {
@@ -550,7 +551,7 @@ private:
     [[nodiscard]] bool hideMenuEntries();
     [[nodiscard]] bool restoreMenuEntries();
     [[nodiscard]] bool restoreLegacyMenuEntries();
-    void snapshotWhiskerMenuFavorites(QSettings &state);
+    [[nodiscard]] bool snapshotWhiskerMenuFavorites(QSettings &state);
     [[nodiscard]] bool reconcileWhiskerMenuFavorites(QSettings &state);
 
     QStringList m_menuFiles;
@@ -1161,7 +1162,8 @@ void MenuVisibility::hideNewMenuEntries()
         return;
     }
     QSettings state(statePath, QSettings::IniFormat);
-    if (!state.value(QStringLiteral("active"), false).toBool()) {
+    if (!state.value(QStringLiteral("active"), false).toBool()
+        || state.value(QStringLiteral("filesRestored"), false).toBool()) {
         return;
     }
     state.beginGroup(QStringLiteral("Entries"));
@@ -1196,19 +1198,25 @@ bool MenuVisibility::hideMenuEntries()
     // Menus read user overrides from $XDG_DATA_HOME/applications.
     const QDir directory(QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation));
     if (!QDir().mkpath(directory.absolutePath())) {
-        error(ToolModel::ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not create %1.").arg(directory.absolutePath()));
+        error(ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not create %1.").arg(directory.absolutePath()));
         return false;
     }
     const QString statePath = menuStateFilePath();
     if (!QDir().mkpath(QFileInfo(statePath).absolutePath())) {
-        error(ToolModel::ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not create %1.").arg(QFileInfo(statePath).absolutePath()));
+        error(ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not create %1.").arg(QFileInfo(statePath).absolutePath()));
         return false;
     }
 
     QSettings state(statePath, QSettings::IniFormat);
     state.clear();
     state.setValue(QStringLiteral("active"), true);
-    snapshotWhiskerMenuFavorites(state);
+    if (!snapshotWhiskerMenuFavorites(state)) {
+        // Nothing has been hidden yet, so leave no state behind.
+        state.clear();
+        state.sync();
+        error(ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(statePath));
+        return false;
+    }
     state.beginGroup(QStringLiteral("Entries"));
     bool success = true;
     for (const QString &fileName : std::as_const(m_menuFiles)) {
@@ -1226,7 +1234,7 @@ bool MenuVisibility::hideMenuEntries()
         if (!restored) {
             m_hideFromMenu = true;
         } else {
-            error(ToolModel::ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(directory.absolutePath()));
+            error(ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(directory.absolutePath()));
         }
         return false;
     }
@@ -1270,6 +1278,13 @@ bool MenuVisibility::restoreMenuEntries()
         }
     }
     state.endGroup();
+    // Once every launcher is visible again, record that, so that while a favorites restore
+    // is still pending, startup doesn't go on hiding newly installed tools.
+    if (success) {
+        state.setValue(QStringLiteral("filesRestored"), true);
+        state.sync();
+        success = state.status() == QSettings::NoError;
+    }
     // Keep the state file, the only snapshot of the favorites, if they could not be restored.
     if (success && reconcileWhiskerMenuFavorites(state)) {
         state.clear();
@@ -1279,7 +1294,7 @@ bool MenuVisibility::restoreMenuEntries()
         success = false;
     }
     if (!success) {
-        error(ToolModel::ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(menuStateFilePath()));
+        error(ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(menuStateFilePath()));
     }
     return success;
 }
@@ -1318,19 +1333,36 @@ bool MenuVisibility::restoreLegacyMenuEntries()
         }
     }
     if (!success) {
-        error(ToolModel::ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(directory.absolutePath()));
+        error(ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(directory.absolutePath()));
     }
     return success;
 }
 
-void MenuVisibility::snapshotWhiskerMenuFavorites(QSettings &state)
+// Returns false if the favorites couldn't be read. Hiding must not go ahead then: Whisker
+// Menu drops favorites whose launchers are hidden, and without a snapshot they couldn't
+// be put back.
+bool MenuVisibility::snapshotWhiskerMenuFavorites(QSettings &state)
 {
     if (!xfconfQueryAvailable()) {
-        return;
+        return true;
     }
-    const QList<int> instances = discoverWhiskerMenuInstances();
+    const std::optional<QList<int>> discovered = discoverWhiskerMenuInstances();
+    if (!discovered) {
+        return false;
+    }
+    // Unlike on restore, an empty listing is fine here: on a desktop without an Xfce panel
+    // the channel is legitimately empty, and there are no favorites to lose.
+    const QList<int> &instances = *discovered;
     if (instances.isEmpty()) {
-        return;
+        return true;
+    }
+    QHash<int, QStringList> favorites;
+    for (int instance : instances) {
+        const std::optional<QStringList> instanceFavorites = readXfconfArray(instance, whiskerMenuFavoritesProperty);
+        if (!instanceFavorites) {
+            return false;
+        }
+        favorites.insert(instance, *instanceFavorites);
     }
     QStringList instanceStrings;
     for (int instance : instances) {
@@ -1341,11 +1373,11 @@ void MenuVisibility::snapshotWhiskerMenuFavorites(QSettings &state)
     state.setValue(QStringLiteral("instances"), instanceStrings);
     for (int instance : instances) {
         state.beginGroup(QString::number(instance));
-        state.setValue(QStringLiteral("favorites"),
-                       readXfconfArray(instance, whiskerMenuFavoritesProperty).value_or(QStringList {}));
+        state.setValue(QStringLiteral("favorites"), favorites.value(instance));
         state.endGroup();
     }
     state.endGroup();
+    return true;
 }
 
 bool MenuVisibility::reconcileWhiskerMenuFavorites(QSettings &state)
