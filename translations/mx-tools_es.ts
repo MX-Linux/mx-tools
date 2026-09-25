@@ -5,58 +5,58 @@
     <name>Main</name>
     <message>
         <location filename="../qml/Main.qml" line="42"/>
-        <location filename="../qml/Main.qml" line="130"/>
-        <location filename="../qml/Main.qml" line="540"/>
+        <location filename="../qml/Main.qml" line="131"/>
+        <location filename="../qml/Main.qml" line="541"/>
         <source>MX Tools</source>
         <translation>MX Herramientas </translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="137"/>
+        <location filename="../qml/Main.qml" line="138"/>
         <source>System dashboard</source>
         <translation>Panel de control</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="202"/>
+        <location filename="../qml/Main.qml" line="203"/>
         <source>Search tools and tasks…</source>
         <translation>Buscar herramientas y tareas…</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="158"/>
+        <location filename="../qml/Main.qml" line="159"/>
         <source>Search tools</source>
         <translation>Herramientas de búsqueda</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="215"/>
+        <location filename="../qml/Main.qml" line="216"/>
         <source>Clear search</source>
         <translation>Borrar búsqueda</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="225"/>
+        <location filename="../qml/Main.qml" line="226"/>
         <source>Manual</source>
         <translation>Manual</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="230"/>
+        <location filename="../qml/Main.qml" line="231"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="258"/>
+        <location filename="../qml/Main.qml" line="259"/>
         <source>CATEGORIES</source>
         <translation>CATEGORÍAS</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="371"/>
+        <location filename="../qml/Main.qml" line="372"/>
         <source>Condensed view</source>
         <translation>Vista reducida</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="382"/>
+        <location filename="../qml/Main.qml" line="383"/>
         <source>Show more tools at once</source>
         <translation>Mostrar más herramientas a la vez</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="379"/>
+        <location filename="../qml/Main.qml" line="380"/>
         <source>Use condensed tool view</source>
         <translation>Usar vista reducida de la herramienta</translation>
     </message>
@@ -72,27 +72,27 @@
         <translation>Seguirán estando disponibles aquí, en MX Herramientas</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="337"/>
+        <location filename="../qml/Main.qml" line="338"/>
         <source>Search results</source>
         <translation>Resultados de la búsqueda</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="339"/>
+        <location filename="../qml/Main.qml" line="340"/>
         <source>All tools</source>
         <translation>Todas las herramientas</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="346"/>
+        <location filename="../qml/Main.qml" line="347"/>
         <source>Results matching “%1”</source>
         <translation>Resultados que coinciden con “%1”</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="347"/>
+        <location filename="../qml/Main.qml" line="348"/>
         <source>Choose a tool to configure or maintain your system</source>
         <translation>Elija una herramienta para configurar o mantener su sistema</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Main.qml" line="356"/>
+        <location filename="../qml/Main.qml" line="357"/>
         <source>%n tool(s)</source>
         <translation>
             <numerusform>%n herramienta</numerusform>
@@ -100,59 +100,59 @@
         </translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="397"/>
+        <location filename="../qml/Main.qml" line="398"/>
         <source>Hide categories</source>
         <translation>Ocultar categorías</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="405"/>
+        <location filename="../qml/Main.qml" line="406"/>
         <source>Hide the category list</source>
         <translation>Ocultar la lista de categorías</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="408"/>
+        <location filename="../qml/Main.qml" line="409"/>
         <source>Use the whole window for tools</source>
         <translation>Utiliza toda la ventana para las herramientas</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="484"/>
+        <location filename="../qml/Main.qml" line="485"/>
         <source>No tools found
 Try a different search or category.</source>
         <translation>No se encontraron herramientas
 Pruebe con otra búsqueda o categoría.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="512"/>
+        <location filename="../qml/Main.qml" line="513"/>
         <source>About MX Tools</source>
         <translation>Acerca de MX Herramientas</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="547"/>
+        <location filename="../qml/Main.qml" line="548"/>
         <source>Version %1</source>
         <translation>Versión %1</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="553"/>
+        <location filename="../qml/Main.qml" line="554"/>
         <source>A focused collection of configuration and maintenance tools for MX Linux.</source>
         <translation>Una colección específica de herramientas de configuración y mantenimiento para MX Linux.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="562"/>
+        <location filename="../qml/Main.qml" line="563"/>
         <source>Website</source>
         <translation>Sitio web</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="566"/>
+        <location filename="../qml/Main.qml" line="567"/>
         <source>License</source>
         <translation>Licencia</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="570"/>
+        <location filename="../qml/Main.qml" line="571"/>
         <source>Changelog</source>
         <translation>Registro de cambios</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="576"/>
+        <location filename="../qml/Main.qml" line="577"/>
         <source>Copyright © MX Linux</source>
         <translation>Derechos de autor © MX Linux</translation>
     </message>
