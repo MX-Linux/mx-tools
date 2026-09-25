@@ -10,7 +10,7 @@
 # Keep pkgver in step with debian/changelog: it names the tarball.
 
 pkgname=mx-tools
-pkgver=26.09.10
+pkgver=26.09.11
 pkgrel=1
 pkgdesc="MX Tools - Dashboard application launcher for various MX tools"
 arch=('x86_64')
