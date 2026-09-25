@@ -69,8 +69,9 @@ ApplicationWindow {
     // Monitors can change between runs, so a restored position may be off every screen.
     // Settings has restored it by now; unless the title bar is on some screen, fit the
     // window to its screen and center it. (On Wayland the compositor places windows.)
+    // Qt < 6.5 exposes Application.screens as a list object without array methods.
     Component.onCompleted: {
-        const titleBarVisible = Application.screens.some(screen =>
+        const titleBarVisible = Array.from(Application.screens).some(screen =>
             root.x + root.width > screen.virtualX + 100 && root.x < screen.virtualX + screen.width - 100
             && root.y >= screen.virtualY && root.y < screen.virtualY + screen.height - 50)
         if (!titleBarVisible) {

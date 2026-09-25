@@ -273,13 +273,16 @@ void TestToolModel::discoversAndFiltersTools()
 void TestToolModel::launchBlocksRelaunchOnlyWhileRunning()
 {
     // The tool runs until the test creates a release file, so "still running" doesn't
-    // depend on timing. The guard releases it on any exit, so it can't be left behind.
+    // depend on timing. The guard releases it on any exit, and it also stops once the
+    // temporary home is removed, so it can't be left behind: the final relaunch below
+    // may not check for the release file until cleanup() has deleted it. A tool left
+    // running keeps ctest's output pipe open and makes the test time out.
     const QString waiter = m_home->filePath(QStringLiteral("wait-for-release"));
     const QString release = m_home->filePath(QStringLiteral("release"));
     {
         QFile script(waiter);
         QVERIFY(script.open(QFile::WriteOnly | QFile::Text));
-        QVERIFY(script.write("#!/bin/sh\nwhile [ ! -e \"$1\" ]; do sleep 0.05; done\n") > 0);
+        QVERIFY(script.write("#!/bin/sh\nwhile [ ! -e \"$1\" ] && [ -d \"${1%/*}\" ]; do sleep 0.05; done\n") > 0);
     }
     QVERIFY(QFile::setPermissions(waiter, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
     // Best effort: nothing more can be done here if even this write fails.
