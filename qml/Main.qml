@@ -12,6 +12,28 @@ ApplicationWindow {
         colorGroup: root.active ? SystemPalette.Active : SystemPalette.Inactive
     }
 
+    // Quick Controls styles keep their own palette, which can disagree with the desktop's:
+    // under qt6gtk2 the forced Fusion style assumes a light scheme because GTK2 reports none,
+    // leaving default dialog backgrounds and titles light behind dark-theme text. Feed the
+    // system palette in so every default-styled control, popups included, follows the theme.
+    palette {
+        window: systemPalette.window
+        windowText: systemPalette.windowText
+        base: systemPalette.base
+        alternateBase: systemPalette.alternateBase
+        text: systemPalette.text
+        placeholderText: systemPalette.placeholderText
+        button: systemPalette.button
+        buttonText: systemPalette.buttonText
+        highlight: systemPalette.highlight
+        highlightedText: systemPalette.highlightedText
+        light: systemPalette.light
+        midlight: systemPalette.midlight
+        mid: systemPalette.mid
+        dark: systemPalette.dark
+        shadow: systemPalette.shadow
+    }
+
     width: 1080
     height: 720
     minimumWidth: 720
