@@ -8,6 +8,13 @@ BLUE='\e[0;34m'
 NC='\e[0m'
 
 AUR_DIR="aur"
+# The AUR repo's local branch and the remote/branch it is published to
+# (the AUR only accepts pushes to master). Set AUR_PUSH=0 to commit the AUR
+# update without pushing it.
+AUR_REMOTE="${AUR_REMOTE:-aur}"
+AUR_LOCAL_BRANCH="${AUR_LOCAL_BRANCH:-main}"
+AUR_REMOTE_BRANCH="${AUR_REMOTE_BRANCH:-master}"
+AUR_PUSH="${AUR_PUSH:-1}"
 MAIN_BRANCH="master"
 ANNOTATION=""
 
@@ -37,11 +44,11 @@ print_success() {
 aur_has_separate_git_repo() {
     local aur_toplevel
 
-    if ! aur_toplevel=$(git rev-parse --show-toplevel 2>/dev/null); then
+    if ! aur_toplevel=$(git -C "$AUR_DIR" rev-parse --show-toplevel 2>/dev/null); then
         return 1
     fi
 
-    [ "$aur_toplevel" = "$PWD" ]
+    [ "$aur_toplevel" = "$(realpath "$AUR_DIR")" ]
 }
 
 validate_version() {
@@ -162,16 +169,17 @@ update_aur_package() {
         exit 1
     fi
 
-    cd "$AUR_DIR"
+    local pkgbuild="$AUR_DIR/PKGBUILD"
+    local srcinfo="$AUR_DIR/.SRCINFO"
 
-    if [ ! -f PKGBUILD ]; then
+    if [ ! -f "$pkgbuild" ]; then
         print_error "PKGBUILD not found in $AUR_DIR"
         exit 1
     fi
 
     print_step "Updating PKGBUILD pkgver to $version..."
-    sed -i "s/^pkgver=.*/pkgver=${version}/" PKGBUILD
-    sed -i "s|^source=.*|source=(\"${tarball_url}\")|" PKGBUILD
+    sed -i "s/^pkgver=.*/pkgver=${version}/" "$pkgbuild"
+    sed -i "s|^source=.*|source=(\"${tarball_url}\")|" "$pkgbuild"
 
     print_step "Downloading release tarball and calculating checksum..."
     for i in $(seq 1 $retries); do
@@ -192,33 +200,92 @@ update_aur_package() {
 
     if [ -z "$checksum" ]; then
         print_error "Failed to download tarball after $retries attempts"
-        print_warning "Leaving sha256sums as SKIP; update it manually before publishing to AUR."
-        checksum="SKIP"
+        print_warning "Nothing was committed; $AUR_DIR/PKGBUILD has uncommitted edits. Re-run once the tag tarball is reachable."
+        exit 1
     fi
 
-    sed -i "s/^sha256sums=.*/sha256sums=('${checksum}')/" PKGBUILD
+    sed -i "s/^sha256sums=.*/sha256sums=('${checksum}')/" "$pkgbuild"
 
     print_step "Regenerating .SRCINFO..."
-    makepkg --printsrcinfo > .SRCINFO
+    (cd "$AUR_DIR" && makepkg --printsrcinfo) > "$srcinfo"
+    # Sanity-check what is about to be committed (and pushed)
+    if ! awk -v v="${version}" '$1 == "pkgver" && $3 == v { f = 1 } END { exit !f }' "$srcinfo"; then
+        print_error ".SRCINFO does not report pkgver = ${version}"
+        exit 1
+    fi
+    if ! awk -v c="$checksum" '$1 == "sha256sums" && $3 == c { f = 1 } END { exit !f }' "$srcinfo"; then
+        print_error ".SRCINFO does not carry the downloaded tarball checksum"
+        exit 1
+    fi
 
     print_step "Checking for AUR package changes..."
-    if git diff --quiet -- PKGBUILD .SRCINFO; then
+    if git -C "$AUR_DIR" diff --quiet -- PKGBUILD .SRCINFO; then
         print_warning "No changes in AUR package - skipping commit"
     else
         if aur_has_separate_git_repo; then
             print_step "Committing AUR package changes..."
-            git add PKGBUILD .SRCINFO
-            git commit -m "$annotation"
+            git -C "$AUR_DIR" add PKGBUILD .SRCINFO
+            git -C "$AUR_DIR" commit -m "$annotation"
             print_success "AUR package updated and committed"
             echo
-            git show --stat HEAD
+            git -C "$AUR_DIR" show --stat HEAD
         else
             print_warning "aur/ is not a separate git checkout; updated PKGBUILD and .SRCINFO only"
         fi
     fi
 
     rm -f "/tmp/${version}.tar.gz"
-    cd ..
+}
+
+# Push the AUR repo if it has commits the AUR doesn't
+push_aur_package() {
+    print_step "Pushing AUR package..."
+
+    local aur_toplevel
+    aur_toplevel=$(git -C "$AUR_DIR" rev-parse --show-toplevel 2>/dev/null) || aur_toplevel=""
+    if [ "$aur_toplevel" != "$(realpath "$AUR_DIR")" ]; then
+        print_error "$AUR_DIR is not a separate git checkout"
+        return 1
+    fi
+
+    if ! git -C "$AUR_DIR" diff --quiet HEAD -- PKGBUILD .SRCINFO; then
+        print_error "$AUR_DIR has uncommitted PKGBUILD/.SRCINFO changes; commit them first"
+        return 1
+    fi
+
+    local current_branch
+    current_branch=$(git -C "$AUR_DIR" branch --show-current)
+    if [ "$current_branch" != "$AUR_LOCAL_BRANCH" ]; then
+        print_error "$AUR_DIR is on branch '$current_branch', expected '$AUR_LOCAL_BRANCH'"
+        return 1
+    fi
+
+    if ! git -C "$AUR_DIR" fetch --quiet "$AUR_REMOTE" "$AUR_REMOTE_BRANCH"; then
+        print_error "Could not fetch $AUR_REMOTE/$AUR_REMOTE_BRANCH"
+        return 1
+    fi
+    local ahead
+    ahead=$(git -C "$AUR_DIR" rev-list --count "$AUR_REMOTE/$AUR_REMOTE_BRANCH..$AUR_LOCAL_BRANCH")
+    if [ "$ahead" -eq 0 ]; then
+        print_success "AUR already up to date; nothing to push"
+        return 0
+    fi
+
+    if ! git -C "$AUR_DIR" push "$AUR_REMOTE" "$AUR_LOCAL_BRANCH:$AUR_REMOTE_BRANCH"; then
+        print_error "Pushing to $AUR_REMOTE failed"
+        return 1
+    fi
+    print_success "Pushed $ahead commit(s) to $AUR_REMOTE/$AUR_REMOTE_BRANCH"
+}
+
+# Push to the AUR, or print the manual steps when pushing is disabled or fails
+publish_aur_package() {
+    if [ "$AUR_PUSH" = 1 ] && push_aur_package; then
+        return 0
+    fi
+    show_push_instructions "$@"
+    # A failed push is an error; a disabled one is not
+    [ "$AUR_PUSH" != 1 ]
 }
 
 show_push_instructions() {
@@ -231,7 +298,7 @@ show_push_instructions() {
     if [ -d "${AUR_DIR}/.git" ] || [ -f "${AUR_DIR}/.git" ]; then
         print_warning "Please run this command manually from the AUR checkout:"
         echo
-        echo -e "${YELLOW}cd aur && git push${NC}"
+        echo -e "${YELLOW}git -C $AUR_DIR push $AUR_REMOTE $AUR_LOCAL_BRANCH:$AUR_REMOTE_BRANCH${NC}"
         return
     fi
 
@@ -311,7 +378,7 @@ main() {
         print_step "Pushing tag to GitHub..."; git push origin "$version"; print_success "Tag pushed to GitHub"
     fi
     update_aur_package "$version" "$annotation"
-    show_push_instructions "$tag_status"
+    publish_aur_package "$tag_status"
     echo; print_success "Release preparation complete!"
 }
 
