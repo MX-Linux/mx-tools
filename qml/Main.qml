@@ -472,6 +472,7 @@ ApplicationWindow {
                     categoryName: category
                     condensed: root.condensedView
                     onClicked: root.backend.launch(fileName)
+                    onPinRequested: pin => root.backend.setPinned(fileName, pin)
                 }
 
                 displaced: Transition {

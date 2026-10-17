@@ -43,7 +43,8 @@ public:
         CommentRole,
         CategoryRole,
         IconSourceRole,
-        FileNameRole
+        FileNameRole,
+        PinnedRole
     };
     Q_ENUM(Role)
 
@@ -66,6 +67,7 @@ public:
     void setHideFromMenu(bool hide);
     [[nodiscard]] bool menuBusy() const;
 
+    Q_INVOKABLE void setPinned(const QString &fileName, bool pinned);
     Q_INVOKABLE void launch(const QString &fileName);
     Q_INVOKABLE void openManual();
     Q_INVOKABLE void openLicense();
@@ -98,6 +100,7 @@ private:
     QVector<int> m_visibleRows;
     QStringList m_categories;
     QStringList m_menuFiles;
+    QStringList m_pinnedTools;
     QString m_search;
     QString m_selectedCategory;
     struct RunningTool {

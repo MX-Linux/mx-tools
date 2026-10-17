@@ -21,6 +21,12 @@ TestCase {
             property string launched: ""
             signal errorOccurred(string title, string message)
             signal documentReady(string title, string content)
+            function setPinned(fileName, pinned) {
+                for (let row = 0; row < count; ++row) {
+                    if (get(row).fileName === fileName)
+                        setProperty(row, "pinned", pinned)
+                }
+            }
             function launch(fileName) {
                 launched = fileName
             }
@@ -36,7 +42,7 @@ TestCase {
         backend = backendComponent.createObject(test)
         for (let index = 0; index < 40; ++index) {
             backend.append({ name: "Tool " + index, comment: "Comment " + index, category: "Setup",
-                             fileName: "/tmp/tool" + index + ".desktop", iconSource: "" })
+                             fileName: "/tmp/tool" + index + ".desktop", iconSource: "", pinned: false })
         }
         const component = Qt.createComponent("@MX_TOOLS_MAIN_QML_URL@")
         compare(component.status, Component.Ready, component.errorString())
@@ -61,6 +67,16 @@ TestCase {
                 return found
         }
         return null
+    }
+
+    function test_pinDoesNotLaunch() {
+        const button = find(window.contentItem, item => item.objectName === "pinButton")
+        verify(button)
+        mouseClick(button)
+        compare(backend.launched, "")
+        verify(backend.get(0).pinned)
+        mouseClick(button)
+        verify(!backend.get(0).pinned)
     }
 
     function test_loadsInBothLayouts() {
@@ -116,6 +132,10 @@ TestCase {
         compare(window.activeFocusItem.toolName, "Tool 31")
         tryVerify(() => grid.currentItem.y >= grid.contentY
                         && grid.currentItem.y + grid.currentItem.height <= grid.contentY + grid.height)
+        keyClick(Qt.Key_P)
+        verify(backend.get(31).pinned)
+        keyClick(Qt.Key_P)
+        verify(!backend.get(31).pinned)
         keyClick(Qt.Key_Return)
         compare(backend.launched, "/tmp/tool31.desktop")
     }

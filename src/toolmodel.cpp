@@ -599,6 +599,9 @@ ToolModel::ToolModel(ToolIconProvider *iconProvider, QObject *parent)
     : QAbstractListModel(parent),
       m_iconProvider(iconProvider)
 {
+    QSettings settings(QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation))
+                           .filePath(QStringLiteral("pins.ini")), QSettings::IniFormat);
+    m_pinnedTools = settings.value(QStringLiteral("pinnedTools")).toStringList();
     loadTools();
     MenuVisibility visibility(m_menuFiles);
     visibility.detectMenuVisibility();
@@ -629,6 +632,8 @@ QVariant ToolModel::data(const QModelIndex &index, int role) const
         return tool.iconSource;
     case FileNameRole:
         return tool.fileName;
+    case PinnedRole:
+        return m_pinnedTools.contains(desktopId(tool.fileName));
     default:
         return {};
     }
@@ -637,7 +642,7 @@ QVariant ToolModel::data(const QModelIndex &index, int role) const
 QHash<int, QByteArray> ToolModel::roleNames() const
 {
     return {{NameRole, "name"}, {CommentRole, "comment"}, {CategoryRole, "category"},
-            {IconSourceRole, "iconSource"}, {FileNameRole, "fileName"}};
+            {IconSourceRole, "iconSource"}, {FileNameRole, "fileName"}, {PinnedRole, "pinned"}};
 }
 
 QString ToolModel::search() const
@@ -720,6 +725,35 @@ void ToolModel::setHideFromMenu(bool hide)
 bool ToolModel::menuBusy() const
 {
     return m_menuBusy;
+}
+
+void ToolModel::setPinned(const QString &fileName, bool pinned)
+{
+    if (!std::ranges::any_of(m_allTools, [&fileName](const ToolInfo &tool) { return tool.fileName == fileName; })) {
+        return;
+    }
+    const QString id = desktopId(fileName);
+    if (m_pinnedTools.contains(id) == pinned) {
+        return;
+    }
+    QSettings settings(QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation))
+                           .filePath(QStringLiteral("pins.ini")), QSettings::IniFormat);
+    QStringList pins = settings.value(QStringLiteral("pinnedTools")).toStringList();
+    pins.removeAll(id);
+    if (pinned) {
+        pins.append(id);
+    }
+    settings.setValue(QStringLiteral("pinnedTools"), pins);
+    settings.sync();
+    if (settings.status() != QSettings::NoError) {
+        emit errorOccurred(tr("Pin setting failed"), tr("Could not save pinned tools."));
+        return;
+    }
+    m_pinnedTools = pins;
+    refilter();
+    if (!m_visibleRows.isEmpty()) {
+        emit dataChanged(index(0), index(rowCount() - 1), {PinnedRole});
+    }
 }
 
 void ToolModel::loadTools()
@@ -831,37 +865,32 @@ void ToolModel::refilter()
         }
     }
 
-    // Apply the change as row removals and insertions instead of a reset, so the view
-    // keeps its delegates and focus and can animate. Both lists hold ascending indexes
-    // into m_allTools, so removing first leaves the old list a subsequence of the new.
-    for (qsizetype last = m_visibleRows.size() - 1; last >= 0; --last) {
-        if (std::ranges::binary_search(visibleRows, m_visibleRows.at(last))) {
-            continue;
+    // Preserve the category/name ordering within both groups.
+    std::stable_partition(visibleRows.begin(), visibleRows.end(), [this](int row) {
+        return m_pinnedTools.contains(desktopId(m_allTools.at(row).fileName));
+    });
+    // Move existing rows so pinning preserves delegates and keyboard focus.
+    for (int row = static_cast<int>(m_visibleRows.size()) - 1; row >= 0; --row) {
+        if (!visibleRows.contains(m_visibleRows.at(row))) {
+            beginRemoveRows({}, row, row);
+            m_visibleRows.removeAt(row);
+            endRemoveRows();
         }
-        qsizetype first = last;
-        while (first > 0 && !std::ranges::binary_search(visibleRows, m_visibleRows.at(first - 1))) {
-            --first;
-        }
-        beginRemoveRows({}, static_cast<int>(first), static_cast<int>(last));
-        m_visibleRows.remove(first, last - first + 1);
-        endRemoveRows();
-        last = first;
     }
-    for (qsizetype first = 0; first < visibleRows.size(); ++first) {
-        if (first < m_visibleRows.size() && m_visibleRows.at(first) == visibleRows.at(first)) {
+    for (int row = 0; row < visibleRows.size(); ++row) {
+        const int source = static_cast<int>(m_visibleRows.indexOf(visibleRows.at(row)));
+        if (source == row) {
             continue;
         }
-        qsizetype last = first;
-        while (last + 1 < visibleRows.size()
-               && !std::ranges::binary_search(m_visibleRows, visibleRows.at(last + 1))) {
-            ++last;
-        }
-        beginInsertRows({}, static_cast<int>(first), static_cast<int>(last));
-        for (qsizetype row = first; row <= last; ++row) {
+        if (source < 0) {
+            beginInsertRows({}, row, row);
             m_visibleRows.insert(row, visibleRows.at(row));
+            endInsertRows();
+        } else {
+            beginMoveRows({}, source, source, {}, row);
+            m_visibleRows.move(source, row);
+            endMoveRows();
         }
-        endInsertRows();
-        first = last;
     }
 }
 

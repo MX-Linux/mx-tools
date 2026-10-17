@@ -117,6 +117,7 @@ private slots:
     void init();
     void cleanup();
     void discoversAndFiltersTools();
+    void pinsPersistAndSort();
     void launchBlocksRelaunchOnlyWhileRunning();
     void readsOnlyTheDesktopEntryGroup();
     void listsMultiCategoryToolOnce();
@@ -213,6 +214,35 @@ bool TestToolModel::writeMenuTool()
 {
     return writeDesktopFile(QDir(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH)), QStringLiteral("tool.desktop"),
                      desktopFileContent(QStringLiteral("Tool"), QStringLiteral("X-MX-Utilities")));
+}
+
+void TestToolModel::pinsPersistAndSort()
+{
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("alpha.desktop"),
+                             desktopFileContent(QStringLiteral("Alpha"), QStringLiteral("X-MX-Utilities"))));
+    QVERIFY(writeDesktopFile(applications, QStringLiteral("zulu.desktop"),
+                             desktopFileContent(QStringLiteral("Zulu"), QStringLiteral("X-MX-Utilities"))));
+    const QString zulu = applications.filePath(QStringLiteral("zulu.desktop"));
+    ToolIconProvider provider;
+    ToolModel model(&provider);
+    QAbstractItemModelTester tester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+    QSignalSpy resets(&model, &QAbstractItemModel::modelReset);
+    QCOMPARE(model.data(model.index(0), ToolModel::NameRole).toString(), QStringLiteral("Alpha"));
+    model.setPinned(zulu, true);
+    QCOMPARE(model.data(model.index(0), ToolModel::NameRole).toString(), QStringLiteral("Zulu"));
+    QVERIFY(model.data(model.index(0), ToolModel::PinnedRole).toBool());
+    model.setSearch(QStringLiteral("Alpha"));
+    QCOMPARE(model.rowCount(), 1);
+    model.setSearch({});
+    QCOMPARE(model.data(model.index(0), ToolModel::NameRole).toString(), QStringLiteral("Zulu"));
+    ToolModel restored(&provider);
+    QCOMPARE(restored.data(restored.index(0), ToolModel::NameRole).toString(), QStringLiteral("Zulu"));
+    restored.setPinned(zulu, false);
+    QCOMPARE(restored.data(restored.index(0), ToolModel::NameRole).toString(), QStringLiteral("Alpha"));
+    ToolModel unpinned(&provider);
+    QVERIFY(!unpinned.data(unpinned.index(1), ToolModel::PinnedRole).toBool());
+    QCOMPARE(resets.count(), 0);
 }
 
 void TestToolModel::discoversAndFiltersTools()

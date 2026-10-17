@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/Main.qml" line="42"/>
         <location filename="../qml/Main.qml" line="131"/>
-        <location filename="../qml/Main.qml" line="541"/>
+        <location filename="../qml/Main.qml" line="542"/>
         <source>MX Tools</source>
         <translation type="unfinished">MX Tools</translation>
     </message>
@@ -116,43 +116,43 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="485"/>
+        <location filename="../qml/Main.qml" line="486"/>
         <source>No tools found
 Try a different search or category.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="513"/>
+        <location filename="../qml/Main.qml" line="514"/>
         <source>About MX Tools</source>
         <translation type="unfinished">O programe MX Tools</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="548"/>
+        <location filename="../qml/Main.qml" line="549"/>
         <source>Version %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="554"/>
+        <location filename="../qml/Main.qml" line="555"/>
         <source>A focused collection of configuration and maintenance tools for MX Linux.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="563"/>
+        <location filename="../qml/Main.qml" line="564"/>
         <source>Website</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="567"/>
+        <location filename="../qml/Main.qml" line="568"/>
         <source>License</source>
         <translation type="unfinished">Licencia</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="571"/>
+        <location filename="../qml/Main.qml" line="572"/>
         <source>Changelog</source>
         <translation type="unfinished">História zmien</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="577"/>
+        <location filename="../qml/Main.qml" line="578"/>
         <source>Copyright © MX Linux</source>
         <translation type="unfinished"></translation>
     </message>
@@ -246,7 +246,27 @@ Try a different search or category.</source>
 <context>
     <name>ToolCard</name>
     <message>
-        <location filename="../qml/components/ToolCard.qml" line="89"/>
+        <location filename="../qml/components/ToolCard.qml" line="130"/>
+        <source>Unpin %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/components/ToolCard.qml" line="130"/>
+        <source>Pin %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/components/ToolCard.qml" line="171"/>
+        <source>Unpin tool</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/components/ToolCard.qml" line="171"/>
+        <source>Pin tool</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/components/ToolCard.qml" line="98"/>
         <source>Open this MX tool</source>
         <translation type="unfinished"></translation>
     </message>
@@ -279,111 +299,121 @@ Try a different search or category.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="727"/>
+        <location filename="../src/toolmodel.cpp" line="749"/>
+        <source>Pin setting failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="749"/>
+        <source>Could not save pinned tools.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/toolmodel.cpp" line="761"/>
         <source>All tools</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="958"/>
-        <location filename="../src/toolmodel.cpp" line="969"/>
-        <location filename="../src/toolmodel.cpp" line="974"/>
-        <location filename="../src/toolmodel.cpp" line="988"/>
+        <location filename="../src/toolmodel.cpp" line="987"/>
+        <location filename="../src/toolmodel.cpp" line="998"/>
+        <location filename="../src/toolmodel.cpp" line="1003"/>
+        <location filename="../src/toolmodel.cpp" line="1017"/>
         <source>Unable to launch tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="958"/>
+        <location filename="../src/toolmodel.cpp" line="987"/>
         <source>The selected tool is no longer available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="963"/>
+        <location filename="../src/toolmodel.cpp" line="992"/>
         <source>Tool already running</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="963"/>
+        <location filename="../src/toolmodel.cpp" line="992"/>
         <source>%1 is already running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="974"/>
+        <location filename="../src/toolmodel.cpp" line="1003"/>
         <source>The selected tool has no launch command.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="969"/>
-        <location filename="../src/toolmodel.cpp" line="988"/>
+        <location filename="../src/toolmodel.cpp" line="998"/>
+        <location filename="../src/toolmodel.cpp" line="1017"/>
         <source>Could not start %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1000"/>
-        <location filename="../src/toolmodel.cpp" line="1024"/>
+        <location filename="../src/toolmodel.cpp" line="1029"/>
+        <location filename="../src/toolmodel.cpp" line="1053"/>
         <source>Could not open %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1006"/>
+        <location filename="../src/toolmodel.cpp" line="1035"/>
         <source>Manual unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1011"/>
+        <location filename="../src/toolmodel.cpp" line="1040"/>
         <source>License unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1017"/>
+        <location filename="../src/toolmodel.cpp" line="1046"/>
         <source>Website unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1017"/>
+        <location filename="../src/toolmodel.cpp" line="1046"/>
         <source>Could not open the MX Linux website.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1024"/>
-        <location filename="../src/toolmodel.cpp" line="1037"/>
+        <location filename="../src/toolmodel.cpp" line="1053"/>
+        <location filename="../src/toolmodel.cpp" line="1066"/>
         <source>Changelog unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1037"/>
+        <location filename="../src/toolmodel.cpp" line="1066"/>
         <source>Could not read the application changelog.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1035"/>
+        <location filename="../src/toolmodel.cpp" line="1064"/>
         <source>Changelog</source>
         <translation type="unfinished">História zmien</translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1058"/>
-        <location filename="../src/toolmodel.cpp" line="1066"/>
-        <location filename="../src/toolmodel.cpp" line="1201"/>
-        <location filename="../src/toolmodel.cpp" line="1206"/>
-        <location filename="../src/toolmodel.cpp" line="1217"/>
-        <location filename="../src/toolmodel.cpp" line="1237"/>
-        <location filename="../src/toolmodel.cpp" line="1297"/>
-        <location filename="../src/toolmodel.cpp" line="1336"/>
+        <location filename="../src/toolmodel.cpp" line="1087"/>
+        <location filename="../src/toolmodel.cpp" line="1095"/>
+        <location filename="../src/toolmodel.cpp" line="1230"/>
+        <location filename="../src/toolmodel.cpp" line="1235"/>
+        <location filename="../src/toolmodel.cpp" line="1246"/>
+        <location filename="../src/toolmodel.cpp" line="1266"/>
+        <location filename="../src/toolmodel.cpp" line="1326"/>
+        <location filename="../src/toolmodel.cpp" line="1365"/>
         <source>Menu setting failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1058"/>
-        <location filename="../src/toolmodel.cpp" line="1201"/>
-        <location filename="../src/toolmodel.cpp" line="1206"/>
+        <location filename="../src/toolmodel.cpp" line="1087"/>
+        <location filename="../src/toolmodel.cpp" line="1230"/>
+        <location filename="../src/toolmodel.cpp" line="1235"/>
         <source>Could not create %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/toolmodel.cpp" line="1066"/>
-        <location filename="../src/toolmodel.cpp" line="1217"/>
-        <location filename="../src/toolmodel.cpp" line="1237"/>
-        <location filename="../src/toolmodel.cpp" line="1297"/>
-        <location filename="../src/toolmodel.cpp" line="1336"/>
+        <location filename="../src/toolmodel.cpp" line="1095"/>
+        <location filename="../src/toolmodel.cpp" line="1246"/>
+        <location filename="../src/toolmodel.cpp" line="1266"/>
+        <location filename="../src/toolmodel.cpp" line="1326"/>
+        <location filename="../src/toolmodel.cpp" line="1365"/>
         <source>Could not update %1.</source>
         <translation type="unfinished"></translation>
     </message>
