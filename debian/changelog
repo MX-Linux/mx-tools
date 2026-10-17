@@ -1,3 +1,10 @@
+mx-tools (26.10) mx; urgency=medium
+
+  * Pin tools to the top of the list by clicking their star or pressing P
+    when selected, and remember pinned tools the next time MX Tools starts
+
+ -- Adrian <adrian@mxlinux.org>  Sat, 17 Oct 2026 16:41:30 -0400
+
 mx-tools (26.09.12) mx; urgency=medium
 
   * Keep your Whisker Menu favorites when hiding MX tools from the system menu
