@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/Main.qml" line="42"/>
         <location filename="../qml/Main.qml" line="131"/>
-        <location filename="../qml/Main.qml" line="542"/>
+        <location filename="../qml/Main.qml" line="552"/>
         <source>MX Tools</source>
         <translation>MX Εργαλεία</translation>
     </message>
@@ -46,17 +46,17 @@
         <translation>ΚΑΤΗΓΟΡΙΕΣ</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="372"/>
+        <location filename="../qml/Main.qml" line="378"/>
         <source>Condensed view</source>
         <translation>Συμπαγής προβολή</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="383"/>
+        <location filename="../qml/Main.qml" line="391"/>
         <source>Show more tools at once</source>
         <translation>Εμφάνιση περισσότερων εργαλείων</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="380"/>
+        <location filename="../qml/Main.qml" line="388"/>
         <source>Use condensed tool view</source>
         <translation>Χρήση συμπαγούς προβολής εργαλείων</translation>
     </message>
@@ -72,27 +72,27 @@
         <translation>Θα παραμείνουν διαθέσιμα εδώ στο MX Εργαλεία</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="338"/>
+        <location filename="../qml/Main.qml" line="344"/>
         <source>Search results</source>
         <translation>Αποτελέσματα αναζήτησης</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="340"/>
+        <location filename="../qml/Main.qml" line="346"/>
         <source>All tools</source>
         <translation>Όλα τα εργαλεία</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="347"/>
+        <location filename="../qml/Main.qml" line="355"/>
         <source>Results matching “%1”</source>
         <translation>Αποτελέσματα που σχετίζονται με “%1”</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="348"/>
+        <location filename="../qml/Main.qml" line="356"/>
         <source>Choose a tool to configure or maintain your system</source>
         <translation>Επιλογή εργαλείου ρύθμισης ή συντήρησης του συστήματος</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Main.qml" line="357"/>
+        <location filename="../qml/Main.qml" line="363"/>
         <source>%n tool(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -100,59 +100,59 @@
         </translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="398"/>
+        <location filename="../qml/Main.qml" line="406"/>
         <source>Hide categories</source>
         <translation>Απόκρυψη κατηγοριών</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="406"/>
+        <location filename="../qml/Main.qml" line="416"/>
         <source>Hide the category list</source>
         <translation>Απόκρυψη της λίστας κατηγοριών</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="409"/>
+        <location filename="../qml/Main.qml" line="419"/>
         <source>Use the whole window for tools</source>
         <translation>Τα εργαλεία σε όλο το παράθυρο</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="486"/>
+        <location filename="../qml/Main.qml" line="496"/>
         <source>No tools found
 Try a different search or category.</source>
         <translation>Δεν βρέθηκαν εργαλεία
 Δοκιμάστε διαφορετική αναζήτηση ή κατηγορία.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="514"/>
+        <location filename="../qml/Main.qml" line="524"/>
         <source>About MX Tools</source>
         <translation>Περί του MX Εργαλεία</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="549"/>
+        <location filename="../qml/Main.qml" line="559"/>
         <source>Version %1</source>
         <translation>Έκδοση %1</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="555"/>
+        <location filename="../qml/Main.qml" line="565"/>
         <source>A focused collection of configuration and maintenance tools for MX Linux.</source>
         <translation>Μια συγκεντρωμένη συλλογή εργαλείων διαμόρφωσης και συντήρησης του MX Linux.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="564"/>
+        <location filename="../qml/Main.qml" line="574"/>
         <source>Website</source>
         <translation>Ιστοσελίδα</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="568"/>
+        <location filename="../qml/Main.qml" line="578"/>
         <source>License</source>
         <translation>Άδεια</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="572"/>
+        <location filename="../qml/Main.qml" line="582"/>
         <source>Changelog</source>
         <translation>Αρχείο αλλαγών</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="578"/>
+        <location filename="../qml/Main.qml" line="588"/>
         <source>Copyright © MX Linux</source>
         <translation>Πνευματικά δικαιώματα © MX Linux</translation>
     </message>

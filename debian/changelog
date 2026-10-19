@@ -1,3 +1,10 @@
+mx-tools (26.10.1) mx; urgency=medium
+
+  * Show the full "Condensed view" and "Hide categories" labels at the top of
+    the window in languages with longer translations, such as French
+
+ -- Adrian <adrian@mxlinux.org>  Mon, 19 Oct 2026 08:33:36 -0400
+
 mx-tools (26.10) mx; urgency=medium
 
   * Pin tools to the top of the list by clicking their star or pressing P

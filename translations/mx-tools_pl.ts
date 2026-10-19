@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/Main.qml" line="42"/>
         <location filename="../qml/Main.qml" line="131"/>
-        <location filename="../qml/Main.qml" line="542"/>
+        <location filename="../qml/Main.qml" line="552"/>
         <source>MX Tools</source>
         <translation>MX Narzędzia</translation>
     </message>
@@ -46,17 +46,17 @@
         <translation>KATEGORIE</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="372"/>
+        <location filename="../qml/Main.qml" line="378"/>
         <source>Condensed view</source>
         <translation>Widok zwięzły</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="383"/>
+        <location filename="../qml/Main.qml" line="391"/>
         <source>Show more tools at once</source>
         <translation>Pokaż więcej narzędzi na raz</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="380"/>
+        <location filename="../qml/Main.qml" line="388"/>
         <source>Use condensed tool view</source>
         <translation>Użyj zwięzłego widoku narzędzia</translation>
     </message>
@@ -72,27 +72,27 @@
         <translation>Nadal będą dostępne tutaj, w MX Tools.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="338"/>
+        <location filename="../qml/Main.qml" line="344"/>
         <source>Search results</source>
         <translation>Wyniki wyszukiwania</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="340"/>
+        <location filename="../qml/Main.qml" line="346"/>
         <source>All tools</source>
         <translation>Wszystkie narzędzia</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="347"/>
+        <location filename="../qml/Main.qml" line="355"/>
         <source>Results matching “%1”</source>
         <translation>Wyniki pasujące do „%1”</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="348"/>
+        <location filename="../qml/Main.qml" line="356"/>
         <source>Choose a tool to configure or maintain your system</source>
         <translation>Wybierz narzędzie do konfiguracji lub konserwacji systemu</translation>
     </message>
     <message numerus="yes">
-        <location filename="../qml/Main.qml" line="357"/>
+        <location filename="../qml/Main.qml" line="363"/>
         <source>%n tool(s)</source>
         <translation>
             <numerusform>%n narzędzie</numerusform>
@@ -101,59 +101,59 @@
         </translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="398"/>
+        <location filename="../qml/Main.qml" line="406"/>
         <source>Hide categories</source>
         <translation>Ukryj kategorie</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="406"/>
+        <location filename="../qml/Main.qml" line="416"/>
         <source>Hide the category list</source>
         <translation>Ukryj listę kategorii</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="409"/>
+        <location filename="../qml/Main.qml" line="419"/>
         <source>Use the whole window for tools</source>
         <translation>Użyj całego okna na narzędzia</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="486"/>
+        <location filename="../qml/Main.qml" line="496"/>
         <source>No tools found
 Try a different search or category.</source>
         <translation>Nie znaleziono narzędzi.
 Spróbuj innego wyszukiwania lub kategorii.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="514"/>
+        <location filename="../qml/Main.qml" line="524"/>
         <source>About MX Tools</source>
         <translation>O MX Narzędzia</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="549"/>
+        <location filename="../qml/Main.qml" line="559"/>
         <source>Version %1</source>
         <translation>Wersja %1</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="555"/>
+        <location filename="../qml/Main.qml" line="565"/>
         <source>A focused collection of configuration and maintenance tools for MX Linux.</source>
         <translation>Zbiór specjalistycznych narzędzi do konfiguracji i konserwacji systemu MX Linux.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="564"/>
+        <location filename="../qml/Main.qml" line="574"/>
         <source>Website</source>
         <translation>Witryna</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="568"/>
+        <location filename="../qml/Main.qml" line="578"/>
         <source>License</source>
         <translation>Licencja</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="572"/>
+        <location filename="../qml/Main.qml" line="582"/>
         <source>Changelog</source>
         <translation>Dziennik zmian</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="578"/>
+        <location filename="../qml/Main.qml" line="588"/>
         <source>Copyright © MX Linux</source>
         <translation>Prawa autorskie © MX Linux</translation>
     </message>
@@ -163,22 +163,22 @@ Spróbuj innego wyszukiwania lub kategorii.</translation>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="130"/>
         <source>Unpin %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Odepnij %1</translation>
     </message>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="130"/>
         <source>Pin %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Przypnij %1</translation>
     </message>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="171"/>
         <source>Unpin tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Odepnij narzędzie</translation>
     </message>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="171"/>
         <source>Pin tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Przypnij narzędzie</translation>
     </message>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="98"/>
@@ -216,12 +216,12 @@ Spróbuj innego wyszukiwania lub kategorii.</translation>
     <message>
         <location filename="../src/toolmodel.cpp" line="749"/>
         <source>Pin setting failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustawienie przypinania nie powiodło się</translation>
     </message>
     <message>
         <location filename="../src/toolmodel.cpp" line="749"/>
         <source>Could not save pinned tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się zapisać przypiętych narzędzi.</translation>
     </message>
     <message>
         <location filename="../src/toolmodel.cpp" line="761"/>
