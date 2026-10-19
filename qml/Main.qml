@@ -331,9 +331,15 @@ ApplicationWindow {
             RowLayout {
                 Layout.fillWidth: true
 
+                // The heading gives up width first (eliding) so the switch labels on the right
+                // keep their full, translated text.
                 ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: 0
                     spacing: 2
                     Text {
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
                         text: searchField.text.length > 0
                               ? qsTr("Search results")
                               : (root.backend.selectedCategory.length > 0
@@ -343,6 +349,8 @@ ApplicationWindow {
                         font.weight: Font.Bold
                     }
                     Text {
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
                         text: searchField.text.length > 0
                               ? qsTr("Results matching “%1”").arg(searchField.text)
                               : qsTr("Choose a tool to configure or maintain your system")
@@ -350,8 +358,6 @@ ApplicationWindow {
                         font.pixelSize: root.baseFontSize
                     }
                 }
-
-                Item { Layout.fillWidth: true }
 
                 Text {
                     text: qsTr("%n tool(s)", "", toolsGrid.count)
@@ -368,10 +374,12 @@ ApplicationWindow {
                 }
 
                 Text {
-                    Layout.maximumWidth: 130
+                    Layout.maximumWidth: 190
                     text: qsTr("Condensed view")
                     color: root.secondaryTextColor
                     font.pixelSize: Math.max(10, root.baseFontSize - 1)
+                    wrapMode: Text.WordWrap
+                    maximumLineCount: 2
                     elide: Text.ElideRight
                 }
                 ModernSwitch {
@@ -394,10 +402,12 @@ ApplicationWindow {
                 }
 
                 Text {
-                    Layout.maximumWidth: 130
+                    Layout.maximumWidth: 190
                     text: qsTr("Hide categories")
                     color: root.secondaryTextColor
                     font.pixelSize: Math.max(10, root.baseFontSize - 1)
+                    wrapMode: Text.WordWrap
+                    maximumLineCount: 2
                     elide: Text.ElideRight
                 }
                 ModernSwitch {
