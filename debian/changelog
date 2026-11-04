@@ -1,3 +1,10 @@
+mx-tools (26.11) mx; urgency=medium
+
+  * Keep wider scrollbars from overlapping tool cards, including with KDE
+    Plasma themes
+
+ -- Adrian <adrian@mxlinux.org>  Tue, 03 Nov 2026 23:02:14 -0500
+
 mx-tools (26.10.1) mx; urgency=medium
 
   * Show the full "Condensed view" and "Hide categories" labels at the top of

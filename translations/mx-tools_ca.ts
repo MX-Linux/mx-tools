@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/Main.qml" line="42"/>
         <location filename="../qml/Main.qml" line="131"/>
-        <location filename="../qml/Main.qml" line="552"/>
+        <location filename="../qml/Main.qml" line="566"/>
         <source>MX Tools</source>
         <translation>Eines de l&apos;MX</translation>
     </message>
@@ -115,44 +115,44 @@
         <translation>Us la finestra sencera per les eines</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="496"/>
+        <location filename="../qml/Main.qml" line="509"/>
         <source>No tools found
 Try a different search or category.</source>
         <translation>No s&apos;ha trobat cap eina.
 Proveu una altra cerca o categoria.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="524"/>
+        <location filename="../qml/Main.qml" line="538"/>
         <source>About MX Tools</source>
         <translation>Quant a MX Tools </translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="559"/>
+        <location filename="../qml/Main.qml" line="573"/>
         <source>Version %1</source>
         <translation>Versió %1</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="565"/>
+        <location filename="../qml/Main.qml" line="579"/>
         <source>A focused collection of configuration and maintenance tools for MX Linux.</source>
         <translation>Una selecció específica d&apos;eines de configuració i manteniment per a MX Linux.</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="574"/>
+        <location filename="../qml/Main.qml" line="588"/>
         <source>Website</source>
         <translation>Lloc web</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="578"/>
+        <location filename="../qml/Main.qml" line="592"/>
         <source>License</source>
         <translation>Llicència</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="582"/>
+        <location filename="../qml/Main.qml" line="596"/>
         <source>Changelog</source>
         <translation>Registre de canvis</translation>
     </message>
     <message>
-        <location filename="../qml/Main.qml" line="588"/>
+        <location filename="../qml/Main.qml" line="602"/>
         <source>Copyright © MX Linux</source>
         <translation>Copyright © MX Linux</translation>
     </message>
@@ -162,22 +162,22 @@ Proveu una altra cerca o categoria.</translation>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="130"/>
         <source>Unpin %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Desanclar %1</translation>
     </message>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="130"/>
         <source>Pin %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fixar %1</translation>
     </message>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="171"/>
         <source>Unpin tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Eina de desanclar</translation>
     </message>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="171"/>
         <source>Pin tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Eina de fixar</translation>
     </message>
     <message>
         <location filename="../qml/components/ToolCard.qml" line="98"/>
@@ -215,12 +215,12 @@ Proveu una altra cerca o categoria.</translation>
     <message>
         <location filename="../src/toolmodel.cpp" line="749"/>
         <source>Pin setting failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha fallat la fixació</translation>
     </message>
     <message>
         <location filename="../src/toolmodel.cpp" line="749"/>
         <source>Could not save pinned tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>No puc desar les eines fixades.</translation>
     </message>
     <message>
         <location filename="../src/toolmodel.cpp" line="761"/>
