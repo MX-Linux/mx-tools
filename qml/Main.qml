@@ -422,82 +422,96 @@ ApplicationWindow {
                 }
             }
 
-            GridView {
-                id: toolsGrid
+            Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
-                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOn }
-                model: root.backend
-                cellWidth: width / Math.max(1, Math.floor(width / (root.condensedView ? 230 : 300)))
-                cellHeight: root.condensedView ? 112 : 154
 
-                // The grid is a single Tab stop: only the delegates in view exist, so tabbing
-                // through cards couldn't reach the rest or scroll. The arrow keys move the
-                // current card instead (GridView scrolls to it), and that card holds the focus
-                // inside the grid, so its focus ring, Return and accessibility work as before.
-                activeFocusOnTab: true
-                keyNavigationEnabled: true
-
-                onCellWidthChanged: Qt.callLater(toolsGrid.returnToBounds)
-                onCellHeightChanged: Qt.callLater(toolsGrid.returnToBounds)
-
-                // See the comment on the compact category Flickable above: bypass the default
-                // flick-momentum wheel handling so touchpad scrolling can reverse direction
-                // immediately instead of needing a full stop first.
-                WheelHandler {
-                    target: null
-                    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-                    onWheel: (event) => {
-                        const minimumY = toolsGrid.originY
-                        const maximumY = Math.max(minimumY,
-                                                  minimumY + toolsGrid.contentHeight - toolsGrid.height)
-                        toolsGrid.contentY = Math.max(minimumY, Math.min(
-                            maximumY,
-                            toolsGrid.contentY - event.angleDelta.y))
+                GridView {
+                    id: toolsGrid
+                    anchors.fill: parent
+                    anchors.rightMargin: toolsScrollBar.width
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    // Keep the themed scrollbar outside the clipped grid. The cards' trailing
+                    // spacing then remains a gap even with wider desktop scrollbars.
+                    ScrollBar.vertical: ScrollBar {
+                        id: toolsScrollBar
+                        parent: toolsGrid.parent
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        anchors.right: parent.right
+                        policy: ScrollBar.AlwaysOn
                     }
-                }
+                    model: root.backend
+                    cellWidth: width / Math.max(1, Math.floor(width / (root.condensedView ? 230 : 300)))
+                    cellHeight: root.condensedView ? 112 : 154
 
-                delegate: ToolCard {
-                    required property string name
-                    required property string comment
-                    required property string category
-                    required property string fileName
-                    required property int index
+                    // The grid is a single Tab stop: only the delegates in view exist, so tabbing
+                    // through cards couldn't reach the rest or scroll. The arrow keys move the
+                    // current card instead (GridView scrolls to it), and that card holds the focus
+                    // inside the grid, so its focus ring, Return and accessibility work as before.
+                    activeFocusOnTab: true
+                    keyNavigationEnabled: true
 
-                    focus: GridView.isCurrentItem
-                    activeFocusOnTab: false
-                    // A card focused by the mouse becomes the current one for the arrow keys.
-                    onActiveFocusChanged: {
-                        if (activeFocus) {
-                            toolsGrid.currentIndex = index
+                    onCellWidthChanged: Qt.callLater(toolsGrid.returnToBounds)
+                    onCellHeightChanged: Qt.callLater(toolsGrid.returnToBounds)
+
+                    // See the comment on the compact category Flickable above: bypass the default
+                    // flick-momentum wheel handling so touchpad scrolling can reverse direction
+                    // immediately instead of needing a full stop first.
+                    WheelHandler {
+                        target: null
+                        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                        onWheel: (event) => {
+                            const minimumY = toolsGrid.originY
+                            const maximumY = Math.max(minimumY,
+                                                      minimumY + toolsGrid.contentHeight - toolsGrid.height)
+                            toolsGrid.contentY = Math.max(minimumY, Math.min(
+                                maximumY,
+                                toolsGrid.contentY - event.angleDelta.y))
                         }
                     }
 
-                    width: toolsGrid.cellWidth - 12
-                    height: toolsGrid.cellHeight - 12
-                    toolName: name
-                    description: comment
-                    categoryName: category
-                    condensed: root.condensedView
-                    onClicked: root.backend.launch(fileName)
-                    onPinRequested: pin => root.backend.setPinned(fileName, pin)
-                }
+                    delegate: ToolCard {
+                        required property string name
+                        required property string comment
+                        required property string category
+                        required property string fileName
+                        required property int index
 
-                displaced: Transition {
-                    NumberAnimation { properties: "x,y"; duration: 160; easing.type: Easing.OutCubic }
-                }
+                        focus: GridView.isCurrentItem
+                        activeFocusOnTab: false
+                        // A card focused by the mouse becomes the current one for the arrow keys.
+                        onActiveFocusChanged: {
+                            if (activeFocus) {
+                                toolsGrid.currentIndex = index
+                            }
+                        }
 
-                Text {
-                    visible: toolsGrid.count === 0
-                    anchors.centerIn: parent
-                    width: Math.min(parent.width - 40, 420)
-                    text: qsTr("No tools found\nTry a different search or category.")
-                    color: root.secondaryTextColor
-                    horizontalAlignment: Text.AlignHCenter
-                    font.pixelSize: root.baseFontSize + 3
-                    lineHeight: 1.5
+                        width: toolsGrid.cellWidth - 12
+                        height: toolsGrid.cellHeight - 12
+                        toolName: name
+                        description: comment
+                        categoryName: category
+                        condensed: root.condensedView
+                        onClicked: root.backend.launch(fileName)
+                        onPinRequested: pin => root.backend.setPinned(fileName, pin)
+                    }
+
+                    displaced: Transition {
+                        NumberAnimation { properties: "x,y"; duration: 160; easing.type: Easing.OutCubic }
+                    }
+
+                    Text {
+                        visible: toolsGrid.count === 0
+                        anchors.centerIn: parent
+                        width: Math.min(parent.width - 40, 420)
+                        text: qsTr("No tools found\nTry a different search or category.")
+                        color: root.secondaryTextColor
+                        horizontalAlignment: Text.AlignHCenter
+                        font.pixelSize: root.baseFontSize + 3
+                        lineHeight: 1.5
+                    }
                 }
             }
 
