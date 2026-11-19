@@ -1,5 +1,6 @@
 #!/usr/bin/make -f
 export QT_SELECT=6
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 # MX Linux releases are named after their base Debian codename (e.g. MX 25 is
 # based on Trixie); OBS builds the same source for multiple Debian repos, so
