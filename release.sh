@@ -64,13 +64,6 @@ validate_version() {
     echo "$version"
 }
 
-tag_exists() {
-    local version=$1
-    if git tag -l | grep -q "^${version}$"; then return 0; fi
-    if git ls-remote --tags origin 2>/dev/null | grep -q "refs/tags/${version}$"; then return 0; fi
-    return 1
-}
-
 get_latest_tag() {
     {
         git tag -l
@@ -352,7 +345,15 @@ main() {
     fi
 
     print_step "Checking if tag '$version' already exists..."
-    if tag_exists "$version"; then
+    local tag_ref="refs/tags/$version"
+    local remote_tag local_tag
+    remote_tag=$(git ls-remote --refs origin "$tag_ref")
+    local_tag=$(git rev-parse --verify --quiet "$tag_ref") || local_tag=""
+    if [[ -n "$remote_tag" && -n "$local_tag" && "${remote_tag%%[[:space:]]*}" != "$local_tag" ]]; then
+        print_error "Local tag '$version' differs from the tag on origin"
+        exit 1
+    fi
+    if [[ -n "$local_tag" || -n "$remote_tag" ]]; then
         print_warning "Tag '$version' already exists; no new tag will be created"
         tag_status="existing"
         ANNOTATION=$(get_tag_annotation "$version")
@@ -375,7 +376,11 @@ main() {
         echo "Continue? (y/N)"; read -r response
         if [[ ! "$response" =~ ^[Yy]$ ]]; then print_step "Aborted by user"; exit 0; fi
         create_tag "$version" "$annotation"
-        print_step "Pushing tag to GitHub..."; git push origin "$version"; print_success "Tag pushed to GitHub"
+    fi
+    if [ -z "$remote_tag" ]; then
+        print_step "Pushing tag to GitHub..."
+        git push origin "$tag_ref:$tag_ref"
+        print_success "Tag pushed to GitHub"
     fi
     update_aur_package "$version" "$annotation"
     publish_aur_package "$tag_status"
