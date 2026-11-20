@@ -424,10 +424,10 @@ std::optional<QHash<int, QString>> panelPluginTypes()
 }
 
 // The Whisker Menu plugin instances, or nullopt if the panel couldn't be queried.
-std::optional<QList<int>> discoverWhiskerMenuInstances()
+std::optional<QList<int>> discoverWhiskerMenuInstances(bool expectPanel)
 {
     const std::optional<QHash<int, QString>> types = panelPluginTypes();
-    if (!types) {
+    if (!types || (expectPanel && types->isEmpty())) {
         return std::nullopt;
     }
     QList<int> instances;
@@ -499,24 +499,27 @@ bool writeXfconfArray(int instance, const QString &property, const QStringList &
     return result.success && result.exitCode == 0;
 }
 
-bool reconcileOneWhiskerMenuArray(int instance, const QString &property, const QStringList &before,
-                                  const QSet<QString> &ourDesktopIds)
+void reinsertHiddenFavorites(QStringList &current, const QStringList &before, const QSet<QString> &ourDesktopIds)
 {
-    const std::optional<QStringList> currentOpt = readXfconfArray(instance, property);
-    if (!currentOpt) {
-        return false;
-    }
-    QStringList current = *currentOpt;
-    bool changed = false;
     for (int index = 0; index < before.size(); ++index) {
         const QString &id = before.at(index);
         if (!ourDesktopIds.contains(id) || current.contains(id)) {
             continue;
         }
         current.insert(std::min(index, static_cast<int>(current.size())), id);
-        changed = true;
     }
-    return !changed || writeXfconfArray(instance, property, current);
+}
+
+bool reconcileOneWhiskerMenuArray(int instance, const QString &property, const QStringList &before,
+                                  const QSet<QString> &ourDesktopIds)
+{
+    const std::optional<QStringList> current = readXfconfArray(instance, property);
+    if (!current) {
+        return false;
+    }
+    QStringList merged = *current;
+    reinsertHiddenFavorites(merged, before, ourDesktopIds);
+    return merged == *current || writeXfconfArray(instance, property, merged);
 }
 
 // The per-user menu visibility state and the operations that change it. It works on its
@@ -553,7 +556,7 @@ private:
     [[nodiscard]] bool restoreMenuEntries();
     [[nodiscard]] static bool restoreMenuFiles(QSettings &state);
     [[nodiscard]] bool restoreLegacyMenuEntries();
-    [[nodiscard]] bool snapshotWhiskerMenuFavorites(QSettings &state);
+    [[nodiscard]] bool snapshotWhiskerMenuFavorites(QSettings &state, const QSet<QString> &previouslyHidden = {});
     [[nodiscard]] bool reconcileWhiskerMenuFavorites(QSettings &state);
 
     QStringList m_menuFiles;
@@ -1199,6 +1202,7 @@ void MenuVisibility::hideNewMenuEntries()
     }
     state.beginGroup(QStringLiteral("Entries"));
     const QStringList recorded = state.childGroups();
+    QStringList pending;
     for (const QString &fileName : std::as_const(m_menuFiles)) {
         const QString id = desktopId(fileName);
         if (recorded.contains(id)) {
@@ -1217,7 +1221,15 @@ void MenuVisibility::hideNewMenuEntries()
                 continue;
             }
         }
-        // A failure leaves the entry marked unwritten, so it is retried next time.
+        pending.append(fileName);
+    }
+    state.endGroup();
+    if (pending.isEmpty() || !snapshotWhiskerMenuFavorites(state, QSet<QString>(recorded.cbegin(), recorded.cend()))) {
+        return;
+    }
+    state.beginGroup(QStringLiteral("Entries"));
+    for (const QString &fileName : std::as_const(pending)) {
+        // hideMenuEntry syncs the snapshot before writing the override. Failures are retried on startup.
         static_cast<void>(hideMenuEntry(state, directory, fileName));
     }
     state.endGroup();
@@ -1389,17 +1401,16 @@ bool MenuVisibility::restoreLegacyMenuEntries()
 // Returns false if the favorites couldn't be read. Hiding must not go ahead then: Whisker
 // Menu drops favorites whose launchers are hidden, and without a snapshot they couldn't
 // be put back.
-bool MenuVisibility::snapshotWhiskerMenuFavorites(QSettings &state)
+bool MenuVisibility::snapshotWhiskerMenuFavorites(QSettings &state, const QSet<QString> &previouslyHidden)
 {
+    QStringList instanceStrings = state.value(QStringLiteral("WhiskerMenu/instances")).toStringList();
     if (!xfconfQueryAvailable()) {
-        return true;
+        return instanceStrings.isEmpty();
     }
-    const std::optional<QList<int>> discovered = discoverWhiskerMenuInstances();
+    const std::optional<QList<int>> discovered = discoverWhiskerMenuInstances(!instanceStrings.isEmpty());
     if (!discovered) {
         return false;
     }
-    // Unlike on restore, an empty listing is fine here: on a desktop without an Xfce panel
-    // the channel is legitimately empty, and there are no favorites to lose.
     const QList<int> &instances = *discovered;
     if (instances.isEmpty()) {
         return true;
@@ -1412,18 +1423,19 @@ bool MenuVisibility::snapshotWhiskerMenuFavorites(QSettings &state)
         }
         favorites.insert(instance, *instanceFavorites);
     }
-    QStringList instanceStrings;
-    for (int instance : instances) {
-        instanceStrings.append(QString::number(instance));
-    }
-
     state.beginGroup(QStringLiteral("WhiskerMenu"));
-    state.setValue(QStringLiteral("instances"), instanceStrings);
     for (int instance : instances) {
-        state.beginGroup(QString::number(instance));
-        state.setValue(QStringLiteral("favorites"), favorites.value(instance));
+        const QString instanceString = QString::number(instance);
+        if (!instanceStrings.contains(instanceString)) {
+            instanceStrings.append(instanceString);
+        }
+        state.beginGroup(instanceString);
+        QStringList merged = favorites.value(instance);
+        reinsertHiddenFavorites(merged, state.value(QStringLiteral("favorites")).toStringList(), previouslyHidden);
+        state.setValue(QStringLiteral("favorites"), merged);
         state.endGroup();
     }
+    state.setValue(QStringLiteral("instances"), instanceStrings);
     state.endGroup();
     return true;
 }

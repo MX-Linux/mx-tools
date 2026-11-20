@@ -673,6 +673,7 @@ void TestToolModel::subdirectoryLaunchersUseDesktopIds()
 void TestToolModel::launchersInstalledWhileHiddenAreHidden()
 {
     QVERIFY(writeMenuTool());
+    QVERIFY(setFavorites({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop")}));
     ToolIconProvider iconProvider;
     {
         ToolModel model(&iconProvider);
@@ -686,6 +687,13 @@ void TestToolModel::launchersInstalledWhileHiddenAreHidden()
     const QDir overrides(m_home->filePath(QStringLiteral(".local/share/applications")));
     QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("new.desktop"))));
 
+    // The newly installed tool was favorited while MX Tools was closed.
+    QVERIFY(setFavorites({QStringLiteral("other.desktop"), QStringLiteral("new.desktop")}));
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("favorites"), true));
+    ToolModel deferred(&iconProvider);
+    QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("new.desktop"))));
+    QVERIFY(setFakeXfconfFailure(QStringLiteral("favorites"), false));
+
     ToolModel restarted(&iconProvider);
     QVERIFY(restarted.hideFromMenu());
     QFile file(overrides.filePath(QStringLiteral("new.desktop")));
@@ -693,10 +701,14 @@ void TestToolModel::launchersInstalledWhileHiddenAreHidden()
     QVERIFY(file.readAll().contains("NoDisplay=true"));
     file.close();
 
+    // Whisker drops the new favorite when its override takes effect.
+    QVERIFY(setFavorites({QStringLiteral("other.desktop")}));
     QVERIFY(setHideFromMenu(restarted, false));
     QVERIFY(!restarted.hideFromMenu());
     QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("new.desktop"))));
     QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("tool.desktop"))));
+    QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop"), QStringLiteral("other.desktop"),
+                                       QStringLiteral("new.desktop")}));
 }
 
 void TestToolModel::failedNewLauncherOverrideIsRetried()
