@@ -5,11 +5,10 @@
 RESOURCE="$(basename $(dirname $(pwd)))-desktop"
 echo $RESOURCE
 
-LIST="../*.desktop"
 TARGET_FOLDER="desktop-in/"
 
-for file in $LIST; do
-    cp $file ${TARGET_FOLDER}$(basename $file).in
+for file in ../data/*.desktop; do
+    cp -- "$file" "${TARGET_FOLDER}$(basename "$file").in" || exit 1
 	
 done
 

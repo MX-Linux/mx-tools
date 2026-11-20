@@ -10,10 +10,9 @@ echo $RESOURCE
 lang="am ar bg ca cs da de el es et eu fa fi fr fr_BE he_IL hi hr hu id is it ja kk ko lt mk mr nb nl pl pt pt_BR ro ru sk sl sq sr sv tr uk zh_CN zh_TW"
 
 
-LIST="../*.desktop"
 TARGET_PO_FOLDER="po"
 
-for file in $LIST; do
+for file in ../data/*.desktop; do
 ORIGINALCOMMENT="$(grep "Comment=" $file | cut -d"=" -f2)"
 echo "Original Comment is " $ORIGINALCOMMENT
 ORIGINALNAME="$(grep "Name=" $file | cut -d"=" -f2)"

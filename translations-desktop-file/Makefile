@@ -37,7 +37,7 @@ $(BUILD)/%.desktop: $(XDGDIR)/%.desktop.in
 	msgfmt --desktop --template $< -d $(PO_DIR) -o $@
 	@sed -i '/^#/d' $@
 	@sed -i 's/[^\[_]*_//' $@
-	@cp $(BUILD)/*.desktop ../
+	@cp "$@" ../data/
 
 clean:
 	-@rm  -f $(DESKTOP)

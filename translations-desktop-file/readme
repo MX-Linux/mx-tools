@@ -1,7 +1,7 @@
 
 Assumptions:
 
-original *.desktop files are in top level of git folder
+original *.desktop files are in the repository's data/ folder
 name of parent folder above translations-desktop is the name of the project, at least for transifex purposes
 
 initial setup
@@ -18,8 +18,7 @@ initial setup
 
 
 ./get_translations will be used to update po files from transifex.
-after ./get_translations, run "make desktop" to generate new desktop files and then 
-copy those from the build folder to the usual place in the git repo.
+after ./get_translations, run "make desktop" to generate the desktop files and copy them into data/.
 make clean will remove build folder and files.
 
 get_original_strings and push_original_strings is a one-time deal.  after strings are uploaded to transifex it should
