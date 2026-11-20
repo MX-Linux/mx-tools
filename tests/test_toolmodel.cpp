@@ -420,7 +420,7 @@ void TestToolModel::launchExpandsExecFieldCodes()
     {
         QFile script(recorder);
         QVERIFY(script.open(QFile::WriteOnly | QFile::Text));
-        script.write("#!/bin/sh\nfor argument in \"$@\"; do printf '%s\\n' \"$argument\"; done > \"$ARGUMENTS_FILE.tmp\"\n"
+        script.write("#!/bin/sh\nprintf '%s\\n' \"$PWD\" \"$@\" > \"$ARGUMENTS_FILE.tmp\"\n"
                      "mv \"$ARGUMENTS_FILE.tmp\" \"$ARGUMENTS_FILE\"\n");
     }
     QVERIFY(QFile::setPermissions(recorder, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
@@ -432,9 +432,9 @@ void TestToolModel::launchExpandsExecFieldCodes()
     const QString desktopFile = applications.filePath(QStringLiteral("recorder.desktop"));
     QVERIFY(writeDesktopFile(applications, QStringLiteral("recorder.desktop"),
                              QStringLiteral("[Desktop Entry]\nType=Application\nName=MX Recorder\nIcon=recorder-icon\n"
-                                            "Categories=X-MX-Utilities;\nExec=\"%1\" %F \"quoted arg\" 100%% --name=%c %i %k "
+                                            "Categories=X-MX-Utilities;\nPath=%2\nExec=\"%1\" %F \"quoted arg\" 100%% --name=%c %i %k "
                                             "\"say \\\\\"hi\\\\\"\" \"\" \"100%% done\" %d%m\n")
-                                 .arg(recorder)));
+                                 .arg(recorder, m_home->path())));
 
     ToolIconProvider iconProvider;
     ToolModel model(&iconProvider);
@@ -445,7 +445,8 @@ void TestToolModel::launchExpandsExecFieldCodes()
     QFile recorded(argumentsFile);
     QVERIFY(recorded.open(QFile::ReadOnly | QFile::Text));
     QCOMPARE(QString::fromUtf8(recorded.readAll()).split(QLatin1Char('\n')),
-             QStringList({QStringLiteral("quoted arg"), QStringLiteral("100%"), QStringLiteral("--name=MX Recorder"),
+             QStringList({QFileInfo(m_home->path()).canonicalFilePath(), QStringLiteral("quoted arg"),
+                          QStringLiteral("100%"), QStringLiteral("--name=MX Recorder"),
                           QStringLiteral("--icon"), QStringLiteral("recorder-icon"), desktopFile,
                           QStringLiteral("say \"hi\""), QString(), QStringLiteral("100% done"), QString()}));
 

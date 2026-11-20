@@ -808,6 +808,7 @@ void ToolModel::loadTools()
         const QString englishKeywords = listValue(entry, QStringLiteral("Keywords")).join(QLatin1Char(' '));
         tool.keywords = listValue(entry, translatedKey(entry, QStringLiteral("Keywords"))).join(QLatin1Char(' '));
         tool.runInTerminal = value(entry, QStringLiteral("Terminal")).compare(QStringLiteral("true"), Qt::CaseInsensitive) == 0;
+        tool.workingDirectory = value(entry, QStringLiteral("Path"));
         QStringList englishCategories;
         for (const qsizetype index : std::as_const(memberCategories)) {
             englishCategories.append(categoryDefinitions.at(index).first);
@@ -1018,7 +1019,7 @@ void ToolModel::launch(const QString &fileName)
         arguments.prepend(QStringLiteral("-e"));
     }
     qint64 processId = 0;
-    if (!QProcess::startDetached(program, arguments, {}, &processId)) {
+    if (!QProcess::startDetached(program, arguments, iterator->workingDirectory, &processId)) {
         emit errorOccurred(tr("Unable to launch tool"), tr("Could not start %1.").arg(iterator->name));
     } else if (processId > 0) {
         // A tool that has already exited has no start time and isn't tracked.

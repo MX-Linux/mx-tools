@@ -90,6 +90,7 @@ private:
         QString keywords;
         QString iconSource;
         std::optional<QStringList> arguments; // The expanded Exec command, program first; nullopt if invalid.
+        QString workingDirectory;
         QString category; // The first of categories, shown on the card.
         QStringList categories;
         QString searchText;
