@@ -143,6 +143,7 @@ private slots:
     void filteringMovesRowsWithoutReset();
     void userOverrideSurvivesRoundTrip();
     void editsMadeWhileHiddenAreKept();
+    void unreadableOverrideKeepsRestoreState();
     void legacyOverrideIsRestoredButUserOverrideIsNot();
     void failedHideRollsBack();
     void localizedNoisyXfconfQueryIsParsed();
@@ -1043,6 +1044,29 @@ void TestToolModel::editsMadeWhileHiddenAreKept()
     const QByteArray second = readFile(overrides.filePath(QStringLiteral("second.desktop")));
     QVERIFY(second.contains("Comment=Edited"));
     QVERIFY(!second.contains("NoDisplay"));
+}
+
+void TestToolModel::unreadableOverrideKeepsRestoreState()
+{
+    if (geteuid() == 0) {
+        QSKIP("Root can read permission-restricted files.");
+    }
+    QVERIFY(writeMenuTool());
+    const QString path = m_home->filePath(QStringLiteral(".local/share/applications/tool.desktop"));
+    QVERIFY(writeFile(path, "[Desktop Entry]\nName=Original\n"));
+    ToolIconProvider provider;
+    ToolModel model(&provider);
+    QVERIFY(setHideFromMenu(model, true));
+    QVERIFY(writeFile(path, readFile(path) + "Comment=User edit\n"));
+    QVERIFY(QFile::setPermissions(path, QFile::WriteOwner));
+    QVERIFY(setHideFromMenu(model, false));
+    QVERIFY(menuStateActive());
+    QVERIFY(model.hideFromMenu());
+
+    QVERIFY(QFile::setPermissions(path, QFile::ReadOwner | QFile::WriteOwner));
+    QVERIFY(setHideFromMenu(model, false));
+    QVERIFY(!menuStateActive());
+    QCOMPARE(readFile(path), QByteArray("[Desktop Entry]\nName=Original\nComment=User edit\n"));
 }
 
 void TestToolModel::legacyOverrideIsRestoredButUserOverrideIsNot()

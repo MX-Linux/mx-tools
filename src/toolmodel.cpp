@@ -6,6 +6,7 @@
 #include "toolmodel.h"
 
 #include <algorithm>
+#include <filesystem>
 
 #include <QCollator>
 #include <QDesktopServices>
@@ -1288,6 +1289,19 @@ bool MenuVisibility::restoreMenuFiles(QSettings &state)
         const bool currentExists = currentFile.open(QIODevice::ReadOnly);
         if (currentExists) {
             current = currentFile.readAll();
+            if (currentFile.error() != QFileDevice::NoError) {
+                success = false;
+                continue;
+            }
+        } else {
+            // QFile reports OpenError both for a missing override and for one we cannot read.
+            std::error_code lookupError;
+            const auto status = std::filesystem::symlink_status(currentFile.filesystemFileName(), lookupError);
+            if (status.type() != std::filesystem::file_type::not_found
+                || (lookupError && lookupError != std::errc::no_such_file_or_directory)) {
+                success = false;
+                continue;
+            }
         }
 
         if (originalExists) {
