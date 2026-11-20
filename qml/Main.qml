@@ -51,6 +51,7 @@ ApplicationWindow {
     readonly property color accentWash: Qt.alpha(systemPalette.highlight, 0.13)
     readonly property real baseFontSize: Application.font.pixelSize > 0 ? Application.font.pixelSize : 13
     readonly property bool compactNavigation: width < 900
+    readonly property bool hasSearchTerms: searchField.text.trim().length > 0
     property bool condensedView: false
     property bool hideCategories: false
     required property var backend
@@ -265,7 +266,7 @@ ApplicationWindow {
 
                 CategoryRepeater {
                     backend: root.backend
-                    searching: searchField.text.length > 0
+                    searching: root.hasSearchTerms
                     fillWidth: true
                     onCategoryChosen: (category) => root.chooseCategory(category)
                 }
@@ -322,7 +323,7 @@ ApplicationWindow {
                     spacing: 7
                     CategoryRepeater {
                         backend: root.backend
-                        searching: searchField.text.length > 0
+                        searching: root.hasSearchTerms
                         onCategoryChosen: (category) => root.chooseCategory(category)
                     }
                 }
@@ -340,7 +341,7 @@ ApplicationWindow {
                     Text {
                         Layout.fillWidth: true
                         elide: Text.ElideRight
-                        text: searchField.text.length > 0
+                        text: root.hasSearchTerms
                               ? qsTr("Search results")
                               : (root.backend.selectedCategory.length > 0
                                  ? root.backend.selectedCategory : qsTr("All tools"))
@@ -351,7 +352,7 @@ ApplicationWindow {
                     Text {
                         Layout.fillWidth: true
                         elide: Text.ElideRight
-                        text: searchField.text.length > 0
+                        text: root.hasSearchTerms
                               ? qsTr("Results matching “%1”").arg(searchField.text)
                               : qsTr("Choose a tool to configure or maintain your system")
                         color: root.secondaryTextColor
