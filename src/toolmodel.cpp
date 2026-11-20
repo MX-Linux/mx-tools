@@ -1015,8 +1015,12 @@ void ToolModel::launch(const QString &fileName)
     }
     if (iterator->runInTerminal) {
         arguments.prepend(program);
-        program = QStringLiteral("x-terminal-emulator");
-        arguments.prepend(QStringLiteral("-e"));
+        program = QStandardPaths::findExecutable(QStringLiteral("x-terminal-emulator"));
+        if (program.isEmpty()) {
+            program = QStringLiteral("xdg-terminal-exec");
+        } else {
+            arguments.prepend(QStringLiteral("-e"));
+        }
     }
     qint64 processId = 0;
     if (!QProcess::startDetached(program, arguments, iterator->workingDirectory, &processId)) {

@@ -123,6 +123,8 @@ private slots:
     void readsOnlyTheDesktopEntryGroup();
     void listsMultiCategoryToolOnce();
     void launchExpandsExecFieldCodes();
+    void launchInTerminal_data();
+    void launchInTerminal();
     void restoreReinsertsDroppedWhiskerFavorite();
     void failedPluginQueryKeepsFavoritesSnapshot();
     void legacyScalarFavoritesAreRestoredAsArray();
@@ -463,6 +465,44 @@ void TestToolModel::launchExpandsExecFieldCodes()
     QTest::qWait(300);
     QVERIFY(!QFileInfo::exists(argumentsFile));
     qunsetenv("ARGUMENTS_FILE");
+}
+
+void TestToolModel::launchInTerminal_data()
+{
+    QTest::addColumn<bool>("debianTerminal");
+    QTest::newRow("prefer Debian alternative") << true;
+    QTest::newRow("use XDG fallback") << false;
+}
+
+void TestToolModel::launchInTerminal()
+{
+    QFETCH(bool, debianTerminal);
+    QStringList helpers {QStringLiteral("xdg-terminal-exec")};
+    if (debianTerminal) {
+        helpers.append(QStringLiteral("x-terminal-emulator"));
+    }
+    for (const QString &helper : std::as_const(helpers)) {
+        QFile script(m_home->filePath(helper));
+        QVERIFY(script.open(QIODevice::WriteOnly));
+        QVERIFY(script.write("#!/bin/sh\nprintf '%s\\n' \"${0##*/}\" \"$@\" > \"${0%/*}/args.tmp\"\n"
+                             "exec /bin/mv \"${0%/*}/args.tmp\" \"${0%/*}/args\"\n") > 0);
+        QVERIFY(script.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+    }
+    qputenv("PATH", m_home->path().toUtf8());
+    const QDir applications(QStringLiteral(MX_TOOLS_APPLICATIONS_PATH));
+    const QString name = QStringLiteral("terminal.desktop");
+    QVERIFY(writeDesktopFile(applications, name, QStringLiteral("[Desktop Entry]\nName=Terminal\nType=Application\n"
+        "Categories=MX-Setup;\nTerminal=true\nExec=test-program \"two words\"\n")));
+    ToolIconProvider provider;
+    ToolModel model(&provider);
+    QSignalSpy errors(&model, &ToolModel::errorOccurred);
+    model.launch(applications.filePath(name));
+    QCOMPARE(errors.count(), 0);
+    QFile output(m_home->filePath(QStringLiteral("args")));
+    QTRY_VERIFY(output.exists());
+    QVERIFY(output.open(QIODevice::ReadOnly));
+    const QByteArray prefix = debianTerminal ? "x-terminal-emulator\n-e\n" : "xdg-terminal-exec\n";
+    QCOMPARE(output.readAll(), prefix + "test-program\ntwo words\n");
 }
 
 void TestToolModel::restoreReinsertsDroppedWhiskerFavorite()
