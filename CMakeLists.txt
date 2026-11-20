@@ -282,7 +282,8 @@ if(BUILD_TESTING)
     # missing module fails the configure step instead of skipping the test.
     option(MX_TOOLS_REQUIRE_QML_TEST "Fail if the QML test can't be registered" OFF)
     find_program(MX_TOOLS_QMLTESTRUNNER qmltestrunner HINTS "${QT6_INSTALL_PREFIX}/${QT6_INSTALL_BINS}")
-    set(MX_TOOLS_QML_TEST_MODULES QtTest QtQuick QtQuick/Controls QtQuick/Layouts QtQml/WorkerScript)
+    set(MX_TOOLS_QML_TEST_MODULES QtTest QtQuick QtQuick/Controls QtQuick/Layouts QtQuick/Templates
+                                  QtQuick/Window QtQml/WorkerScript)
     if(Qt6_VERSION VERSION_GREATER_EQUAL 6.5)
         list(APPEND MX_TOOLS_QML_TEST_MODULES QtCore)
     else()
