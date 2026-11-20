@@ -525,8 +525,8 @@ class MenuVisibility
 {
 public:
     MenuVisibility() = default;
-    explicit MenuVisibility(QStringList menuFiles)
-        : m_menuFiles(std::move(menuFiles))
+    explicit MenuVisibility(QStringList menuFiles, bool hideFromMenu = false)
+        : m_menuFiles(std::move(menuFiles)), m_hideFromMenu(hideFromMenu)
     {
     }
 
@@ -716,8 +716,8 @@ void ToolModel::setHideFromMenu(bool hide)
         // Re-sync the switches on every outcome, failures included.
         emit hideFromMenuChanged();
     });
-    watcher->setFuture(QtConcurrent::run([menuFiles = m_menuFiles, hide] {
-        MenuVisibility visibility(menuFiles);
+    watcher->setFuture(QtConcurrent::run([menuFiles = m_menuFiles, previous = m_hideFromMenu, hide] {
+        MenuVisibility visibility(menuFiles, previous);
         visibility.setHideFromMenu(hide);
         return visibility;
     }));

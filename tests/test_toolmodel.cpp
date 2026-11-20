@@ -3,6 +3,7 @@
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
+#include <QLockFile>
 #include <QProcess>
 #include <QScopeGuard>
 #include <QSettings>
@@ -136,6 +137,7 @@ private slots:
     void changelogIsReadInTheBackground();
     void pluginTypesComeFromOneListing();
     void menuChangesRunInTheBackground();
+    void contendedRestoreKeepsMenuHidden();
     void searchMatchesEveryWord();
     void sortsNamesForTheLocale();
     void filteringMovesRowsWithoutReset();
@@ -857,6 +859,24 @@ void TestToolModel::menuChangesRunInTheBackground()
     QVERIFY(model.hideFromMenu());
     QCOMPARE(visibilityChanges.count(), 2);
     QVERIFY(QFileInfo::exists(m_home->filePath(QStringLiteral(".local/share/applications/tool.desktop"))));
+}
+
+void TestToolModel::contendedRestoreKeepsMenuHidden()
+{
+    QVERIFY(writeMenuTool());
+    ToolIconProvider provider;
+    ToolModel model(&provider);
+    QVERIFY(setHideFromMenu(model, true));
+    QVERIFY(model.hideFromMenu());
+
+    QLockFile lock(QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation))
+                       .filePath(QStringLiteral("menu-visibility.ini.operation.lock")));
+    QVERIFY(lock.tryLock());
+    QSignalSpy errors(&model, &ToolModel::errorOccurred);
+    QVERIFY(setHideFromMenu(model, false));
+    QCOMPARE(errors.count(), 1);
+    QVERIFY(model.hideFromMenu());
+    QVERIFY(menuStateActive());
 }
 
 void TestToolModel::searchMatchesEveryWord()
