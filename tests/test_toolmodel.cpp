@@ -1210,12 +1210,17 @@ void TestToolModel::pendingFavoritesDontHideNewLaunchers()
     ToolModel restarted(&iconProvider);
     QVERIFY(!QFileInfo::exists(overrides.filePath(QStringLiteral("new.desktop"))));
 
+    const QString path = overrides.filePath(QStringLiteral("tool.desktop"));
+    const QByteArray userEdit = "[Desktop Entry]\nHidden=true\n";
+    QVERIFY(writeFile(path, userEdit));
+
     // Once xfconf-query works again, the retry restores the favorite and clears the state.
     QVERIFY(setFakeXfconfFailure(QStringLiteral("type"), false));
     QVERIFY(setHideFromMenu(restarted, false));
     QVERIFY(!restarted.hideFromMenu());
     QVERIFY(!menuStateActive());
     QCOMPARE(favorites(), QStringList({QStringLiteral("tool.desktop")}));
+    QCOMPARE(readFile(path), userEdit);
 }
 
 void TestToolModel::emptyPanelListingStillHides()

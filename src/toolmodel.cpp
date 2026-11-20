@@ -550,6 +550,7 @@ private:
     [[nodiscard]] static bool hideMenuEntry(QSettings &state, const QDir &directory, const QString &fileName);
     [[nodiscard]] bool hideMenuEntries();
     [[nodiscard]] bool restoreMenuEntries();
+    [[nodiscard]] static bool restoreMenuFiles(QSettings &state);
     [[nodiscard]] bool restoreLegacyMenuEntries();
     [[nodiscard]] bool snapshotWhiskerMenuFavorites(QSettings &state);
     [[nodiscard]] bool reconcileWhiskerMenuFavorites(QSettings &state);
@@ -1270,9 +1271,8 @@ bool MenuVisibility::hideMenuEntries()
     return true;
 }
 
-bool MenuVisibility::restoreMenuEntries()
+bool MenuVisibility::restoreMenuFiles(QSettings &state)
 {
-    QSettings state(menuStateFilePath(), QSettings::IniFormat);
     state.beginGroup(QStringLiteral("Entries"));
     bool success = true;
     for (const QString &id : state.childGroups()) {
@@ -1314,13 +1314,18 @@ bool MenuVisibility::restoreMenuEntries()
         state.sync();
         success = state.status() == QSettings::NoError;
     }
-    // Keep the state file, the only snapshot of the favorites, if they could not be restored.
-    if (success && reconcileWhiskerMenuFavorites(state)) {
+    return success;
+}
+
+bool MenuVisibility::restoreMenuEntries()
+{
+    QSettings state(menuStateFilePath(), QSettings::IniFormat);
+    const bool filesRestored = state.value(QStringLiteral("filesRestored"), false).toBool() || restoreMenuFiles(state);
+    bool success = filesRestored && reconcileWhiskerMenuFavorites(state);
+    if (success) {
         state.clear();
         state.sync();
         success = state.status() == QSettings::NoError;
-    } else {
-        success = false;
     }
     if (!success) {
         error(ToolModel::tr("Menu setting failed"), ToolModel::tr("Could not update %1.").arg(menuStateFilePath()));
