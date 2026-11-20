@@ -31,7 +31,7 @@ $(BUILD)/locale/%/$(LCMSGS): $(PO_DIR)/%.po
 
 desktop: $(DESKTOP)
 
-$(BUILD)/%.desktop: $(XDGDIR)/%.desktop.in
+$(BUILD)/%.desktop: $(XDGDIR)/%.desktop.in $(wildcard $(PO_DIR)/*.po $(PO_DIR)/LINGUAS)
 	@mkdir -p $(BUILD)/
 	@echo "  " $@
 	msgfmt --desktop --template $< -d $(PO_DIR) -o $@
