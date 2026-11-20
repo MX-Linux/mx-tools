@@ -177,13 +177,12 @@ update_aur_package() {
     print_step "Downloading release tarball and calculating checksum..."
     for i in $(seq 1 $retries); do
         print_step "Attempting to download tarball (attempt $i/$retries)..."
-        if curl -L --fail --silent --show-error "$tarball_url" -o "/tmp/${version}.tar.gz" 2>/dev/null; then
-            checksum=$(sha256sum "/tmp/${version}.tar.gz" | cut -d' ' -f1)
-            if [ -n "$checksum" ]; then
-                print_success "Checksum calculated: ${checksum:0:16}..."
-                break
-            fi
+        if checksum=$(set -o pipefail; curl -fsSL "$tarball_url" | sha256sum); then
+            checksum=${checksum%% *}
+            print_success "Checksum calculated: ${checksum:0:16}..."
+            break
         fi
+        checksum=""
 
         if [ "$i" -lt "$retries" ]; then
             print_warning "Failed to download tarball, waiting 5 seconds before retry..."
@@ -227,7 +226,6 @@ update_aur_package() {
         fi
     fi
 
-    rm -f "/tmp/${version}.tar.gz"
 }
 
 # Push the AUR repo if it has commits the AUR doesn't
