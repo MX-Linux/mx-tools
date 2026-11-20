@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     const QString appCatalog = QApplication::applicationName() + QLatin1Char('_') + QLocale::system().name();
     QTranslator appTranslator;
     if (appTranslator.load(appCatalog, QApplication::applicationDirPath())
-        || appTranslator.load(appCatalog, QStringLiteral("/usr/share/mx-tools/locale"))) {
+        || appTranslator.load(appCatalog, QStringLiteral(MX_TOOLS_LOCALE_DIR))) {
         QApplication::installTranslator(&appTranslator);
     }
 

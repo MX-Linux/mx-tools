@@ -236,6 +236,8 @@ set_target_properties(mx-tools PROPERTIES
 # Install everything here, so that every packager gets the same files from
 # 'cmake --install' (dh_auto_install on Debian).
 include(GNUInstallDirs)
+add_compile_definitions(MX_TOOLS_DOC_DIR="${CMAKE_INSTALL_FULL_DOCDIR}")
+target_compile_definitions(mx-tools PRIVATE MX_TOOLS_LOCALE_DIR="${CMAKE_INSTALL_FULL_DATADIR}/mx-tools/locale")
 # The "MX Tools" submenu; Debian gets it from desktop-defaults-mx-common instead.
 option(MX_TOOLS_INSTALL_MENU "Install the MX Tools menu directory and merge file" OFF)
 

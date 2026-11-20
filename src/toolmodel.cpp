@@ -37,11 +37,11 @@ constexpr auto applicationsPath = "/usr/share/applications";
 // Where releases before the state file wrote their overrides, whatever XDG_DATA_HOME says.
 constexpr auto legacyUserApplicationsPath = "/.local/share/applications";
 constexpr auto manualPath = "/usr/share/mx-docs/mxum_en.pdf";
-constexpr auto licensePath = "/usr/share/doc/mx-tools/license.html";
+constexpr auto licensePath = MX_TOOLS_DOC_DIR "/license.html";
 #ifdef MX_TOOLS_CHANGELOG_PATH
 constexpr auto changelogPath = MX_TOOLS_CHANGELOG_PATH;
 #else
-constexpr auto changelogPath = "/usr/share/doc/mx-tools/changelog.gz";
+constexpr auto changelogPath = MX_TOOLS_DOC_DIR "/changelog.gz";
 #endif
 constexpr auto menuStateFileName = "menu-visibility.ini";
 
