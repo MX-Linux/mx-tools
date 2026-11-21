@@ -4,6 +4,7 @@
  * This file is part of MX Tools and is licensed under GPL-3.0-or-later.
  **********************************************************************/
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QIcon>
 #include <QLibraryInfo>
 #include <QLocale>
@@ -13,6 +14,8 @@
 #include <QUrl>
 #include <QtGlobal>
 
+#include <memory>
+
 #include "toolmodel.h"
 
 #ifndef VERSION
@@ -21,31 +24,29 @@
 
 int main(int argc, char *argv[])
 {
-    if (qEnvironmentVariableIsEmpty("DISPLAY") && qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY")
-        && qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
-        qWarning("mx-tools: no display available (DISPLAY and WAYLAND_DISPLAY are both unset); "
-                "a graphical session is required to run this program.");
-        return EXIT_FAILURE;
+    const QByteArray option = argc == 2 ? QByteArray(argv[1]) : QByteArray();
+    const bool informational = option == "-h" || option == "--help" || option == "--help-all"
+                               || option == "-v" || option == "--version";
+    std::unique_ptr<QCoreApplication> app;
+    if (informational) {
+        app = std::make_unique<QCoreApplication>(argc, argv);
+    } else {
+        if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM") && qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY")) {
+            if (qEnvironmentVariableIsEmpty("DISPLAY")) {
+                qWarning("mx-tools: no display available (DISPLAY and WAYLAND_DISPLAY are both unset); "
+                         "a graphical session is required to run this program.");
+                return EXIT_FAILURE;
+            }
+            qputenv("QT_QPA_PLATFORM", "xcb");
+        }
+        // QApplication initializes the desktop QStyle palette. On MX this lets
+        // qt6gtk2 expose the active GTK theme to QML's SystemPalette.
+        app = std::make_unique<QApplication>(argc, argv);
     }
 
-    if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM") && !qEnvironmentVariableIsEmpty("DISPLAY")
-        && qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY")) {
-        qputenv("QT_QPA_PLATFORM", "xcb");
-    }
-
-    // QApplication initializes the desktop QStyle palette. On MX this lets
-    // qt6gtk2 expose the active GTK theme to QML's SystemPalette.
-    QApplication app(argc, argv);
     QApplication::setOrganizationName(QStringLiteral("MX-Linux"));
     QApplication::setApplicationName(QStringLiteral("mx-tools"));
-    QApplication::setApplicationDisplayName(QStringLiteral("MX Tools"));
     QApplication::setApplicationVersion(QStringLiteral(VERSION));
-    const auto windowIconName = QStringLiteral("mx-tools");
-    if (QIcon::hasThemeIcon(windowIconName)) {
-        QApplication::setWindowIcon(QIcon::fromTheme(windowIconName));
-    } else {
-        QApplication::setWindowIcon(QIcon(QStringLiteral(MX_TOOLS_LOGO_RESOURCE)));
-    }
 
     // qt_ is a meta catalog that already includes qtbase_; the latter is only a fallback
     // for languages that ship no meta catalog.
@@ -64,6 +65,19 @@ int main(int argc, char *argv[])
         QApplication::installTranslator(&appTranslator);
     }
 
+    QCommandLineParser parser;
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.process(*app);
+
+    QApplication::setApplicationDisplayName(QStringLiteral("MX Tools"));
+    const auto windowIconName = QStringLiteral("mx-tools");
+    if (QIcon::hasThemeIcon(windowIconName)) {
+        QApplication::setWindowIcon(QIcon::fromTheme(windowIconName));
+    } else {
+        QApplication::setWindowIcon(QIcon(QStringLiteral(MX_TOOLS_LOGO_RESOURCE)));
+    }
+
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")
         && qgetenv("QT_STYLE_OVERRIDE").toLower() == "gtk2") {
         // QT_STYLE_OVERRIDE=gtk2 is a widget-only style name with no corresponding Qt Quick
@@ -79,7 +93,7 @@ int main(int argc, char *argv[])
     engine.addImageProvider(QStringLiteral("toolicons"), iconProvider);
     engine.setInitialProperties({{QStringLiteral("backend"), QVariant::fromValue(&toolModel)},
                                  {QStringLiteral("version"), QStringLiteral(VERSION)}});
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &app,
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, app.get(),
                      [] { QCoreApplication::exit(EXIT_FAILURE); }, Qt::QueuedConnection);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     engine.loadFromModule(QStringLiteral("MxTools"), QStringLiteral("Main"));

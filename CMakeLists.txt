@@ -256,6 +256,13 @@ if(MX_TOOLS_INSTALL_MENU)
 endif()
 
 if(BUILD_TESTING)
+    foreach(option IN ITEMS -h --help --help-all -v --version)
+        add_test(NAME cli${option} COMMAND ${CMAKE_COMMAND} -E env
+            --unset=DISPLAY --unset=WAYLAND_DISPLAY --unset=QT_QPA_PLATFORM
+            $<TARGET_FILE:mx-tools> ${option})
+        set_tests_properties(cli${option} PROPERTIES TIMEOUT 10)
+    endforeach()
+
     add_executable(test-toolmodel
         tests/test_toolmodel.cpp
         src/toolmodel.cpp
