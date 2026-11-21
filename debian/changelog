@@ -1,3 +1,23 @@
+mx-tools (26.11.1) mx; urgency=medium
+
+  * Keep Whisker Menu favorites for newly installed tools when MX Tools
+    hides them from the system menu
+  * Preserve your launcher edits if MX Tools cannot read a menu entry or
+    needs to retry restoring your favorites
+  * Keep the menu visibility switch in its previous position if another
+    MX Tools window is already changing the menu
+  * Keep the selected category highlighted when the search contains only
+    spaces
+  * Start tools in the folder their launcher specifies so they can find
+    their files
+  * Open terminal tools through the desktop's preferred terminal on systems
+    that use xdg-terminal-exec
+  * Find translations and the license when MX Tools is installed in a
+    custom location
+  * Use condensed view by default when no view preference has been saved
+
+ -- Adrian <adrian@mxlinux.org>  Fri, 20 Nov 2026 14:54:34 -0500
+
 mx-tools (26.11) mx; urgency=medium
 
   * Keep wider scrollbars from overlapping tool cards, including with KDE

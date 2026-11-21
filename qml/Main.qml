@@ -52,7 +52,7 @@ ApplicationWindow {
     readonly property real baseFontSize: Application.font.pixelSize > 0 ? Application.font.pixelSize : 13
     readonly property bool compactNavigation: width < 900
     readonly property bool hasSearchTerms: searchField.text.trim().length > 0
-    property bool condensedView: false
+    property bool condensedView: true
     property bool hideCategories: false
     required property var backend
     required property string version
