@@ -115,6 +115,8 @@ TestCase {
     }
 
     function test_keyboardReachesEveryCard() {
+        // The key sequence below assumes two cards per row.
+        window.condensedView = false
         const grid = find(window.contentItem, item => item.cellWidth !== undefined && item.contentY !== undefined)
         verify(grid)
         // The grid is a single Tab stop that lands on its current card.
