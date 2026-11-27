@@ -1,388 +1,276 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+# Copyright (C) 2017-2026 MX Authors. License: GPL-3.0-or-later
+set -euo pipefail
+unset CDPATH
+shopt -s nullglob
 
-RED='\e[0;31m'
-GREEN='\e[0;32m'
-YELLOW='\e[1;33m'
-BLUE='\e[0;34m'
-NC='\e[0m'
-
-AUR_DIR="aur"
-# The AUR repo's local branch and the remote/branch it is published to
-# (the AUR only accepts pushes to master). Set AUR_PUSH=0 to commit the AUR
-# update without pushing it.
-AUR_REMOTE="${AUR_REMOTE:-aur}"
-AUR_LOCAL_BRANCH="${AUR_LOCAL_BRANCH:-main}"
-AUR_REMOTE_BRANCH="${AUR_REMOTE_BRANCH:-master}"
-AUR_PUSH="${AUR_PUSH:-1}"
-MAIN_BRANCH="master"
-ANNOTATION=""
-
-print_header() {
-    echo -e "${BLUE}========================================${NC}"
-    echo -e "${BLUE}  MX Tools Arch Release Script${NC}"
-    echo -e "${BLUE}========================================${NC}"
-    echo
+die() { echo "release: $*" >&2; exit 1; }
+confirm() { local reply; read -r -p "$1 [y/N] " reply && [[ $reply =~ ^[Yy]([Ee][Ss])?$ ]]; }
+usage() {
+    cat <<'HELP'
+Usage: release [OPTIONS] [VERSION]
+Create or reuse an annotated release tag and publish the corresponding AUR recipe.
+Omit VERSION to reuse the latest version tag. Run inside the project checkout.
+  -n, --no-push       Commit the AUR update locally. The project tag is still pushed.
+  -r, --remote NAME   Git remote for the project tag (detected from the recipe)
+  -a, --aur-dir DIR   Separate AUR checkout (default: aur)
+      --tag-only      Publish just the project tag, including for projects without AUR
+  -h, --help          Show this help
+AUR_PUSH=0 also skips the AUR push. AUR_REMOTE, AUR_LOCAL_BRANCH and
+AUR_REMOTE_BRANCH default to aur, main and master respectively.
+HELP
 }
 
-print_step() {
-    echo -e "${GREEN}> $1${NC}"
+tag=
+remote=${TAG_REMOTE:-}
+aur=${AUR_DIR:-aur}
+push=${AUR_PUSH:-1}
+aur_remote=${AUR_REMOTE:-aur}
+aur_branch=${AUR_LOCAL_BRANCH:-main}
+publish_branch=${AUR_REMOTE_BRANCH:-master}
+tag_only=false
+while (($#)); do
+    case $1 in
+        -h|--help) usage; exit ;;
+        -n|--no-push) push=0 ;;
+        --tag-only) tag_only=true ;;
+        -r|--remote|-a|--aur-dir)
+            [[ -n ${2:-} && $2 != -* ]] || die "$1 requires a value"
+            if [[ $1 == -r || $1 == --remote ]]; then remote=$2; else aur=$2; fi
+            shift ;;
+        --remote=*) remote=${1#*=} ;;
+        --aur-dir=*) aur=${1#*=} ;;
+        --force|--update) echo "$1 is redundant. Existing tags are reused." >&2 ;;
+        -*) die "unknown argument: $1" ;;
+        *) [[ -z $tag ]] || die "only one version may be given"; tag=$1 ;;
+    esac
+    shift
+done
+version_re='^v?[0-9]+\.[0-9]+(\.[0-9]+)?[a-zA-Z0-9]*$'
+[[ -z $tag || $tag =~ $version_re ]] || die "Invalid version format: $tag. Expected formats include 26.01, v1.0.0 and 26.01arch."
+root=$(git rev-parse --show-toplevel) || die "run inside a project checkout"
+cd -- "$root"
+exec 8<"$root"
+flock -x 8
+work=$(mktemp -d)
+trap 'rm -rf -- "$work"' EXIT
+
+# Extract owner/repository from HTTPS, SSH and git+https GitHub URLs.
+github_repo() {
+    local re='github\.com[:/]([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)'
+    [[ $1 =~ $re ]] || return 1
+    local slug=${BASH_REMATCH[1]}; printf '%s\n' "${slug%.git}"
 }
-
-print_warning() {
-    echo -e "${YELLOW}WARNING: $1${NC}"
-}
-
-print_error() {
-    echo -e "${RED}ERROR: $1${NC}"
-}
-
-print_success() {
-    echo -e "${GREEN}OK: $1${NC}"
-}
-
-aur_has_separate_git_repo() {
-    local aur_toplevel
-
-    if ! aur_toplevel=$(git -C "$AUR_DIR" rev-parse --show-toplevel 2>/dev/null); then
-        return 1
+repo=
+if [[ $tag_only == false && -f $aur/PKGBUILD ]]; then
+    info=$(cd "$aur" && makepkg --printsrcinfo)
+    while read -r key _ value; do
+        [[ $key == source ]] || continue
+        if repo=$(github_repo "$value"); then break; fi
+    done <<< "$info"
+    if [[ -z $repo ]]; then repo=$(github_repo "$(awk '$1=="url" {print $3; exit}' <<< "$info")") || die "no GitHub source or URL in $aur/PKGBUILD"; fi
+fi
+mapfile -t remotes < <(git remote)
+if [[ -z $remote ]]; then
+    for candidate in "${remotes[@]}"; do
+        slug=$(github_repo "$(git remote get-url --push "$candidate")") || continue
+        if [[ -n $repo && ${slug,,} == "${repo,,}" ]]; then remote=$candidate; break; fi
+    done
+    if [[ -z $remote && ${#remotes[@]} -eq 1 ]]; then
+        candidate=${remotes[0]}
+        slug=$(github_repo "$(git remote get-url --push "$candidate")") || slug=
+        [[ -z $repo || -z $slug || ${slug,,} == "${repo,,}" ]] || die "no Git remote matches $repo"
+        remote=$candidate
     fi
+    [[ -n $remote ]] || die "choose the project remote with --remote"
+fi
+git remote get-url "$remote" >/dev/null || die "unknown remote: $remote"
+# Query the push destination in case the remote has a distinct fetch URL.
+destination=$(git remote get-url --push "$remote")
+git ls-remote --tags --refs "$destination" > "$work/tags" || die "Could not check tag on $remote"
+git tag -l > "$work/names"
+sed 's|^.*refs/tags/||' "$work/tags" >> "$work/names"
+latest=$(awk '/^v?[0-9]+\.[0-9]+(\.[0-9]+)?[a-zA-Z0-9]*$/ {v=$0; sub(/^v/,"",v); print v, $0}' "$work/names" | LC_ALL=C sort -k1,1V -k2,2 | tail -1 | awk '{print $2}')
+if [[ -z $tag ]]; then
+    [[ -n $latest ]] || die "no version tags found. Specify a version"
+    tag=$latest
+    echo "No version specified; using latest tag '$tag'"
+fi
+branch=$(git branch --show-current)
+if [[ $branch != "${MAIN_BRANCH:-main}" && ( -n ${MAIN_BRANCH:-} || $branch != master ) ]]; then
+    confirm "Currently on '$branch'. Continue?" || exit 0
+fi
 
-    [ "$aur_toplevel" = "$(realpath "$AUR_DIR")" ]
-}
-
-validate_version() {
-    local version=$1
-    local clean_version=${version#v}
-
-    if ! [[ $clean_version =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?[a-z]*$ ]]; then
-        print_error "Invalid version format: $version"
-        echo "Expected formats: 1.0.0, v1.0.0, YY.MM (like 26.01), or YY.MMsuffix (like 26.01arch)"
-        exit 1
+ref=refs/tags/$tag
+pkgver=${tag#v}
+remote_oid=$(awk -v ref="$ref" '$2==ref {print $1}' "$work/tags")
+local_oid=$(git rev-parse -q --verify "$ref" || true)
+if [[ -n $remote_oid && -n $local_oid && $remote_oid != "$local_oid" ]]; then die "local and remote tag '$tag' differ"; fi
+new=false
+if [[ -z $remote_oid && -z $local_oid ]]; then
+    new=true
+    if [[ -n $latest ]]; then
+        last=${latest#v}
+        [[ $pkgver != "$last" && $(printf '%s\n' "$pkgver" "$last" | sort -V | tail -1) == "$pkgver" ]] || die "$tag must be newer than $latest"
     fi
+fi
 
-    echo "$version"
-}
-
-get_latest_tag() {
-    {
-        git tag -l
-        git ls-remote --tags origin 2>/dev/null | awk '{sub("refs/tags/", "", $2); sub(/\^\{\}$/, "", $2); print $2}'
-    } | sort -u | while read -r tag; do
-        local clean_tag=${tag#v}
-        if [[ $clean_tag =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?[a-zA-Z0-9]*$ ]]; then printf '%s
-' "$tag"; fi
-    done | sort -V | tail -n1
-}
-
-get_tag_annotation() {
-    local version=$1
-    git for-each-ref --format='%(contents)' "refs/tags/${version}" 2>/dev/null || true
-}
-
-compare_versions() {
-    local new_version=$1
-    local old_version=$2
-
-    new_version=${new_version#v}
-    old_version=${old_version#v}
-
-    if [ "$new_version" = "$(echo -e "$new_version\n$old_version" | sort -V | tail -n1)" ] && [ "$new_version" != "$old_version" ]; then
-        return 0
+if [[ $tag_only == false ]]; then
+    [[ -f $aur/PKGBUILD && -n $repo ]] || die "missing AUR checkout at $aur. Use --tag-only for a tag release"
+    aur=$(realpath -- "$aur")
+    [[ $(git -C "$aur" rev-parse --show-toplevel) == "$aur" && $aur != "$root" ]] || die "$aur must be a separate checkout"
+    [[ $(git -C "$aur" branch --show-current) == "$aur_branch" ]] || die "expected $aur_branch in $aur"
+    if [[ $push != 0 ]]; then
+        git -C "$aur" fetch --quiet "$aur_remote" "$publish_branch"
+        git -C "$aur" merge-base --is-ancestor FETCH_HEAD HEAD || die "AUR checkout is behind or diverged"
     fi
+    stage=$work/recipe
+    mkdir "$stage"
+    old_version=$(awk '$1=="pkgver" {print $3; exit}' <<< "$info")
+    [[ $(printf '%s\n' "$old_version" "$pkgver" | sort -V | tail -1) == "$pkgver" ]] || die "AUR is already at newer version $old_version"
+    # Prepare the entire update outside the AUR checkout. Only recipe paths go into the commit.
+    git -C "$aur" archive HEAD | tar -x -C "$stage"
+    files=(PKGBUILD .SRCINFO)
+    if [[ -f arch/PKGBUILD ]]; then
+        if ! grep -Fxq "pkgver=$pkgver" arch/PKGBUILD || ! git diff --quiet HEAD -- arch ||
+            ! git for-each-ref --contains=HEAD --format='%(refname)' "refs/remotes/$remote" | grep . >/dev/null; then
+            if [[ $new == true ]]; then die "set arch/PKGBUILD to $pkgver, commit and push arch/ to $remote before tagging"; fi
+            echo "Warning: check the OBS recipe and branch for $tag" >&2
+        fi
+        if [[ $new == true ]] && git ls-files -- 'debs/*.tar.xz' | grep . >/dev/null; then
+            obs_info=$(cd arch && makepkg --printsrcinfo)
+            obs_archive=$(awk '$1=="source" && $3 ~ /\.tar\.xz$/ {print $3; exit}' <<< "$obs_info")
+            if [[ -n $obs_archive ]]; then
+                git cat-file -e "HEAD:debs/$obs_archive" || die "missing committed OBS source archive debs/$obs_archive"
+            fi
+        fi
+        # For a retry, use the recipe that belongs to the release, even after the branch advances.
+        archive_ref=HEAD
+        if [[ -n $remote_oid && -z $local_oid ]]; then git fetch --no-tags "$destination" "$ref:$ref"; local_oid=$remote_oid; fi
+        [[ -z $local_oid ]] || archive_ref=$ref
+        if git cat-file -e "$archive_ref:arch/PKGBUILD" 2>/dev/null; then
+            git archive "$archive_ref" arch | tar -x -C "$work"
+            for file in "$work"/arch/*; do
+                [[ -f $file ]] || continue
+                name=${file##*/}
+                cp -- "$file" "$stage/$name"
+                [[ $name == PKGBUILD ]] || files+=("$name")
+            done
+        fi
+    fi
+    git -C "$aur" diff --quiet HEAD -- "${files[@]}" || die "AUR recipe files have uncommitted changes"
+    for name in "${files[@]}"; do
+        if [[ -e $aur/$name ]] && ! git -C "$aur" ls-files --error-unmatch -- "$name" >/dev/null 2>&1; then die "untracked AUR file would be overwritten: $name"; fi
+    done
+fi
 
-    return 1
-}
+if [[ $new == true ]]; then
+    if ! git for-each-ref --contains=HEAD --format='%(refname)' "refs/remotes/$remote" | grep . >/dev/null; then
+        confirm "HEAD is on no known $remote branch. Continue?" || exit 0
+    fi
+    if [[ -n ${EDITOR:-} ]]; then
+        printf '## Release %s\n\n- Describe the changes\n' "$tag" > "$work/template"
+        cp "$work/template" "$work/notes"
+        read -ra editor <<< "$EDITOR"
+        "${editor[@]}" "$work/notes"
+        cmp -s "$work/template" "$work/notes" && die "edit the release annotation before tagging"
+    else
+        read -r -p 'Release annotation: ' annotation
+        printf '%s\n' "$annotation" > "$work/notes"
+    fi
+    grep -q '[^[:space:]]' "$work/notes" || die "empty release annotation"
+    cat "$work/notes"
+    confirm "Create tag $tag and push it to $remote?" || exit 0
+    git tag -a "$tag" -F "$work/notes"
+elif [[ -z $local_oid ]]; then
+    git fetch --no-tags "$destination" "$ref:$ref"
+fi
+if [[ -z $remote_oid ]]; then git push "$remote" "$ref:$ref"; fi
+[[ $tag_only == false ]] || exit 0
+annotation=$(git for-each-ref --format='%(contents)' "$ref")
+annotation=${annotation:-Update to $tag}
+url=https://github.com/$repo/archive/refs/tags/$tag.tar.gz
+curl -fLsS --retry 4 --retry-all-errors --retry-delay 5 -o "$work/archive" "$url"
+[[ -s $work/archive ]] || die "empty tag archive"
+if git cat-file -e "$ref:CMakeLists.txt" 2>/dev/null; then
+    tar -tzf "$work/archive" -- "${repo##*/}-$pkgver/CMakeLists.txt" >/dev/null || die "tag archive has an unexpected source directory"
+fi
+checksum=$(sha256sum "$work/archive"); checksum=${checksum%% *}
 
-prompt_annotation() {
-    local version=$1
-    local annotation=""
-    local tmpfile
-
-    echo
-    print_step "Enter release annotation/notes"
-
-    tmpfile=$(mktemp) || {
-        print_error "Failed to create temp file"
-        exit 1
+# Rewrite only the project's archive in source=, retaining local hooks and other sources.
+base_info=$(cd "$stage" && makepkg --printsrcinfo)
+URL=$url REPO=$repo VERSION=$pkgver OLD_VERSION=$old_version perl -0777 -i -pe '
+    s/^pkgver=.*$/pkgver=$ENV{VERSION}/m or s/^(pkgname=.*\n)/${1}pkgver=$ENV{VERSION}\n/m;
+    s/^pkgrel=.*$/pkgrel=1/m if $ENV{OLD_VERSION} ne $ENV{VERSION};
+    s/^pkgver\(\)\s*\{.*?^\}\n//ms;
+    s{^(source=\()(.*?)(\))}{
+        my ($open,$sources,$close)=($1,$2,$3);
+        $sources =~ s{(["\x27]?)(?:[^\s"\x27()]*::)?(?:git\+)?https://github\.com/\Q$ENV{REPO}\E(?:\.git)?(?:/archive/[^\s"\x27()]*)?(?:#[^\s"\x27()]*)?\1}{"$ENV{URL}"}i
+            or $sources =~ s{(["\x27]?)[^\s"\x27()/:]+(?:_\$\{?pkgver\}?\.tar\.xz|-source\.tar)\1}{"$ENV{URL}"};
+        "$open$sources$close"
+    }mse;
+    my ($name)=$ENV{REPO}=~m{/([^/]+)$};
+    s/^_srcdir=.*$/_srcdir="$name-$ENV{VERSION}"/m;
+    if (!/^source=\([^)]*git\+/m) {
+        s{^(makedepends=\()(.*?)(\))}{
+            my ($open,$deps,$close)=($1,$2,$3);
+            $deps =~ s{(?<!\S)(["\x27]?)git\1(?=\s|$)}{}g;
+            "$open$deps$close"
+        }mse;
     }
-
-    cat > "$tmpfile" <<EOF
-## Release $version
-
-- Feature 1
-- Bug fix 2
-- Other changes
-EOF
-
-    if [ -n "${EDITOR:-}" ]; then
-        "${EDITOR}" "$tmpfile"
-    else
-        echo "No EDITOR set. Enter a single-line annotation and press Enter:"
-        echo "(Multi-line notes require setting EDITOR.)"
-        read -r annotation
-        if [ -n "$annotation" ]; then
-            printf "%s\n" "$annotation" > "$tmpfile"
-        fi
+' "$stage/PKGBUILD"
+metadata=$(cd "$stage" && makepkg --printsrcinfo)
+mapfile -t sources < <(awk '$1=="source" {print $3}' <<< "$metadata")
+mapfile -t sums < <(awk '$1=="sha256sums" {print $3}' <<< "$base_info")
+[[ ${#sources[@]} == "${#sums[@]}" ]] || die "expected one SHA256 checksum per source"
+found=false
+for i in "${!sources[@]}"; do
+    location=${sources[i]#*::}
+    if [[ $location == "$url" ]]; then
+        sums[i]=$checksum; found=true
+    elif [[ $location != *://* ]]; then
+        hash=$(sha256sum "$stage/$location"); sums[i]=${hash%% *}
     fi
+done
+[[ $found == true ]] || die "could not identify the project archive in PKGBUILD"
+SUMS="${sums[*]}" perl -0777 -i -pe 's{^sha256sums=\(.*?\)}{"sha256sums=(" . join(" ",map { "\x27$_\x27" } split / /,$ENV{SUMS}) . ")"}mse' "$stage/PKGBUILD"
+(cd "$stage" && makepkg --printsrcinfo) > "$stage/.SRCINFO"
+awk -v v="$pkgver" -v c="$checksum" '$1=="pkgver" && $3==v {version=1} $1=="sha256sums" && $3==c {sum=1} END {exit !(version && sum)}' "$stage/.SRCINFO" || die "inconsistent generated .SRCINFO"
 
-    annotation=$(sed '/^[[:space:]]*$/d' "$tmpfile")
-    rm -f "$tmpfile"
-
-    if [ -z "$annotation" ]; then
-        print_error "Annotation cannot be empty"
-        exit 1
-    fi
-
-    ANNOTATION="$annotation"
-}
-
-create_tag() {
-    local version=$1
-    local annotation=$2
-
-    print_step "Creating annotated tag '$version'..."
-    git tag -a "$version" -m "$annotation"
-    print_success "Tag '$version' created successfully"
-    echo
-    git show "$version" --stat
-}
-
-update_aur_package() {
-    local version=$1
-    local annotation=$2
-    local tarball_url="https://github.com/MX-Linux/mx-tools/archive/refs/tags/${version}.tar.gz"
-    local checksum=""
-    local retries=5
-
-    print_step "Updating AUR package..."
-
-    if [ ! -d "$AUR_DIR" ]; then
-        print_error "AUR directory '$AUR_DIR' not found"
-        exit 1
-    fi
-
-    local pkgbuild="$AUR_DIR/PKGBUILD"
-    local srcinfo="$AUR_DIR/.SRCINFO"
-
-    if [ ! -f "$pkgbuild" ]; then
-        print_error "PKGBUILD not found in $AUR_DIR"
-        exit 1
-    fi
-
-    print_step "Updating PKGBUILD pkgver to $version..."
-    sed -i "s/^pkgver=.*/pkgver=${version}/" "$pkgbuild"
-    sed -i "s|^source=.*|source=(\"${tarball_url}\")|" "$pkgbuild"
-
-    print_step "Downloading release tarball and calculating checksum..."
-    for i in $(seq 1 $retries); do
-        print_step "Attempting to download tarball (attempt $i/$retries)..."
-        if checksum=$(set -o pipefail; curl -fsSL "$tarball_url" | sha256sum); then
-            checksum=${checksum%% *}
-            print_success "Checksum calculated: ${checksum:0:16}..."
-            break
-        fi
-        checksum=""
-
-        if [ "$i" -lt "$retries" ]; then
-            print_warning "Failed to download tarball, waiting 5 seconds before retry..."
-            sleep 5
-        fi
-    done
-
-    if [ -z "$checksum" ]; then
-        print_error "Failed to download tarball after $retries attempts"
-        print_warning "Nothing was committed; $AUR_DIR/PKGBUILD has uncommitted edits. Re-run once the tag tarball is reachable."
-        exit 1
-    fi
-
-    sed -i "s/^sha256sums=.*/sha256sums=('${checksum}')/" "$pkgbuild"
-
-    print_step "Regenerating .SRCINFO..."
-    (cd "$AUR_DIR" && makepkg --printsrcinfo) > "$srcinfo"
-    # Sanity-check what is about to be committed (and pushed)
-    if ! awk -v v="${version}" '$1 == "pkgver" && $3 == v { f = 1 } END { exit !f }' "$srcinfo"; then
-        print_error ".SRCINFO does not report pkgver = ${version}"
-        exit 1
-    fi
-    if ! awk -v c="$checksum" '$1 == "sha256sums" && $3 == c { f = 1 } END { exit !f }' "$srcinfo"; then
-        print_error ".SRCINFO does not carry the downloaded tarball checksum"
-        exit 1
-    fi
-
-    print_step "Checking for AUR package changes..."
-    if git -C "$AUR_DIR" diff --quiet HEAD -- PKGBUILD .SRCINFO; then
-        print_warning "No changes in AUR package - skipping commit"
-    else
-        if aur_has_separate_git_repo; then
-            print_step "Committing AUR package changes..."
-            git -C "$AUR_DIR" add PKGBUILD .SRCINFO
-            git -C "$AUR_DIR" commit -m "$annotation" -- PKGBUILD .SRCINFO
-            print_success "AUR package updated and committed"
-            echo
-            git -C "$AUR_DIR" show --stat HEAD
+# Roll back only the release paths if installing or committing the prepared files fails.
+install_recipe() (
+    local previous name
+    local existing=() added=()
+    previous=$(git -C "$aur" rev-parse HEAD)
+    git -C "$aur" diff --quiet HEAD -- "${files[@]}" || die "AUR recipe changed during the release"
+    for name in "${files[@]}"; do
+        if git -C "$aur" ls-files --error-unmatch -- "$name" >/dev/null 2>&1; then
+            existing+=("$name")
         else
-            print_warning "aur/ is not a separate git checkout; updated PKGBUILD and .SRCINFO only"
+            [[ ! -e $aur/$name && ! -L $aur/$name ]] || die "AUR file appeared during the release: $name"
+            added+=("$name")
         fi
-    fi
-
-}
-
-# Push the AUR repo if it has commits the AUR doesn't
-push_aur_package() {
-    print_step "Pushing AUR package..."
-
-    local aur_toplevel
-    aur_toplevel=$(git -C "$AUR_DIR" rev-parse --show-toplevel 2>/dev/null) || aur_toplevel=""
-    if [ "$aur_toplevel" != "$(realpath "$AUR_DIR")" ]; then
-        print_error "$AUR_DIR is not a separate git checkout"
-        return 1
-    fi
-
-    if ! git -C "$AUR_DIR" diff --quiet HEAD -- PKGBUILD .SRCINFO; then
-        print_error "$AUR_DIR has uncommitted PKGBUILD/.SRCINFO changes; commit them first"
-        return 1
-    fi
-
-    local current_branch
-    current_branch=$(git -C "$AUR_DIR" branch --show-current)
-    if [ "$current_branch" != "$AUR_LOCAL_BRANCH" ]; then
-        print_error "$AUR_DIR is on branch '$current_branch', expected '$AUR_LOCAL_BRANCH'"
-        return 1
-    fi
-
-    if ! git -C "$AUR_DIR" fetch --quiet "$AUR_REMOTE" "$AUR_REMOTE_BRANCH"; then
-        print_error "Could not fetch $AUR_REMOTE/$AUR_REMOTE_BRANCH"
-        return 1
-    fi
-    local ahead
-    ahead=$(git -C "$AUR_DIR" rev-list --count "$AUR_REMOTE/$AUR_REMOTE_BRANCH..$AUR_LOCAL_BRANCH")
-    if [ "$ahead" -eq 0 ]; then
-        print_success "AUR already up to date; nothing to push"
-        return 0
-    fi
-
-    if ! git -C "$AUR_DIR" push "$AUR_REMOTE" "$AUR_LOCAL_BRANCH:$AUR_REMOTE_BRANCH"; then
-        print_error "Pushing to $AUR_REMOTE failed"
-        return 1
-    fi
-    print_success "Pushed $ahead commit(s) to $AUR_REMOTE/$AUR_REMOTE_BRANCH"
-}
-
-# Push to the AUR, or print the manual steps when pushing is disabled or fails
-publish_aur_package() {
-    if [ "$AUR_PUSH" = 1 ] && push_aur_package; then
-        return 0
-    fi
-    show_push_instructions "$@"
-    # A failed push is an error; a disabled one is not
-    [ "$AUR_PUSH" != 1 ]
-}
-
-show_push_instructions() {
-    local tag_status=${1:-created}
-    echo
-    echo -e "${BLUE}========================================${NC}"
-    echo -e "${BLUE}  MANUAL PUSH REQUIRED${NC}"
-    echo -e "${BLUE}========================================${NC}"
-    echo
-    if [ -d "${AUR_DIR}/.git" ] || [ -f "${AUR_DIR}/.git" ]; then
-        print_warning "Please run this command manually from the AUR checkout:"
-        echo
-        echo -e "${YELLOW}git -C $AUR_DIR push $AUR_REMOTE $AUR_LOCAL_BRANCH:$AUR_REMOTE_BRANCH${NC}"
-        return
-    fi
-
-    if [ "$tag_status" = "existing" ]; then
-        print_step "The existing tag was reused; no tag was created."
-    else
-        print_step "The tag has been created and pushed automatically."
-    fi
-
-    print_warning "aur/ is packaged in this repo, not a separate AUR checkout."
-    echo
-    print_step "Copy or sync these files into your AUR repo before publishing:"
-    echo -e "${YELLOW}aur/PKGBUILD${NC}"
-    echo -e "${YELLOW}aur/.SRCINFO${NC}"
-}
-
-main() {
-    local version=""
-    local tag_status="created"
-
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --update|--force)
-                print_warning "$1 is no longer needed; existing tags are handled automatically" ;;
-            --*)
-                print_error "Unknown option: $1"; exit 1 ;;
-            *)
-                if [ -n "$version" ]; then print_error "Only one version may be specified"; exit 1; fi
-                version=$1 ;;
-        esac
-        shift
     done
-
-    print_header
-    if ! git rev-parse --git-dir > /dev/null 2>&1; then print_error "Not in a git repository"; exit 1; fi
-    if [ -z "$version" ]; then
-        version=$(get_latest_tag)
-        if [ -z "$version" ]; then print_error "No version tag found; specify a version explicitly"; exit 1; fi
-        print_step "No version specified; using latest tag '$version'"
-    fi
-    print_step "Validating version format..."
-    version=$(validate_version "$version")
-    print_success "Version format valid: $version"
-
-    local current_branch
-    current_branch=$(git branch --show-current)
-    if [ "$current_branch" != "$MAIN_BRANCH" ]; then
-        print_warning "Not on $MAIN_BRANCH branch (currently on: $current_branch)"
-        echo "Continue anyway? (y/N)"; read -r response
-        if [[ ! "$response" =~ ^[Yy]$ ]]; then print_step "Aborted by user"; exit 0; fi
-    fi
-
-    print_step "Checking if tag '$version' already exists..."
-    local tag_ref="refs/tags/$version"
-    local remote_tag local_tag
-    remote_tag=$(git ls-remote --refs origin "$tag_ref")
-    local_tag=$(git rev-parse --verify --quiet "$tag_ref") || local_tag=""
-    if [[ -n "$remote_tag" && -n "$local_tag" && "${remote_tag%%[[:space:]]*}" != "$local_tag" ]]; then
-        print_error "Local tag '$version' differs from the tag on origin"
-        exit 1
-    fi
-    if [[ -n "$local_tag" || -n "$remote_tag" ]]; then
-        print_warning "Tag '$version' already exists; no new tag will be created"
-        tag_status="existing"
-        ANNOTATION=$(get_tag_annotation "$version")
-        if [ -z "$ANNOTATION" ]; then ANNOTATION="Update AUR package to $version"; fi
-    else
-        print_success "Tag '$version' is available"
-        print_step "Checking version progression..."
-        local latest_tag
-        latest_tag=$(get_latest_tag)
-        if [ -n "$latest_tag" ] && ! compare_versions "${version#v}" "$latest_tag"; then
-            print_error "Version ${version#v} is not higher than latest tag ${latest_tag#v}"; exit 1
+    # Invoked by the EXIT trap.
+    # shellcheck disable=SC2317
+    restore_recipe() {
+        if [[ $(git -C "$aur" rev-parse HEAD) == "$previous" ]]; then
+            if (( ${#existing[@]} )); then git -C "$aur" restore --source="$previous" --staged --worktree -- "${existing[@]}"; fi
+            if (( ${#added[@]} )); then git -C "$aur" rm -fq --ignore-unmatch -- "${added[@]}"; fi
+            for name in "${added[@]}"; do rm -f -- "$aur/$name"; done
         fi
-        if [ -n "$latest_tag" ]; then print_success "Version $version > ${latest_tag#v}"; fi
-        prompt_annotation "$version"
+    }
+    trap restore_recipe EXIT
+    for name in "${files[@]}"; do cp -- "$stage/$name" "$aur/$name"; done
+    git -C "$aur" add -- "${files[@]}"
+    if ! git -C "$aur" diff --cached --quiet -- "${files[@]}"; then
+        git -C "$aur" commit --only -m "$annotation" -- "${files[@]}"
     fi
-    local annotation="$ANNOTATION"
-
-    if [ "$tag_status" = "created" ]; then
-        echo; print_warning "About to create tag '$version' with annotation:"; echo "$annotation"; echo
-        echo "Continue? (y/N)"; read -r response
-        if [[ ! "$response" =~ ^[Yy]$ ]]; then print_step "Aborted by user"; exit 0; fi
-        create_tag "$version" "$annotation"
-    fi
-    if [ -z "$remote_tag" ]; then
-        print_step "Pushing tag to GitHub..."
-        git push origin "$tag_ref:$tag_ref"
-        print_success "Tag pushed to GitHub"
-    fi
-    update_aur_package "$version" "$annotation"
-    publish_aur_package "$tag_status"
-    echo; print_success "Release preparation complete!"
-}
-
-main "$@"
+    trap - EXIT
+)
+install_recipe
+if [[ $push == 0 ]]; then
+    printf 'To publish: git -C %q push %q %q\n' "$aur" "$aur_remote" "$aur_branch:$publish_branch"
+else
+    git -C "$aur" push "$aur_remote" "$aur_branch:$publish_branch"
+fi

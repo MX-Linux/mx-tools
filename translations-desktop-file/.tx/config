@@ -3,6 +3,6 @@ host = https://www.transifex.com
 
 [o:anticapitalista:p:antix-development:r:mx-tools-desktop]
 file_filter = po/mx-tools-desktop_<lang>.po
-source_file = mx-tools-desktop.pot
+source_file = pot/mx-tools-desktop.pot
 source_lang = en
 type = po
