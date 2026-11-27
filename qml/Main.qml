@@ -223,7 +223,6 @@ ApplicationWindow {
             }
 
             SecondaryButton {
-                visible: root.width >= 820
                 text: qsTr("Manual")
                 onClicked: root.backend.openManual()
             }
