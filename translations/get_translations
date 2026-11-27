@@ -42,7 +42,7 @@ fi
 
 # Get all translations
 if command -v tx >/dev/null; then
-   echodo tx pull -r "antix-development.$APPNAME" --all
+   echodo tx pull -r "antix-development.$APPNAME" --all || exit $?
 fi
 
 # en_US duplicates the English source catalog and should not be shipped.
