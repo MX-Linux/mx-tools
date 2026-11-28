@@ -10,6 +10,7 @@
 #include <QLocale>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
+#include <QQuickWindow>
 #include <QTranslator>
 #include <QUrl>
 #include <QtGlobal>
@@ -69,6 +70,14 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
     parser.process(*app);
+
+    // The dashboard uses only 2D controls. On X11 it can draw without a working
+    // GLX or EGL configuration. Keep the renderer choice local to this launcher.
+    if (QApplication::platformName() == QLatin1String("xcb")
+        && qEnvironmentVariableIsEmpty("QT_QUICK_BACKEND") && qEnvironmentVariableIsEmpty("QMLSCENE_DEVICE")
+        && qEnvironmentVariableIsEmpty("QSG_RHI_BACKEND")) {
+        QQuickWindow::setGraphicsApi(QSGRendererInterface::Software);
+    }
 
     QApplication::setApplicationDisplayName(QStringLiteral("MX Tools"));
     const auto windowIconName = QStringLiteral("mx-tools");

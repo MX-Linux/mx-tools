@@ -18,6 +18,20 @@ Print help including Qt-specific options and exit.
 .TP
 .BR \-v ", " \-\-version
 Print the application version and exit.
+.SH RENDERING
+On X11, MX Tools uses Qt Quick's software renderer by default so the dashboard
+can open even when OpenGL initialization fails. Tools launched from MX Tools
+are not affected. To request OpenGL, run
+.PP
+.EX
+QSG_RHI_BACKEND=opengl mx-tools
+.EE
+.PP
+To request software rendering explicitly on any platform, run
+.PP
+.EX
+QT_QUICK_BACKEND=software mx-tools
+.EE
 .SH FILES
 .TP
 .I /usr/share/doc/mx-tools
