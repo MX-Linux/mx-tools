@@ -1,3 +1,12 @@
+mx-tools (26.11.2) mx; urgency=medium
+
+  * Open MX Tools on X11 even when the graphics driver cannot start OpenGL
+  * Keep the Manual button visible in narrow windows
+  * Show command-line help and version information without a graphical
+    session
+
+ -- Adrian <adrian@mxlinux.org>  Sat, 28 Nov 2026 12:39:15 -0500
+
 mx-tools (26.11.1) mx; urgency=medium
 
   * Keep Whisker Menu favorites for newly installed tools when MX Tools
